@@ -1,0 +1,99 @@
+{
+  "version": "2.0",
+  "project": {
+    "name": "WebApp1_FeatureRepo",
+    "type": "feature-docs",
+    "description": "Consolidated feature documentation for WebApp1"
+  },
+  "templates": {
+    "repository": "https://github.com/YourUsername/core-akr-templates.git",
+    "branch": "main",
+    "local_path": "~/.akr/templates"
+  },
+  "documentation": {
+    "output_path": "docs/",
+    "default_template": "service-comprehensive"
+  },
+  "component_mappings": [
+    {
+      "source_pattern": "features/**/*.md",
+      "doc_path": "docs/features/",
+      "template": "service-comprehensive"
+    },
+    {
+      "source_pattern": "business-rules/**/*.md",
+      "doc_path": "docs/business-rules/",
+      "template": "service-standard"
+    },
+    {
+      "source_pattern": "architecture/**/*.md",
+      "doc_path": "docs/architecture/",
+      "template": "service-comprehensive"
+    }
+  ],
+  "cross_repository": {
+    "enabled": true,
+    "related_repos": [
+      {
+        "name": "WebApp1_UI",
+        "path": "../WebApp1_UI",
+        "documentation_path": "docs/"
+      },
+      {
+        "name": "WebApp1_API",
+        "path": "../WebApp1_API",
+        "documentation_path": "docs/"
+      },
+      {
+        "name": "WebApp1_Database",
+        "path": "../WebApp1_Database",
+        "documentation_path": "docs/"
+      }
+    ],
+    "aggregation": {
+      "enabled": true,
+      "index_tags": true,
+      "build_relationships": true
+    }
+  },
+  "team": {
+    "name": "Product Team",
+    "roles": {
+      "tech-lead": ["frank@emerson.com", "alice@emerson.com"],
+      "developer": ["bob@emerson.com", "grace@emerson.com"],
+      "product-owner": ["dana@emerson.com"],
+      "qa": ["eve@emerson.com"],
+      "architect": ["jack@emerson.com"]
+    }
+  },
+  "tags": {
+    "enabled": true,
+    "categories": [
+      "feature",
+      "component-type",
+      "technology",
+      "business-domain",
+      "priority",
+      "status"
+    ],
+    "auto_generate": true,
+    "registry": {
+      "enabled": true,
+      "centralized": true,
+      "sync_interval_minutes": 60
+    }
+  },
+  "validation": {
+    "required_sections": true,
+    "transparency_markers": true,
+    "completeness_threshold": 85,
+    "vale_linting": true,
+    "cross_repo_validation": true
+  },
+  "inheritance": {
+    "enabled": true,
+    "base_templates_path": ".akr/templates/",
+    "team_templates_path": ".akr/templates/team/",
+    "merge_strategy": "extend"
+  }
+}

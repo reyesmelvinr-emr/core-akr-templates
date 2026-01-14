@@ -1,0 +1,77 @@
+{
+  "version": "2.0",
+  "project": {
+    "name": "WebApp1_API",
+    "type": "backend",
+    "description": ".NET Core API for WebApp1"
+  },
+  "templates": {
+    "repository": "https://github.com/YourUsername/core-akr-templates.git",
+    "branch": "main",
+    "local_path": "~/.akr/templates"
+  },
+  "documentation": {
+    "output_path": "docs/",
+    "default_template": "service-standard"
+  },
+  "component_mappings": [
+    {
+      "source_pattern": "src/Controllers/**/*.cs",
+      "doc_path": "docs/api/",
+      "template": "service-standard",
+      "team_template_extension": "team/api-controller-webapp1.md"
+    },
+    {
+      "source_pattern": "src/Services/**/*.cs",
+      "doc_path": "docs/services/",
+      "template": "service-standard"
+    },
+    {
+      "source_pattern": "src/Repositories/**/*.cs",
+      "doc_path": "docs/data-access/",
+      "template": "service-standard"
+    },
+    {
+      "source_pattern": "src/Models/**/*.cs",
+      "doc_path": "docs/models/",
+      "template": "service-minimal"
+    },
+    {
+      "source_pattern": "src/Utilities/**/*.cs",
+      "doc_path": "docs/utilities/",
+      "template": "service-lean"
+    }
+  ],
+  "team": {
+    "name": "Backend Team",
+    "roles": {
+      "tech-lead": ["frank@emerson.com"],
+      "developer": ["grace@emerson.com", "henry@emerson.com", "iris@emerson.com"],
+      "product-owner": ["dana@emerson.com"],
+      "qa": ["eve@emerson.com"]
+    }
+  },
+  "tags": {
+    "enabled": true,
+    "categories": [
+      "feature",
+      "component-type",
+      "technology",
+      "business-domain",
+      "api-version"
+    ],
+    "auto_generate": true
+  },
+  "validation": {
+    "required_sections": true,
+    "transparency_markers": true,
+    "completeness_threshold": 75,
+    "vale_linting": true
+  },
+  "inheritance": {
+    "enabled": true,
+    "base_templates_path": ".akr/templates/",
+    "team_templates_path": ".akr/templates/team/",
+    "merge_strategy": "extend"
+  }
+}
