@@ -6,8 +6,8 @@
     "description": "React/TypeScript UI application for WebApp1"
   },
   "templates": {
-    "repository": "https://github.com/YourUsername/core-akr-templates.git",
-    "branch": "main",
+    "repository": "https://github.com/reyesmelvinr-emr/core-akr-templates.git",
+    "branch": "master",
     "local_path": "~/.akr/templates"
   },
   "documentation": {
