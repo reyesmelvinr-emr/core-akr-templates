@@ -1,0 +1,70 @@
+{
+  "version": "2.0",
+  "repository": {
+    "name": "LegacyApp1_Monorepo",
+    "type": "monorepo",
+    "language": "multi",
+    "packages": [
+      "ui",
+      "api",
+      "database",
+      "shared"
+    ]
+  },
+  "templates": {
+    "organizationRepo": "https://github.com/reyesmelvinr-emr/core-akr-templates.git",
+    "organizationBranch": "main",
+    "organizationPath": ".akr/templates/",
+    "packageTemplates": {
+      "ui": ["ui_component_template", "minimal_service_template"],
+      "api": ["service-comprehensive", "service-standard"],
+      "database": ["table-doc", "embedded-database"],
+      "shared": ["minimal-service"]
+    }
+  },
+  "documentation": {
+    "outputPath": "docs/",
+    "pathMappings": {
+      "packages/ui/src/components/**/*.tsx": "docs/components/{name}.md",
+      "packages/ui/src/components/**/*.ts": "docs/components/{name}.md",
+      "packages/ui/src/services/**/*.ts": "docs/ui-services/{name}.md",
+      "packages/api/src/controllers/**/*.cs": "docs/api/{name}.md",
+      "packages/api/src/services/**/*.cs": "docs/services/{name}.md",
+      "packages/api/src/models/**/*.cs": "docs/models/{name}.md",
+      "packages/database/src/tables/**/*.sql": "docs/database/tables/{name}.md",
+      "packages/database/src/procedures/**/*.sql": "docs/database/procedures/{name}.md",
+      "packages/shared/src/**/*.ts": "docs/shared/{name}.md"
+    }
+  },
+  "featureRepository": {
+    "enabled": true,
+    "url": "https://github.com/your-org/Enterprise_Features.git",
+    "branch": "main",
+    "syncOnCommit": false
+  },
+  "team": {
+    "roles": {
+      "tech-lead": ["alice@example.com"],
+      "ui-developer": ["bob@example.com"],
+      "api-developer": ["carol@example.com"],
+      "db-developer": ["dave@example.com"],
+      "product-owner": ["eve@example.com"],
+      "qa": ["frank@example.com"]
+    }
+  },
+  "validation": {
+    "enforceOrganizationMandatory": true,
+    "completenessThreshold": 85,
+    "packageSpecificRules": {
+      "ui": {
+        "requiredSections": ["Accessibility", "Performance"]
+      },
+      "api": {
+        "requiredSections": ["Security", "Monitoring"]
+      },
+      "database": {
+        "requiredSections": ["Indexes", "Data Lifecycle"]
+      }
+    }
+  }
+}

@@ -1,0 +1,277 @@
+name: Distribute Tag Registry
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.akr/tags/tag-registry.json'
+      - '.akr/schemas/tag-registry-schema.json'
+  workflow_dispatch:
+    inputs:
+      target_repos:
+        description: 'Comma-separated list of repos to update (or "all")'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate-registry:
+    name: Validate Tag Registry
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout template repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install jsonschema pyyaml
+      
+      - name: Validate registry against schema
+        run: |
+          python - <<EOF
+          import json
+          import jsonschema
+          
+          # Load schema
+          with open('.akr/schemas/tag-registry-schema.json', 'r') as f:
+              schema = json.load(f)
+          
+          # Load registry
+          with open('.akr/tags/tag-registry.json', 'r') as f:
+              registry = json.load(f)
+          
+          # Validate
+          try:
+              jsonschema.validate(instance=registry, schema=schema)
+              print("✅ Tag registry is valid!")
+          except jsonschema.exceptions.ValidationError as e:
+              print(f"❌ Tag registry validation failed:")
+              print(f"   {e.message}")
+              exit(1)
+          EOF
+      
+      - name: Check for duplicate feature names
+        run: |
+          python - <<EOF
+          import json
+          
+          with open('.akr/tags/tag-registry.json', 'r') as f:
+              registry = json.load(f)
+          
+          features = registry['registry']['features']
+          all_names = set()
+          
+          for feature_name, feature_data in features.items():
+              # Check feature name
+              if feature_name.lower() in all_names:
+                  print(f"❌ Duplicate feature name: {feature_name}")
+                  exit(1)
+              all_names.add(feature_name.lower())
+              
+              # Check synonyms
+              for synonym in feature_data.get('synonyms', []):
+                  if synonym.lower() in all_names:
+                      print(f"❌ Duplicate synonym: {synonym} (conflicts with {feature_name})")
+                      exit(1)
+                  all_names.add(synonym.lower())
+          
+          print(f"✅ No duplicate names found ({len(all_names)} unique names)")
+          EOF
+      
+      - name: Generate distribution metadata
+        id: metadata
+        run: |
+          # Extract version and date
+          VERSION=$(jq -r '.version' .akr/tags/tag-registry.json)
+          DATE=$(jq -r '.lastUpdated' .akr/tags/tag-registry.json)
+          FEATURE_COUNT=$(jq '.registry.features | length' .akr/tags/tag-registry.json)
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+          echo "feature_count=$FEATURE_COUNT" >> $GITHUB_OUTPUT
+          
+          echo "📋 Tag Registry v$VERSION ($DATE)"
+          echo "   Features: $FEATURE_COUNT"
+
+  distribute-to-repos:
+    name: Distribute to Application Repositories
+    needs: validate-registry
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        # Define target repositories here
+        # In production, this would be loaded from a config file
+        repo:
+          - name: 'WebApp1_UI'
+            owner: 'your-org'
+            path: '.akr/tags/tag-registry.json'
+          - name: 'WebApp1_API'
+            owner: 'your-org'
+            path: '.akr/tags/tag-registry.json'
+          - name: 'WebApp1_FeatureRepo'
+            owner: 'your-org'
+            path: '.akr/tags/tag-registry.json'
+    
+    steps:
+      - name: Checkout template repository
+        uses: actions/checkout@v4
+        with:
+          path: templates
+      
+      - name: Checkout target repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repo.owner }}/${{ matrix.repo.name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: target
+      
+      - name: Check if registry has changed
+        id: check_changes
+        run: |
+          cd target
+          
+          if [ ! -f "${{ matrix.repo.path }}" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "reason=Registry file does not exist in target repo" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Compare files
+          if ! diff -q "../templates/.akr/tags/tag-registry.json" "${{ matrix.repo.path }}" > /dev/null; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "reason=Registry content has changed" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "reason=Registry is already up-to-date" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Copy registry to target repository
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          cd target
+          
+          # Create directory if it doesn't exist
+          mkdir -p "$(dirname '${{ matrix.repo.path }}')"
+          
+          # Copy registry
+          cp ../templates/.akr/tags/tag-registry.json "${{ matrix.repo.path }}"
+          
+          # Add read-only notice
+          cat > "$(dirname '${{ matrix.repo.path }}')/README.md" <<EOF
+          # Tag Registry (Read-Only)
+          
+          **⚠️ DO NOT EDIT THIS FILE DIRECTLY**
+          
+          This tag registry is automatically distributed from the central template repository.
+          
+          - **Source:** core-akr-templates/.akr/tags/tag-registry.json
+          - **Last Updated:** $(date -I)
+          - **Version:** ${{ needs.validate-registry.outputs.version }}
+          
+          To request changes to the tag registry:
+          1. Open an issue in the core-akr-templates repository
+          2. Follow the governance approval process
+          3. Changes will be automatically distributed to all repos
+          
+          ## Usage
+          
+          Use the validation script to check your documentation tags:
+          
+          \`\`\`bash
+          python scripts/validate_tags.py docs/your-file.md
+          \`\`\`
+          EOF
+      
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: target
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore: Update tag registry to v${{ needs.validate-registry.outputs.version }}
+            
+            Automated update from core-akr-templates repository
+            
+            Changes:
+            - Updated tag registry to version ${{ needs.validate-registry.outputs.version }}
+            - Date: ${{ needs.validate-registry.outputs.date }}
+            - Features: ${{ needs.validate-registry.outputs.feature_count }}
+            
+            Source: ${{ github.repository }}@${{ github.sha }}
+          branch: update-tag-registry-${{ needs.validate-registry.outputs.version }}
+          delete-branch: true
+          title: 'chore: Update tag registry to v${{ needs.validate-registry.outputs.version }}'
+          body: |
+            ## 🏷️ Tag Registry Update
+            
+            This PR updates the tag registry to version **v${{ needs.validate-registry.outputs.version }}**.
+            
+            ### Changes
+            - **Version:** ${{ needs.validate-registry.outputs.version }}
+            - **Date:** ${{ needs.validate-registry.outputs.date }}
+            - **Features:** ${{ needs.validate-registry.outputs.feature_count }}
+            
+            ### What's Changed
+            See the [tag registry changelog](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/.akr/tags/tag-registry.json#L-changelog) for details.
+            
+            ### Action Required
+            - ✅ Review changes
+            - ✅ Merge this PR to update local tag registry
+            - ✅ Run validation on existing documentation: `python scripts/validate_tags.py --check-all docs/`
+            
+            ---
+            
+            🤖 This PR was automatically created by the tag distribution workflow.
+            Source: ${{ github.repository }}@${{ github.sha }}
+          labels: |
+            documentation
+            automated
+            tag-registry
+      
+      - name: Summary
+        run: |
+          echo "### Tag Registry Distribution" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository:** ${{ matrix.repo.owner }}/${{ matrix.repo.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ needs.validate-registry.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Changed:** ${{ steps.check_changes.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reason:** ${{ steps.check_changes.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
+
+  notify-teams:
+    name: Notify Teams
+    needs: [validate-registry, distribute-to-repos]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Create notification summary
+        run: |
+          echo "## 🏷️ Tag Registry Distribution Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.validate-registry.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** ${{ needs.validate-registry.outputs.date }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Features:** ${{ needs.validate-registry.outputs.feature_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Pull requests have been created in target repositories." >> $GITHUB_STEP_SUMMARY
+          echo "Teams will be notified to review and merge." >> $GITHUB_STEP_SUMMARY
+      
+      # Optional: Add Slack/Teams notification here
+      # - name: Notify via Slack
+      #   uses: slackapi/slack-github-action@v1
+      #   with:
+      #     payload: |
+      #       {
+      #         "text": "Tag registry updated to v${{ needs.validate-registry.outputs.version }}"
+      #       }

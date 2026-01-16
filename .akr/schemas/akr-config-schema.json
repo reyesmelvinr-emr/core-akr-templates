@@ -1,0 +1,547 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://akr-templates.com/schemas/akr-config-schema.json",
+  "title": "AKR Configuration Schema",
+  "description": "Enhanced configuration schema for Application Knowledge Repository with cross-repository support",
+  "type": "object",
+  "required": ["version", "projectInfo", "documentation"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Configuration schema version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "default": "2.0.0"
+    },
+    
+    "projectInfo": {
+      "type": "object",
+      "description": "Project metadata and identification",
+      "required": ["name", "layer"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Project/repository name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief project description"
+        },
+        "layer": {
+          "type": "string",
+          "description": "Architectural layer of this repository",
+          "enum": ["UI", "API", "Database", "Integration", "Infrastructure", "Full-Stack"]
+        },
+        "domains": {
+          "type": "array",
+          "description": "Business domains this project handles",
+          "items": {
+            "type": "string"
+          }
+        },
+        "team": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "lead": {
+              "type": "string"
+            },
+            "contact": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        },
+        "repositoryUrl": {
+          "type": "string",
+          "description": "URL to this repository",
+          "format": "uri"
+        }
+      }
+    },
+    
+    "documentation": {
+      "type": "object",
+      "description": "Documentation generation preferences",
+      "required": ["outputPath"],
+      "properties": {
+        "outputPath": {
+          "type": "string",
+          "description": "Base path for generated documentation",
+          "default": "docs/"
+        },
+        "componentMappings": {
+          "type": "object",
+          "description": "Map source paths to documentation paths",
+          "patternProperties": {
+            ".*": {
+              "type": "string"
+            }
+          },
+          "examples": [
+            {
+              "src/components/": "docs/components/",
+              "src/services/": "docs/services/",
+              "src/utils/": "docs/utilities/"
+            }
+          ]
+        },
+        "templatePreferences": {
+          "type": "object",
+          "description": "Preferred templates for different component types",
+          "properties": {
+            "component": {
+              "type": "string",
+              "description": "Template for UI components"
+            },
+            "service": {
+              "type": "string",
+              "description": "Template for API services"
+            },
+            "controller": {
+              "type": "string",
+              "description": "Template for API controllers"
+            },
+            "table": {
+              "type": "string",
+              "description": "Template for database tables"
+            },
+            "procedure": {
+              "type": "string",
+              "description": "Template for stored procedures"
+            },
+            "utility": {
+              "type": "string",
+              "description": "Template for utility functions"
+            }
+          }
+        },
+        "includePatterns": {
+          "type": "array",
+          "description": "File patterns to include for documentation",
+          "items": {
+            "type": "string"
+          },
+          "default": ["src/**/*.{js,ts,tsx,jsx}", "src/**/*.{cs,py,java}"]
+        },
+        "excludePatterns": {
+          "type": "array",
+          "description": "File patterns to exclude from documentation",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/*.test.*",
+            "**/*.spec.*"
+          ]
+        },
+        "autoGenerateOnSave": {
+          "type": "boolean",
+          "description": "Auto-generate docs when source files saved",
+          "default": false
+        },
+        "requireReviewBeforeCommit": {
+          "type": "boolean",
+          "description": "Require human review before committing docs",
+          "default": true
+        }
+      }
+    },
+    
+    "crossRepository": {
+      "type": "object",
+      "description": "Cross-repository consolidation settings (NEW)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable cross-repository feature consolidation",
+          "default": false
+        },
+        "consolidationRepo": {
+          "type": "string",
+          "description": "Repository that aggregates documentation",
+          "examples": ["https://github.com/org/documentation-hub.git"]
+        },
+        "registryUrl": {
+          "type": "string",
+          "description": "URL to centralized tag registry",
+          "examples": ["https://github.com/org/core-templates/.akr/tags/tag-registry.json"]
+        },
+        "publishFeatureDocs": {
+          "type": "boolean",
+          "description": "Publish component docs to consolidation repo",
+          "default": true
+        },
+        "relatedRepositories": {
+          "type": "array",
+          "description": "Other repositories that implement same features",
+          "items": {
+            "type": "object",
+            "required": ["name", "url", "layer"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Repository name"
+              },
+              "url": {
+                "type": "string",
+                "description": "Git repository URL",
+                "format": "uri"
+              },
+              "layer": {
+                "type": "string",
+                "description": "Architectural layer",
+                "enum": ["UI", "API", "Database", "Integration", "Infrastructure"]
+              },
+              "docsPath": {
+                "type": "string",
+                "description": "Path to documentation in that repo",
+                "default": "docs/"
+              }
+            }
+          }
+        },
+        "syncSchedule": {
+          "type": "object",
+          "description": "Schedule for syncing with consolidation repo",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "frequency": {
+              "type": "string",
+              "enum": ["hourly", "daily", "weekly", "on-push"],
+              "default": "daily"
+            }
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "description": "Dual-output configuration for feature and testing documentation",
+          "items": {
+            "type": "object",
+            "required": ["type", "template", "outputPath"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Type of documentation output",
+                "enum": ["feature", "testing"]
+              },
+              "template": {
+                "type": "string",
+                "description": "Template file to use for this output",
+                "examples": ["feature-consolidated.md", "feature-testing-consolidated.md"]
+              },
+              "outputPath": {
+                "type": "string",
+                "description": "Output directory for this documentation type",
+                "examples": ["docs/features/", "docs/testing/"]
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Enable this output type",
+                "default": true
+              },
+              "linkStrategy": {
+                "type": "string",
+                "description": "How to link between feature and testing docs",
+                "enum": ["bidirectional", "one-way", "none"],
+                "default": "bidirectional"
+              },
+              "sectionMapping": {
+                "type": "object",
+                "description": "Map sections from component docs to output types",
+                "properties": {
+                  "includeFromComponentDocs": {
+                    "type": "array",
+                    "description": "Section names to include from component docs",
+                    "items": {
+                      "type": "string"
+                    },
+                    "examples": [["Testing", "Test Cases", "Test Coverage"]]
+                  },
+                  "excludeFromComponentDocs": {
+                    "type": "array",
+                    "description": "Section names to exclude from component docs",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "type": "object",
+                "description": "Additional metadata for this output type",
+                "properties": {
+                  "owner": {
+                    "type": "string",
+                    "description": "Team or role responsible for this documentation",
+                    "examples": ["Product Owner", "QA Team"]
+                  },
+                  "reviewRequired": {
+                    "type": "boolean",
+                    "description": "Require human review before publishing",
+                    "default": true
+                  },
+                  "updateCadence": {
+                    "type": "string",
+                    "description": "Expected update frequency",
+                    "enum": ["per-sprint", "weekly", "monthly", "on-feature-change"],
+                    "default": "on-feature-change"
+                  }
+                }
+              }
+            }
+          },
+          "default": [
+            {
+              "type": "feature",
+              "template": "feature-consolidated.md",
+              "outputPath": "docs/features/",
+              "linkStrategy": "bidirectional"
+            },
+            {
+              "type": "testing",
+              "template": "feature-testing-consolidated.md",
+              "outputPath": "docs/testing/",
+              "linkStrategy": "bidirectional"
+            }
+          ]
+        }
+      }
+    },
+    
+    "tags": {
+      "type": "object",
+      "description": "Tagging configuration",
+      "properties": {
+        "requireApproved": {
+          "type": "boolean",
+          "description": "Only allow tags from approved registry",
+          "default": true
+        },
+        "registryPath": {
+          "type": "string",
+          "description": "Path to tag registry (local or URL)",
+          "default": ".akr/tags/tag-registry.json"
+        },
+        "autoNormalize": {
+          "type": "boolean",
+          "description": "Auto-normalize synonyms to approved names",
+          "default": true
+        },
+        "warnOnUnapproved": {
+          "type": "boolean",
+          "description": "Warn if using unapproved tags",
+          "default": true
+        },
+        "customTags": {
+          "type": "object",
+          "description": "Project-specific custom tags",
+          "properties": {
+            "features": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    
+    "validation": {
+      "type": "object",
+      "description": "Documentation validation rules",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "vale": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "configPath": {
+              "type": "string",
+              "default": ".vale.ini"
+            },
+            "minAlertLevel": {
+              "type": "string",
+              "enum": ["suggestion", "warning", "error"],
+              "default": "warning"
+            }
+          }
+        },
+        "tagValidation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "requiredTags": {
+              "type": "array",
+              "description": "Tags required in front matter",
+              "items": {
+                "type": "string"
+              },
+              "default": ["feature", "domain", "layer"]
+            },
+            "minCompletenessScore": {
+              "type": "number",
+              "description": "Minimum tag completeness (0-1)",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.7
+            }
+          }
+        },
+        "onValidationFailure": {
+          "type": "string",
+          "description": "Action when validation fails",
+          "enum": ["block", "warn", "ignore"],
+          "default": "warn"
+        }
+      }
+    },
+    
+    "github": {
+      "type": "object",
+      "description": "GitHub integration settings",
+      "properties": {
+        "enableActions": {
+          "type": "boolean",
+          "description": "Enable GitHub Actions workflows",
+          "default": true
+        },
+        "prComments": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "showValeResults": {
+              "type": "boolean",
+              "default": true
+            },
+            "showTagValidation": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "checks": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "requirePassing": {
+              "type": "boolean",
+              "description": "Require checks to pass before merge",
+              "default": false
+            }
+          }
+        },
+        "wiki": {
+          "type": "object",
+          "properties": {
+            "autoPublish": {
+              "type": "boolean",
+              "description": "Auto-publish docs to GitHub Wiki",
+              "default": false
+            },
+            "syncOnMerge": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    },
+    
+    "humanInput": {
+      "type": "object",
+      "description": "Human input interview configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "triggerMode": {
+          "type": "string",
+          "enum": ["always", "on-new-file", "manual"],
+          "default": "on-new-file"
+        },
+        "priorityFilter": {
+          "type": "string",
+          "description": "Minimum question priority to ask",
+          "enum": ["critical", "important", "optional"],
+          "default": "important"
+        },
+        "defaultRole": {
+          "type": "string",
+          "description": "Default role for interview questions",
+          "enum": ["developer", "technical_lead", "product_owner", "qa_tester", "scrum_master", "general"],
+          "default": "developer"
+        },
+        "allowSkip": {
+          "type": "boolean",
+          "description": "Allow skipping questions",
+          "default": true
+        },
+        "saveProgress": {
+          "type": "boolean",
+          "description": "Save incomplete interview sessions",
+          "default": true
+        }
+      }
+    },
+    
+    "monitoring": {
+      "type": "object",
+      "description": "Usage monitoring and metrics",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "trackMetrics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "generation-time",
+              "validation-results",
+              "human-input-completion",
+              "cross-repo-sync"
+            ]
+          },
+          "default": ["generation-time", "validation-results"]
+        },
+        "reportingEndpoint": {
+          "type": "string",
+          "description": "Endpoint for sending metrics",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}

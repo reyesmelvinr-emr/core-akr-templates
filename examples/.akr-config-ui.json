@@ -1,0 +1,132 @@
+{
+  "$schema": "./.akr/schemas/akr-config-schema.json",
+  "version": "2.0.0",
+  
+  "projectInfo": {
+    "name": "web-ui",
+    "description": "React-based web application UI",
+    "layer": "UI",
+    "domains": ["ApplicationManagement", "UserManagement", "Reporting"],
+    "team": {
+      "name": "Team Hawkeye",
+      "lead": "John Doe",
+      "contact": "team-hawkeye@company.com"
+    },
+    "repositoryUrl": "https://github.com/your-org/web-ui.git"
+  },
+  
+  "documentation": {
+    "outputPath": "docs/",
+    "componentMappings": {
+      "src/components/": "docs/components/",
+      "src/containers/": "docs/containers/",
+      "src/pages/": "docs/pages/",
+      "src/services/": "docs/services/",
+      "src/utils/": "docs/utilities/"
+    },
+    "templatePreferences": {
+      "component": "component-developer",
+      "service": "service-developer",
+      "utility": "utility-comprehensive"
+    },
+    "includePatterns": [
+      "src/**/*.tsx",
+      "src/**/*.ts",
+      "src/**/*.jsx",
+      "src/**/*.js"
+    ],
+    "excludePatterns": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/__tests__/**"
+    ],
+    "autoGenerateOnSave": false,
+    "requireReviewBeforeCommit": true
+  },
+  
+  "crossRepository": {
+    "enabled": true,
+    "consolidationRepo": "https://github.com/your-org/documentation-hub.git",
+    "registryUrl": "https://raw.githubusercontent.com/your-org/core-templates/main/.akr/tags/tag-registry.json",
+    "publishFeatureDocs": true,
+    "relatedRepositories": [
+      {
+        "name": "api-services",
+        "url": "https://github.com/your-org/api-services.git",
+        "layer": "API",
+        "docsPath": "docs/"
+      },
+      {
+        "name": "database",
+        "url": "https://github.com/your-org/database.git",
+        "layer": "Database",
+        "docsPath": "docs/"
+      }
+    ],
+    "syncSchedule": {
+      "enabled": true,
+      "frequency": "on-push"
+    }
+  },
+  
+  "tags": {
+    "requireApproved": true,
+    "registryPath": ".akr/tags/tag-registry.json",
+    "autoNormalize": true,
+    "warnOnUnapproved": true,
+    "customTags": {
+      "features": [],
+      "domains": []
+    }
+  },
+  
+  "validation": {
+    "enabled": true,
+    "vale": {
+      "enabled": true,
+      "configPath": ".vale.ini",
+      "minAlertLevel": "warning"
+    },
+    "tagValidation": {
+      "enabled": true,
+      "requiredTags": ["feature", "domain", "layer"],
+      "minCompletenessScore": 0.7
+    },
+    "onValidationFailure": "warn"
+  },
+  
+  "github": {
+    "enableActions": true,
+    "prComments": {
+      "enabled": true,
+      "showValeResults": true,
+      "showTagValidation": true
+    },
+    "checks": {
+      "enabled": true,
+      "requirePassing": false
+    },
+    "wiki": {
+      "autoPublish": false,
+      "syncOnMerge": false
+    }
+  },
+  
+  "humanInput": {
+    "enabled": true,
+    "triggerMode": "on-new-file",
+    "priorityFilter": "important",
+    "defaultRole": "developer",
+    "allowSkip": true,
+    "saveProgress": true
+  },
+  
+  "monitoring": {
+    "enabled": false,
+    "trackMetrics": ["generation-time", "validation-results"],
+    "reportingEndpoint": null
+  }
+}

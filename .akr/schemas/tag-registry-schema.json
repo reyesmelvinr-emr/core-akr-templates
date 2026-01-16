@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AKR Tag Registry Schema",
+  "description": "Schema for centralized tag registry used in cross-repository documentation consolidation",
+  "type": "object",
+  "required": ["version", "lastUpdated", "registry"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the tag registry"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date of last registry update"
+    },
+    "registry": {
+      "type": "object",
+      "required": ["features", "domains", "layers", "statuses"],
+      "properties": {
+        "features": {
+          "type": "object",
+          "description": "Approved feature names with metadata",
+          "patternProperties": {
+            "^[A-Z][a-zA-Z0-9]*$": {
+              "type": "object",
+              "required": ["approved", "domain", "description", "owner", "status"],
+              "properties": {
+                "approved": {
+                  "type": "boolean",
+                  "description": "Whether this feature name is officially approved"
+                },
+                "synonyms": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Alternative names that should be normalized to this feature"
+                },
+                "domain": {
+                  "type": "string",
+                  "description": "Business domain this feature belongs to"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Brief description of the feature"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "Team or individual responsible for this feature"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["active", "deprecated", "planned"],
+                  "description": "Current lifecycle status of the feature"
+                },
+                "relatedFeatures": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Related or dependent features"
+                },
+                "addedDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Date when feature was added to registry"
+                },
+                "deprecatedDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Date when feature was deprecated (if applicable)"
+                }
+              }
+            }
+          }
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][a-zA-Z0-9]*$"
+          },
+          "description": "Approved business domains"
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["UI", "API", "Database", "Integration", "Infrastructure"]
+          },
+          "description": "Approved architectural layers"
+        },
+        "statuses": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["draft", "review", "approved", "deprecated"]
+          },
+          "description": "Approved documentation statuses"
+        },
+        "componentTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Approved component type classifications"
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "description": "Governance rules for tag management",
+      "properties": {
+        "approvers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Email addresses of people who can approve new tags"
+        },
+        "approvalProcess": {
+          "type": "string",
+          "description": "Description of the approval process for new tags"
+        },
+        "changelogRequired": {
+          "type": "boolean",
+          "description": "Whether changelog entry is required for registry changes"
+        }
+      }
+    },
+    "changelog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "version", "changes"],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "author": {
+            "type": "string"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "description": "History of registry changes"
+    }
+  }
+}

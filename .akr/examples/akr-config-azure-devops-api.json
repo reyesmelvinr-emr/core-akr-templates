@@ -1,0 +1,46 @@
+{
+  "version": "2.0",
+  "repository": {
+    "name": "MyApp_API",
+    "type": "backend",
+    "language": "csharp",
+    "platform": "azure-devops",
+    "remoteUrl": "https://dev.azure.com/myorg/myproject/_git/MyApp_API"
+  },
+  "templates": {
+    "organizationRepo": "https://github.com/reyesmelvinr-emr/core-akr-templates.git",
+    "organizationBranch": "main",
+    "organizationPath": ".akr/templates/",
+    "defaultTemplates": {
+      "service": "service-standard",
+      "controller": "service-comprehensive"
+    }
+  },
+  "documentation": {
+    "outputPath": "docs/",
+    "pathMappings": {
+      "src/Controllers/**/*.cs": "docs/api/{name}.md",
+      "src/Services/**/*.cs": "docs/services/{name}.md",
+      "src/Models/**/*.cs": "docs/models/{name}.md"
+    },
+    "prPlatform": "azure-devops"
+  },
+  "featureRepository": {
+    "enabled": true,
+    "platform": "github",
+    "url": "https://github.com/myorg/MyApp_Features.git",
+    "branch": "main"
+  },
+  "team": {
+    "roles": {
+      "tech-lead": ["alice@example.com"],
+      "developer": ["bob@example.com", "carol@example.com"],
+      "product-owner": ["dave@example.com"],
+      "qa": ["eve@example.com"]
+    }
+  },
+  "validation": {
+    "enforceOrganizationMandatory": true,
+    "completenessThreshold": 85
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-14",
+  "registry": {
+    "features": {
+      "ApplicationEditor": {
+        "approved": true,
+        "synonyms": ["App Editor", "Application Management Editor", "AppEditor"],
+        "domain": "ApplicationManagement",
+        "description": "Editor for creating and modifying application configurations",
+        "owner": "UI Team",
+        "status": "active",
+        "relatedFeatures": ["ApplicationValidation", "ApplicationWorkflow"],
+        "addedDate": "2026-01-14"
+      },
+      "UserAuthentication": {
+        "approved": true,
+        "synonyms": ["Auth", "Login", "SSO", "Authentication", "User Login"],
+        "domain": "Security",
+        "description": "User authentication and authorization system including SSO integration",
+        "owner": "API Team",
+        "status": "active",
+        "relatedFeatures": ["UserAuthorization", "RoleManagement"],
+        "addedDate": "2026-01-14"
+      },
+      "UserAuthorization": {
+        "approved": true,
+        "synonyms": ["Authorization", "Permissions", "Access Control", "RBAC"],
+        "domain": "Security",
+        "description": "Role-based access control and permission management",
+        "owner": "API Team",
+        "status": "active",
+        "relatedFeatures": ["UserAuthentication", "RoleManagement"],
+        "addedDate": "2026-01-14"
+      },
+      "DocumentGeneration": {
+        "approved": true,
+        "synonyms": ["Doc Generation", "Report Generation", "Document Creation"],
+        "domain": "Reporting",
+        "description": "Automated generation of documents and reports from templates",
+        "owner": "API Team",
+        "status": "active",
+        "relatedFeatures": ["TemplateManagement", "DocumentExport"],
+        "addedDate": "2026-01-14"
+      },
+      "NotificationSystem": {
+        "approved": true,
+        "synonyms": ["Notifications", "Alerts", "Email Notifications", "Push Notifications"],
+        "domain": "Communication",
+        "description": "Multi-channel notification delivery system (email, SMS, push)",
+        "owner": "Integration Team",
+        "status": "active",
+        "relatedFeatures": ["EmailTemplates", "NotificationPreferences"],
+        "addedDate": "2026-01-14"
+      },
+      "DataImport": {
+        "approved": true,
+        "synonyms": ["Import", "Data Upload", "Bulk Import", "CSV Import"],
+        "domain": "DataManagement",
+        "description": "Import data from external sources (CSV, Excel, API)",
+        "owner": "API Team",
+        "status": "active",
+        "relatedFeatures": ["DataValidation", "DataExport"],
+        "addedDate": "2026-01-14"
+      },
+      "DataExport": {
+        "approved": true,
+        "synonyms": ["Export", "Data Download", "Bulk Export", "Report Export"],
+        "domain": "DataManagement",
+        "description": "Export data to various formats (CSV, Excel, PDF)",
+        "owner": "API Team",
+        "status": "active",
+        "relatedFeatures": ["DataImport", "DocumentGeneration"],
+        "addedDate": "2026-01-14"
+      },
+      "AuditLogging": {
+        "approved": true,
+        "synonyms": ["Audit", "Activity Log", "Audit Trail", "Logging"],
+        "domain": "Compliance",
+        "description": "Comprehensive audit logging for compliance and security",
+        "owner": "Infrastructure Team",
+        "status": "active",
+        "relatedFeatures": ["SecurityMonitoring", "ComplianceReporting"],
+        "addedDate": "2026-01-14"
+      }
+    },
+    "domains": [
+      "ApplicationManagement",
+      "Security",
+      "Reporting",
+      "Communication",
+      "DataManagement",
+      "Compliance",
+      "WorkflowAutomation",
+      "Integration"
+    ],
+    "layers": [
+      "UI",
+      "API",
+      "Database",
+      "Integration",
+      "Infrastructure"
+    ],
+    "statuses": [
+      "draft",
+      "review",
+      "approved",
+      "deprecated"
+    ],
+    "componentTypes": [
+      "Component",
+      "Service",
+      "Controller",
+      "Repository",
+      "Model",
+      "Utility",
+      "Table",
+      "StoredProcedure",
+      "View",
+      "Middleware",
+      "Hook"
+    ]
+  },
+  "governance": {
+    "approvers": [
+      "tech-lead@example.com",
+      "architect@example.com"
+    ],
+    "approvalProcess": "New tags require approval via PR to this registry. Two approvers required. Tags should follow PascalCase naming. Synonyms should cover common variations.",
+    "changelogRequired": true
+  },
+  "changelog": [
+    {
+      "date": "2026-01-14",
+      "version": "1.0.0",
+      "author": "Technical Lead",
+      "changes": [
+        "Initial tag registry created",
+        "Added 8 core features across 6 domains",
+        "Established governance process",
+        "Defined approved layers and statuses"
+      ]
+    }
+  ]
+}

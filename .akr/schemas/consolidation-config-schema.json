@@ -1,0 +1,360 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://akr-templates.com/schemas/consolidation-config-schema.json",
+  "title": "AKR Documentation Consolidation Configuration",
+  "description": "Schema for configuring cross-repository documentation consolidation",
+  "type": "object",
+  "required": ["version", "repositories", "output"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Configuration schema version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this configuration"
+    },
+    "cacheDir": {
+      "type": "string",
+      "description": "Directory for caching cloned repositories",
+      "default": "./.doc-cache"
+    },
+    "tagRegistryPath": {
+      "type": "string",
+      "description": "Path to tag registry JSON file",
+      "default": ".akr/tags/tag-registry.json"
+    },
+    "templatePath": {
+      "type": "string",
+      "description": "Path to feature consolidation template",
+      "default": ".akr/templates/feature-consolidated.md"
+    },
+    "outputDir": {
+      "type": "string",
+      "description": "Output directory for consolidated documentation",
+      "default": "./docs/features"
+    },
+    
+    "repositories": {
+      "type": "array",
+      "description": "List of repositories to aggregate documentation from",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "url", "layer"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Short name for the repository (used for caching)"
+          },
+          "url": {
+            "type": "string",
+            "description": "Git repository URL (HTTPS or SSH)",
+            "pattern": "^(https?://|git@)"
+          },
+          "branch": {
+            "type": "string",
+            "description": "Branch to clone/pull from",
+            "default": "main"
+          },
+          "layer": {
+            "type": "string",
+            "description": "Architectural layer this repository belongs to",
+            "enum": ["UI", "API", "Database", "Integration", "Infrastructure"]
+          },
+          "docsPath": {
+            "type": "string",
+            "description": "Relative path to documentation directory within repo",
+            "default": "docs/"
+          },
+          "includePatterns": {
+            "type": "array",
+            "description": "Glob patterns for files to include",
+            "items": {
+              "type": "string"
+            },
+            "default": ["docs/**/*.md"]
+          },
+          "excludePatterns": {
+            "type": "array",
+            "description": "Glob patterns for files to exclude",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "credentials": {
+            "type": "object",
+            "description": "Authentication credentials (use environment variables)",
+            "properties": {
+              "username": {
+                "type": "string",
+                "description": "Git username (typically ${GIT_USERNAME})"
+              },
+              "token": {
+                "type": "string",
+                "description": "Personal access token (typically ${GIT_TOKEN})"
+              },
+              "sshKey": {
+                "type": "string",
+                "description": "Path to SSH private key"
+              }
+            }
+          }
+        }
+      }
+    },
+    
+    "features": {
+      "type": "object",
+      "description": "Feature generation triggers and scheduling",
+      "properties": {
+        "generateOn": {
+          "type": "array",
+          "description": "When to generate feature documentation",
+          "items": {
+            "type": "string",
+            "enum": ["schedule", "manual", "webhook", "git-push"]
+          },
+          "default": ["manual"]
+        },
+        "schedule": {
+          "type": "object",
+          "description": "Scheduled generation configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "cron": {
+              "type": "string",
+              "description": "Cron expression for schedule",
+              "default": "0 2 * * *"
+            },
+            "timezone": {
+              "type": "string",
+              "description": "Timezone for cron schedule",
+              "default": "UTC"
+            }
+          }
+        },
+        "webhook": {
+          "type": "object",
+          "description": "Webhook trigger configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "endpoint": {
+              "type": "string",
+              "description": "Webhook endpoint path"
+            },
+            "secret": {
+              "type": "string",
+              "description": "Webhook secret for validation"
+            }
+          }
+        }
+      }
+    },
+    
+    "output": {
+      "type": "object",
+      "description": "Output configuration for generated documentation",
+      "required": ["format"],
+      "properties": {
+        "format": {
+          "type": "string",
+          "description": "Output format for consolidated docs",
+          "enum": ["markdown", "html", "pdf"],
+          "default": "markdown"
+        },
+        "includeGeneratedMarkers": {
+          "type": "boolean",
+          "description": "Add AI-generated markers to output",
+          "default": true
+        },
+        "includeChangelog": {
+          "type": "boolean",
+          "description": "Include changelog section in output",
+          "default": true
+        },
+        "publishToWiki": {
+          "type": "boolean",
+          "description": "Automatically publish to GitHub Wiki",
+          "default": false
+        },
+        "wikiRepo": {
+          "type": "string",
+          "description": "Repository for wiki (if different from main)"
+        },
+        "createIndex": {
+          "type": "boolean",
+          "description": "Create index page linking all features",
+          "default": true
+        },
+        "indexTemplate": {
+          "type": "string",
+          "description": "Path to index page template"
+        }
+      }
+    },
+    
+    "validation": {
+      "type": "object",
+      "description": "Validation rules for consolidated documentation",
+      "properties": {
+        "requireApprovedTags": {
+          "type": "boolean",
+          "description": "Only include components with approved feature tags",
+          "default": true
+        },
+        "minComponentsPerFeature": {
+          "type": "integer",
+          "description": "Minimum components required to generate feature doc",
+          "minimum": 1,
+          "default": 1
+        },
+        "warnOnMissingLayers": {
+          "type": "boolean",
+          "description": "Warn if feature missing UI/API/DB components",
+          "default": true
+        },
+        "requireHumanReview": {
+          "type": "array",
+          "description": "Sections requiring human review markers",
+          "items": {
+            "type": "string",
+            "enum": [
+              "security",
+              "architecture",
+              "business-logic",
+              "performance",
+              "testing"
+            ]
+          },
+          "default": []
+        }
+      }
+    },
+    
+    "relationships": {
+      "type": "object",
+      "description": "Configuration for detecting component relationships",
+      "properties": {
+        "inferFromDependencies": {
+          "type": "boolean",
+          "description": "Infer relationships from dependency tags",
+          "default": true
+        },
+        "inferFromNaming": {
+          "type": "boolean",
+          "description": "Infer relationships from component naming patterns",
+          "default": true
+        },
+        "customPatterns": {
+          "type": "array",
+          "description": "Custom regex patterns for relationship detection",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "Regex pattern to match"
+              },
+              "relationshipType": {
+                "type": "string",
+                "description": "Type of relationship (calls, depends_on, etc.)"
+              }
+            }
+          }
+        }
+      }
+    },
+    
+    "notifications": {
+      "type": "object",
+      "description": "Notification configuration for consolidation events",
+      "properties": {
+        "onSuccess": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["email", "slack", "teams", "webhook"]
+              }
+            },
+            "webhook": {
+              "type": "string",
+              "description": "Webhook URL for notifications"
+            },
+            "recipients": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "onFailure": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["email", "slack", "teams", "webhook"]
+              }
+            },
+            "webhook": {
+              "type": "string"
+            },
+            "recipients": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    
+    "performance": {
+      "type": "object",
+      "description": "Performance tuning options",
+      "properties": {
+        "parallelRepos": {
+          "type": "integer",
+          "description": "Number of repositories to clone/update in parallel",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3
+        },
+        "cacheExpiry": {
+          "type": "integer",
+          "description": "Cache expiry in hours (0 = always refresh)",
+          "minimum": 0,
+          "default": 24
+        },
+        "maxFileSize": {
+          "type": "integer",
+          "description": "Maximum file size to process (in KB)",
+          "default": 500
+        }
+      }
+    }
+  }
+}
