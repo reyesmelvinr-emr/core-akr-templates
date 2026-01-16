@@ -1,6 +1,6 @@
 # Core AKR Templates Repository
 
-**Centralized documentation templates and standards for Emerson AKR (Actionable Knowledge Repository) system**
+**Centralized documentation templates and standards for Emerson AKR (Application Knowledge Repository) system**
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/YourUsername/core-akr-templates)
 [![License](https://img.shields.io/badge/license-Internal-red.svg)](LICENSE)
