@@ -1,8 +1,10 @@
 ---
-feature: [FEATURE_NAME]
+businessCapability: [BUSINESS_CAPABILITY_PASCALCASE]
+feature: [FN12345_US678]
 domain: [DOMAIN]
 layer: API
 component: [SERVICE_NAME]
+project_type: api-backend
 status: deployed
 version: 1.0
 componentType: Service

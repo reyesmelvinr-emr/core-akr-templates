@@ -1,5 +1,6 @@
 ---
-feature: [FEATURE_NAME]
+businessCapability: [BUSINESS_CAPABILITY_PASCALCASE]
+feature: [FN12345_US678]
 domain: [DOMAIN]
 layer: Database
 component: [Application Name] Database

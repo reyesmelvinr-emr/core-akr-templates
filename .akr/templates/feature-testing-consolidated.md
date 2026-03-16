@@ -1,5 +1,6 @@
 ---
-feature: {FEATURE_NAME}
+businessCapability: {FEATURE_NAME}
+feature: {FEATURE_WORK_ITEM_ID}
 domain: {DOMAIN}
 layer: Testing
 component: {FEATURE_NAME}TestingDocumentation
