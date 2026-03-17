@@ -1,40 +1,208 @@
 {
-  "version": "1.0.0",
-  "last-updated": "2026-03-17",
+  "last-updated": "2026-03-18",
+  "schema-version": "1.2",
   "models": {
     "claude-sonnet-4-6": {
       "mode-a-standard": { "pass-rate": null, "avg-tokens": null },
       "mode-b-coursedomain": { "pass-rate": null, "avg-tokens": null },
       "mode-b-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
-      "mode-b-single-pass": { "pass-rate": null, "avg-tokens": null },
       "ssg": {
-        "pass1-seconds": null,
-        "pass2-seconds": null,
-        "pass3-seconds": null,
-        "pass4-seconds": null,
-        "pass5-seconds": null,
-        "pass6-seconds": null,
-        "pass7-seconds": null,
-        "total-seconds": null,
-        "slow-module-events": 0
+        "mode-b-coursedomain": {
+          "avg-total-seconds": null,
+          "avg-pass-seconds": {
+            "pass1": null,
+            "pass2": null,
+            "pass3": null,
+            "pass4": null,
+            "pass5": null,
+            "pass6": null,
+            "pass7": null
+          },
+          "pass2-split-rate": null,
+          "slow-module-rate": null,
+          "developer-single-pass-rate": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null,
+            "with-pass2-split": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "avg-operations-map-completeness": null,
+            "avg-marker-density": null,
+            "avg-business-rules-populated": null,
+            "validation-first-pass-rate": null,
+            "avg-mode-c-resolution-minutes": null,
+            "avg-cqs": null
+          }
+        },
+        "mode-b-large-module": {
+          "avg-total-seconds": null,
+          "avg-pass-seconds": {
+            "pass1": null,
+            "pass2a": null,
+            "pass2b": null,
+            "pass3": null,
+            "pass4": null,
+            "pass5": null,
+            "pass6": null,
+            "pass7": null
+          },
+          "pass2-split-rate": null,
+          "slow-module-rate": null,
+          "developer-single-pass-rate": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null,
+            "with-pass2-split": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "avg-operations-map-completeness": null,
+            "avg-marker-density": null,
+            "avg-business-rules-populated": null,
+            "validation-first-pass-rate": null,
+            "avg-mode-c-resolution-minutes": null,
+            "avg-cqs": null
+          }
+        },
+        "mode-b-single-pass": {
+          "avg-total-seconds": null,
+          "section-completeness-vs-ssg": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "avg-operations-map-completeness": null,
+            "avg-marker-density": null,
+            "avg-business-rules-populated": null,
+            "validation-first-pass-rate": null,
+            "avg-mode-c-resolution-minutes": null,
+            "avg-cqs": null
+          },
+          "notes": "Populated when developer-elected-single-pass runs are observed in pilot"
+        }
       }
     },
     "gpt-4o": {
-      "mode-a-standard": { "pass-rate": null, "avg-tokens": null },
-      "mode-b-coursedomain": { "pass-rate": null, "avg-tokens": null },
-      "mode-b-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
-      "mode-b-single-pass": { "pass-rate": null, "avg-tokens": null },
       "ssg": {
-        "pass1-seconds": null,
-        "pass2-seconds": null,
-        "pass3-seconds": null,
-        "pass4-seconds": null,
-        "pass5-seconds": null,
-        "pass6-seconds": null,
-        "pass7-seconds": null,
-        "total-seconds": null,
-        "slow-module-events": 0
+        "mode-b-coursedomain": {
+          "avg-total-seconds": null,
+          "avg-pass-seconds": {
+            "pass1": null,
+            "pass2": null,
+            "pass3": null,
+            "pass4": null,
+            "pass5": null,
+            "pass6": null,
+            "pass7": null
+          },
+          "pass2-split-rate": null,
+          "slow-module-rate": null,
+          "developer-single-pass-rate": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null,
+            "with-pass2-split": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "avg-operations-map-completeness": null,
+            "avg-marker-density": null,
+            "avg-business-rules-populated": null,
+            "validation-first-pass-rate": null,
+            "avg-mode-c-resolution-minutes": null,
+            "avg-cqs": null
+          }
+        },
+        "mode-b-large-module": {
+          "avg-total-seconds": null,
+          "avg-pass-seconds": {
+            "pass1": null,
+            "pass2a": null,
+            "pass2b": null,
+            "pass3": null,
+            "pass4": null,
+            "pass5": null,
+            "pass6": null,
+            "pass7": null
+          },
+          "pass2-split-rate": null,
+          "slow-module-rate": null,
+          "developer-single-pass-rate": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null,
+            "with-pass2-split": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "avg-operations-map-completeness": null,
+            "avg-marker-density": null,
+            "avg-business-rules-populated": null,
+            "validation-first-pass-rate": null,
+            "avg-mode-c-resolution-minutes": null,
+            "avg-cqs": null
+          }
+        },
+        "mode-b-single-pass": {
+          "avg-total-seconds": null,
+          "section-completeness-vs-ssg": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "avg-operations-map-completeness": null,
+            "avg-marker-density": null,
+            "avg-business-rules-populated": null,
+            "validation-first-pass-rate": null,
+            "avg-mode-c-resolution-minutes": null,
+            "avg-cqs": null
+          }
+        }
+      }
+    },
+    "coding-agent": {
+      "ssg": {
+        "mode-b-coursedomain": {
+          "avg-total-seconds": null,
+          "pass-timings-available": null,
+          "avg-pass-seconds": {},
+          "slow-module-rate": null,
+          "developer-single-pass-rate": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null,
+            "with-pass2-split": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "validation-first-pass-rate": null,
+            "avg-cqs": null,
+            "note": "operations-map-completeness and mode-c-resolution-minutes collected manually during Phase 2.5 review"
+          }
+        }
       }
     }
+  },
+  "quota-planning": {
+    "monthly-quota-per-developer": null,
+    "avg-requests-ssg-per-module": null,
+    "avg-requests-single-pass-per-module": null,
+    "max-modules-per-month-ssg": null,
+    "max-modules-per-month-single-pass": null,
+    "recommended-mix": null,
+    "notes": "Populate after Phase 2 pilot. recommended-mix is the strategy split that maximizes quality within quota."
   }
 }
