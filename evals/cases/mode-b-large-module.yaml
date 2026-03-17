@@ -1,0 +1,10 @@
+id: mode-b-large-module
+description: Stress-test Mode B on large module with no truncation
+inputs:
+  command: /akr-docs mode-b EnrollmentDomain
+assertions:
+  - required_sections_present
+  - no_truncation_markers
+  - metadata_header_present
+  - passes_completed_recorded
+  - pass_split_allowed_when_needed

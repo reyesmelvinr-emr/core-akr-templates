@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "last-updated": "2026-03-17",
+  "models": {
+    "claude-sonnet-4-6": {
+      "mode-a-standard": { "pass-rate": null, "avg-tokens": null },
+      "mode-b-coursedomain": { "pass-rate": null, "avg-tokens": null },
+      "mode-b-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
+      "mode-b-single-pass": { "pass-rate": null, "avg-tokens": null },
+      "ssg": {
+        "pass1-seconds": null,
+        "pass2-seconds": null,
+        "pass3-seconds": null,
+        "pass4-seconds": null,
+        "pass5-seconds": null,
+        "pass6-seconds": null,
+        "pass7-seconds": null,
+        "total-seconds": null,
+        "slow-module-events": 0
+      }
+    },
+    "gpt-4o": {
+      "mode-a-standard": { "pass-rate": null, "avg-tokens": null },
+      "mode-b-coursedomain": { "pass-rate": null, "avg-tokens": null },
+      "mode-b-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
+      "mode-b-single-pass": { "pass-rate": null, "avg-tokens": null },
+      "ssg": {
+        "pass1-seconds": null,
+        "pass2-seconds": null,
+        "pass3-seconds": null,
+        "pass4-seconds": null,
+        "pass5-seconds": null,
+        "pass6-seconds": null,
+        "pass7-seconds": null,
+        "total-seconds": null,
+        "slow-module-events": 0
+      }
+    }
+  }
+}

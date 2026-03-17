@@ -1,0 +1,48 @@
+project:
+  name: TrainingTracker.Api
+  layer: API
+  standards_version: v1.0.0
+  minimum_standards_version: v1.0.0
+  compliance_mode: pilot
+
+modules:
+  - name: CourseDomain
+    businessCapability: CourseCatalogManagement
+    feature: FN99999_US002
+    project_type: api-backend
+    status: approved
+    max_files: 8
+    files:
+      - src/Controllers/CoursesController.cs
+      - src/Services/CourseService.cs
+      - src/Services/Interfaces/ICourseService.cs
+      - src/Repositories/CourseRepository.cs
+      - src/Repositories/Interfaces/ICourseRepository.cs
+      - src/Contracts/CourseDtos.cs
+    doc_output: docs/modules/CourseDomain_doc.md
+
+  - name: EnrollmentDomain
+    businessCapability: EnrollmentManagement
+    feature: FN99999_US089
+    project_type: api-backend
+    status: draft
+    max_files: 8
+    files:
+      - src/Controllers/EnrollmentsController.cs
+      - src/Services/EnrollmentService.cs
+      - src/Services/Interfaces/IEnrollmentService.cs
+      - src/Repositories/EnrollmentRepository.cs
+      - src/Contracts/EnrollmentDtos.cs
+    doc_output: docs/modules/EnrollmentDomain_doc.md
+
+database_objects:
+  - name: training.Courses
+    type: table
+    source: database/tables/training.Courses.sql
+    doc_output: docs/database/training.Courses_doc.md
+    feature: FN99999_US002
+    businessCapability: CourseCatalogManagement
+
+unassigned:
+  - path: src/Infrastructure/CacheService.cs
+    reason: Shared infrastructure utility used by multiple modules

@@ -1,0 +1,11 @@
+id: mode-b-coursedomain
+description: Validate Mode B output completeness for CourseDomain
+inputs:
+  command: /akr-docs mode-b CourseDomain
+assertions:
+  - required_sections_present
+  - module_files_complete
+  - operations_map_complete
+  - business_rules_columns_present
+  - data_operations_complete
+  - metadata_header_present

@@ -1,0 +1,10 @@
+id: mode-a-standard
+description: Validate Mode A grouping output structure and max_files compliance
+inputs:
+  command: /akr-docs mode-a TrainingTracker.Api
+assertions:
+  - modules_yaml_exists
+  - modules_have_status_draft
+  - modules_max_files_le_8
+  - unassigned_has_reason
+  - business_capability_pascal_case
