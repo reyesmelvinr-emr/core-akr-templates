@@ -1,8 +1,9 @@
 # Core AKR Templates Repository
 
-**Centralized documentation templates and standards for Emerson AKR (Application Knowledge Repository) system**
+**Centralized documentation templates, charters, and standards for Emerson AKR (Application Knowledge Repository) system**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/YourUsername/core-akr-templates)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/reyesmelvinr-emr/core-akr-templates)
+[![Status](https://img.shields.io/badge/status-Pilot%20Phase%202-orange.svg)](AKR_Tracking.md)
 [![License](https://img.shields.io/badge/license-Internal-red.svg)](LICENSE)
 [![Maintained by](https://img.shields.io/badge/maintained%20by-CDS%20Team%20Hawkeye-green.svg)](README.md)
 
@@ -12,41 +13,58 @@
 
 This repository serves as the **single source of truth** for AKR documentation templates, charters, and standards used across all Emerson projects. It enables:
 
-- ✅ **Consistent documentation** across all teams and projects
-- ✅ **Template-driven generation** with GitHub Copilot and Local MCP
-- ✅ **Version-controlled standards** with semantic versioning
-- ✅ **Team customization** through template inheritance
+- ✅ **Module-based documentation** with three-tier architecture (source modules, database objects, consolidated features)
+- ✅ **GitHub Copilot Agent Skill workflow** with three modes: grouping proposal, documentation generation, and interactive HITL completion
+- ✅ **Context-efficient generation** with compressed charters and template variants
+- ✅ **Version-controlled standards** with semantic versioning and traceability
 - ✅ **Zero infrastructure cost** (leverages existing GitHub Copilot licenses)
+
+**⚠️ Status: Currently in Phase 2 (Pilot Onboarding).** Not yet production ready. See [AKR_Tracking.md](AKR_Tracking.md) for implementation status and roadmap.
 
 ---
 
-## 🎯 Key Features
+## 🎯 Key Architecture
 
-### 📚 8 Documentation Templates
-- **Comprehensive** - Complex, critical services (15-20 min)
-- **Standard** - Typical backend services (10-15 min)
-- **Lean** - Simple utilities (5-10 min)
-- **Minimal** - Very simple classes (3-5 min)
-- **UI Component** - React/Angular components (8-12 min)
-- **Table** - Database tables (6-10 min)
-- **Embedded Database** - Local storage (6-10 min)
-- **Legacy Inventory** - Legacy systems (10-15 min)
+### 🏗️ Three-Tier Documentation Hierarchy
+- **Level 1: Module Documentation** - Grouped source files (5-8 files per module) with condensed charter context
+- **Level 2: Database Object Documentation** - Individual database objects (tables, views, procedures)
+- **Level 3: Feature Consolidation** - Cross-module feature documentation aggregated from Levels 1 and 2
 
-### 📖 4 AKR Charters
-- **General** - Overall AKR standards
-- **Backend** - Backend service guidelines
-- **UI** - Frontend component guidelines
-- **Database** - Database documentation standards
+### 📚 Documentation Templates (10 Total)
+**Level 1 (Module) Templates:**
+- `lean_baseline_service_template_module.md` - Backend module variant
+- `ui_component_template_module.md` - UI module variant
 
-### 🔧 Template Inheritance
-- **Organization templates** - Base templates with mandatory sections
-- **Team extensions** - Custom sections per team
-- **Merge strategy** - Extend base templates without forking
+**Level 2 (Database) Templates:**
+- `table_doc_template.md` - Database tables
+- `embedded_database_template.md` - Embedded database services
+
+**Level 3 (Feature) Templates:**
+- `feature-consolidated.md` - Feature consolidation
+- `feature-testing-consolidated.md` - Feature testing consolidation
+
+**Reference Templates** (kept for legacy and specialized use):
+- `comprehensive_service_template.md` - Reference material
+- `standard_service_template.md` - Reference material
+- `minimal_service_template.md` - Reference material
+- `legacy_inventory_template.md` - Legacy system documentation
+
+### 📖 4 AKR Charters (with Compressed Variants)
+- **General** - Overall AKR standards (compressed: ~2,500 tokens)
+- **Backend** - Backend service guidelines (compressed: ~2,500 tokens)
+- **UI** - Frontend component guidelines (compressed: ~2,500 tokens)
+- **Database** - Database documentation standards (compressed: ~2,500 tokens)
+
+### 🤖 GitHub Copilot Agent Skill Workflow
+- **Mode A** - Propose module groupings from project source code
+- **Mode B** - Generate module documentation with SSG-style semantic search/generation passes
+- **Mode C** - Interactive HITL completion for unresolved `❓` sections in existing drafts
 
 ### 🏷️ Tagging Strategy
-- Feature-to-component traceability
-- Cross-repository relationship mapping
-- Automated tag registry and synonym support
+- **Module grouping** via `modules.yaml` manifest
+- **Feature-to-module traceability** with tag registry
+- **Project classification** with `project_type` enum (api-backend, ui-component, microservice, general)
+- **Compliance modes** with pilot vs. production governance
 
 ---
 
@@ -55,28 +73,69 @@ This repository serves as the **single source of truth** for AKR documentation t
 ```
 core-akr-templates/
 ├── .akr/
-│   ├── TEMPLATE_MANIFEST.json          # Template metadata and versioning
-│   ├── templates/                      # Base organization templates
-│   │   ├── comprehensive_service_template.md
-│   │   ├── standard_service_template.md
-│   │   ├── lean_baseline_service_template.md
-│   │   ├── minimal_service_template.md
-│   │   ├── ui_component_template.md
+│   ├── TEMPLATE_MANIFEST.json          # Template metadata and version registry
+│   ├── schemas/
+│   │   ├── modules-schema.json         # Module manifest JSON Schema
+│   │   ├── akr-config-schema.json      # Project configuration schema
+│   │   └── consolidation-config-schema.json  # Feature consolidation config
+│   ├── templates/                      # All documentation templates (Level 1, 2, 3)
+│   │   ├── lean_baseline_service_template_module.md
+│   │   ├── ui_component_template_module.md
 │   │   ├── table_doc_template.md
 │   │   ├── embedded_database_template.md
-│   │   └── legacy_inventory_template.md
-│   ├── charters/                       # AKR documentation standards
+│   │   ├── feature-consolidated.md
+│   │   ├── feature-testing-consolidated.md
+│   │   ├── comprehensive_service_template.md (reference)
+│   │   └── ...
+│   ├── charters/                       # Full charters (for reference)
 │   │   ├── AKR_CHARTER.md
 │   │   ├── AKR_CHARTER_BACKEND.md
 │   │   ├── AKR_CHARTER_UI.md
 │   │   └── AKR_CHARTER_DB.md
-│   ├── standards/                      # Guidelines and instructions
-│   │   └── copilot-instructions.md
-│   └── examples/                       # Example configurations
-│       ├── akr-config-webapp1-ui.json
-│       ├── akr-config-webapp1-api.json
-│       └── akr-config-webapp1-feature.json
+│   ├── scripts/                        # Validation and automation
+│   │   └── validate_documentation.py   # Core validation engine
+│   ├── workflows/                      # GitHub Actions workflows
+│   │   └── validate-documentation.yml
+│   └── vale-rules/                     # Vale prose linting rules
+│       └── AKR/
+├── copilot-instructions/               # Compressed charters for context efficiency
+│   ├── backend-service.instructions.md
+│   ├── ui-component.instructions.md
+│   └── database.instructions.md
+├── .github/
+│   ├── skills/                         # GitHub Copilot Agent Skills
+│   │   └── akr-docs/
+│   │       ├── SKILL.md                # Three-mode workflow (A, B, C)
+│   │       ├── SKILL-COMPAT.md         # Model compatibility matrix
+│   │       ├── postToolUse.json        # Hook for session logging
+│   │       └── agentStop.json          # Hook for change detection
+│   ├── workflows/
+│   │   └── distribute-skill.yml        # Skill distribution to registered repos
+│   └── registered-repos.yaml           # List of authorized pilot/production repos
+├── docs/                               # Documentation
+│   ├── DEVELOPER_REFERENCE.md
+│   ├── VALIDATION_GUIDE.md
+│   ├── TAG_REGISTRY_GUIDE.md
+│   ├── ARCHITECTURE.md
+│   └── ...
+├── evals/                              # Evaluation cases and benchmarks
+│   ├── benchmark.json                  # Premium request, quality, and quota metrics
+│   └── cases/                          # Test cases for different scenarios
+│       ├── mode-a-standard.yaml
+│       ├── mode-b-coursedomain.yaml
+│       ├── mode-b-large-module.yaml
+│       └── ssg-pass-sequence.yaml
+├── examples/                           # Example configurations
+│   ├── modules.trainingtracker.api.yaml
+│   └── workflows/
+│       └── validate-documentation.yml
+├── templates/                          # Historical module templates (deprecated)
+│   ├── lean_baseline_service_template_module.md
+│   └── ui_component_template_module.md
+├── workshops/                          # Training and acceptance test examples
+│   └── courses_service_module_doc.md   # Example module doc output
 ├── README.md                           # This file
+├── CHANGELOG.md                        # Release notes and changes
 └── LICENSE                             # Internal use license
 ```
 
@@ -85,93 +144,151 @@ core-akr-templates/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Git installed
+- Git installed (with submodule support)
 - GitHub account with access to this repository
-- GitHub Copilot license (for documentation generation)
-- Python 3.10+ (for local MCP server)
-- VS Code with GitHub Copilot extension
+- GitHub Copilot license (for documentation generation with Agent Skills)
+- VS Code with GitHub Copilot extension (or use with Copilot CLI)
+- Python 3.10+ (for validation and automation scripts)
 
-### For Application Teams
+### Phase 2 Pilot Onboarding (Current)
 
-#### 1. Clone Template Repository (Automatic)
-Templates are automatically synced when you set up your application repository with AKR documentation support.
+AKR is currently in **Phase 2 - Pilot Onboarding**. Teams interested in participating should:
 
-#### 2. Add `.akr-config.json` to Your Repository
-Copy one of the example configs from `.akr/examples/` and customize:
+1. **Review** [AKR_Tracking.md](AKR_Tracking.md) for current status and roadmap
+2. **Contact** the CDS Team Hawkeye #akr-documentation channel
+3. **Understand** that this is a managed pilot with structured feedback collection
+
+### For Pilot Application Teams
+
+#### 1. Add `.akr` Submodule
+Add this repository as a submodule to your project:
 
 ```bash
+git submodule add https://github.com/reyesmelvinr-emr/core-akr-templates.git .akr/templates
+git submodule update --init --recursive
+```
+
+#### 2. Create `modules.yaml` Manifest
+Create a `modules.yaml` file in your project root to define module groupings:
+
+```yaml
+project:
+  name: YourProject.Api
+  layer: API
+  standards_version: "1.1.0"
+  compliance_mode: pilot  # or production
+
+modules:
+  - name: CourseDomain
+    project_type: api-backend
+    feature: CourseManagement
+    files:
+      - src/Controllers/CourseController.cs
+      - src/Services/CourseService.cs
+      - src/Repositories/ICourseRepository.cs
+      - src/Infrastructure/EfCourseRepository.cs
+      - src/Dtos/CourseDto.cs
+    doc_output: docs/modules/CourseDomain_doc.md
+    status: approved
+
+database_objects:
+  - name: training.Courses
+    type: table
+    doc_output: docs/database/Courses_doc.md
+```
+
+See [examples/modules.trainingtracker.api.yaml](examples/modules.trainingtracker.api.yaml) for full schema.
+
+#### 3. Copy Distributed Skill Files
+The GitHub Copilot Agent Skill and supporting files are distributed via:  
+- `.github/skills/akr-docs/SKILL.md` - Three-mode workflow definition
+- `.github/skills/akr-docs/SKILL-COMPAT.md` - Model compatibility matrix
+- `.github/hooks/postToolUse.json` - Session logging hook
+- `.github/hooks/agentStop.json` - Change detection hook
+
+These are automatically copied during enrollment from the [skill distribution workflow](distribute-skill.yml).
+
+#### 4. Add Condensed Charter Instructions
+Copy the compressed charter for your project type to `.github/copilot-instructions.md`:
+
+```bash
+# For API/backend projects
+cp .akr/templates/copilot-instructions/backend-service.instructions.md .github/copilot-instructions.md
+
 # For UI projects
-cp core-akr-templates/.akr/examples/akr-config-webapp1-ui.json YourRepo/.akr-config.json
-
-# For API projects
-cp core-akr-templates/.akr/examples/akr-config-webapp1-api.json YourRepo/.akr-config.json
+cp .akr/templates/copilot-instructions/ui-component.instructions.md .github/copilot-instructions.md
 ```
 
-Edit `.akr-config.json`:
-- Update `project.name` and `project.description`
-- Set `templates.repository` to this repository URL
-- Configure `component_mappings` for your project structure
-- Add team member emails to `team.roles`
+#### 5. Set Up Validation
+Copy the validation workflow to enable CI checks:
 
-#### 3. Run Setup Script
-```powershell
-# Windows
-.\setup.ps1
-
-# Mac/Linux
-./setup.sh
+```bash
+cp .akr/templates/examples/workflows/validate-documentation.yml .github/workflows/
 ```
 
-This will:
-- ✅ Install Python dependencies
-- ✅ Clone template repository to `~/.akr/templates/`
-- ✅ Configure VS Code MCP
-- ✅ Install Git hooks for auto-sync
-- ✅ Run health check
+#### 6. Use the Agent Skill Workflow
 
-#### 4. Start Using AKR Documentation
-In VS Code with GitHub Copilot:
-
+**Mode A — Propose Module Groupings** (first time)
 ```
-/docs.generate src/components/Button.tsx
-→ Generates docs/components/Button.md
-
-/docs.interview
-→ Answer business context questions
-
-/docs.update src/components/Button.tsx
-→ Updates docs when code changes
+/akr-docs mode-a
+→ Scans project files, proposes module groupings, creates draft modules.yaml PR
 ```
+
+**Mode B — Generate Documentation** (after Mode A approval)
+```
+/akr-docs mode-b CourseDomain
+→ Reads approved modules.yaml, generates module documentation, creates draft PR
+```
+
+**Mode C — Interactive HITL Completion** (during review)
+```
+/akr-docs mode-c CourseDomain_doc.md
+→ Walks through unresolved ❓ sections interactively, applies edits as you approve
+```
+
+See [.github/skills/akr-docs/SKILL.md](.github/skills/akr-docs/SKILL.md) for full details.
 
 ---
 
-## 📊 Template Selection Guide
+## 📊 Module Documentation Selection
 
-| Code Type | Complexity | Template | Time |
-|-----------|-----------|----------|------|
-| Critical backend services | High | Comprehensive | 15-20 min |
-| Standard CRUD services | Medium | Standard | 10-15 min |
-| Utility classes | Low | Lean | 5-10 min |
-| DTOs, constants, enums | Very Low | Minimal | 3-5 min |
-| React/Angular components | Medium | UI Component | 8-12 min |
-| Database tables | Medium | Table | 6-10 min |
-| Embedded databases | Medium | Embedded DB | 6-10 min |
-| Legacy systems | High | Legacy Inventory | 10-15 min |
+| Project Type | Use Template | Level | Time to Document |
+|---|---|---|---|
+| API / Backend Service | `lean_baseline_service_template_module.md` | Level 1 | 10-15 min per module |
+| UI Component Library | `ui_component_template_module.md` | Level 1 | 8-12 min per module |
+| Database Table / View | `table_doc_template.md` | Level 2 | 6-10 min per object |
+| Embedded Database | `embedded_database_template.md` | Level 2 | 6-10 min per service |
+| Cross-Module Feature | `feature-consolidated.md` | Level 3 | 15-20 min (auto-aggregated) |
+
+**Key Differences from v1.0:**
+- Module grouping is **human-proposed first** (Mode A), then approved by tech lead
+- Documentation is **generated per module**, not per individual file
+- **Condensed charters** (2,500 tokens) provide context efficiency vs. full charters
+- **Three documentation levels** with clear ownership and audience (Level 1: developer, Level 2: DBA, Level 3: product owner)
 
 ---
 
-## 🔄 Template Versioning
+## 🔄 Versioning and Roadmap
 
-Templates follow [Semantic Versioning](https://semver.org/):
+Follows [Semantic Versioning](https://semver.org/):
 
-- **MAJOR** (X.0.0) - Breaking changes to template structure
-- **MINOR** (1.X.0) - New templates added, backwards-compatible
-- **PATCH** (1.0.X) - Bug fixes, clarifications
+- **MAJOR** (X.0.0) - Breaking changes to architecture or template structure
+- **MINOR** (1.X.0) - New templates, features, or backwards-compatible enhancements
+- **PATCH** (1.0.X) - Bug fixes, documentation clarifications
 
-**Current Version**: 1.0.0
+**Current Version**: 1.1.0 (Phase 1 - Foundation Complete)
 
 ### Version History
-- **1.0.0** (2026-01-14) - Initial release with 8 templates
+- **1.1.0** (2026-03-18) - Module-based architecture, Agent Skill workflow, three-tier hierarchy. Phase 1 (Foundation) COMPLETE.
+- **1.0.0** (2026-01-14) - Initial release with 8 templates and MCP infrastructure (bootstrapped).
+
+### Upcoming Phases
+- **Phase 2** (Current): Pilot Onboarding — 1-2 weeks/project, structured feedback collection
+- **Phase 2.5**: Coding Agent Spike — Binary GO/NO-GO decision on automation scope (1 week)
+- **Phase 3** (Conditional): Automation Extension — Extended automation if Phase 2.5 identifies gaps (2-4 weeks)
+- **Phase 4**: Feature Consolidation — Cross-module aggregation and scaling (3-4 weeks)
+
+See [AKR_Tracking.md](AKR_Tracking.md) for detailed phase gates and metrics.
 
 ---
 
@@ -223,112 +340,123 @@ priority: "High"
 
 ---
 
-## 🔧 Template Inheritance
+## � Transparency and HITL Markers
 
-Teams can extend base templates with custom sections while preserving organizational standards.
+All generated documentation uses transparency markers to communicate automation state and human input requirements:
 
-### Example: Extending UI Component Template
+| Marker | Meaning | Action |
+|---|---|---|
+| `🤖` | Automated content generated with confidence | Review for accuracy; minimal edits expected |
+| `❓` | Unresolved question requiring human input | **PROD MODE**: Blocks PR merge; **PILOT**: Warning only |
+| `👤` | Section marked for human completion | Developer provides input during Mode C HITL pass |
+| `DEFERRED` | Intentionally deferred to later phase or external owner | Document rationale and owner; no merge block |
+| `VERIFY` | Content auto-generated but confidence low; needs verification | Verify against actual code during review |
+| `NEEDS` | Indicates a gap or missing prerequisite | Address explicitly; cannot defer in production mode |
 
-**Base Template** (`.akr/templates/ui-component.md`):
-```markdown
-## Overview (Mandatory - Org)
-## Purpose (Mandatory - Org)
-## Props (Mandatory - Org)
-## Usage Examples (Mandatory - Org)
-```
-
-**Team Extension** (`.akr/templates/team/ui-component-webapp1.md`):
-```markdown
-## Performance Considerations (Mandatory - Team)
-## Accessibility Checklist (Mandatory - Team)
-## Storybook Story (Optional - Team)
-```
-
-**Merged Result**:
-```markdown
-## Overview (Mandatory - Org)
-## Purpose (Mandatory - Org)
-## Props (Mandatory - Org)
-## Usage Examples (Mandatory - Org)
-## Performance Considerations (Mandatory - Team)
-## Accessibility Checklist (Mandatory - Team)
-## Storybook Story (Optional - Team)
-```
+These markers enable:
+- ✅ Clear visibility of automation completeness
+- ✅ Structured HITL workflows (Mode C)
+- ✅ Progressive compliance mode graduation (pilot → production)
+- ✅ Audit trail for governance and compliance
 
 ---
 
 ## 📚 Documentation
 
-- **Setup Guide**: See `setup.ps1` or `setup.sh`
-- **User Guide**: `USER_GUIDE.md` (in application repositories)
-- **Cheat Sheet**: `CHEAT_SHEET.md` (in application repositories)
-- **Copilot Instructions**: `.akr/standards/copilot-instructions.md`
-- **Template Manifest**: `.akr/TEMPLATE_MANIFEST.json`
+**Core Documentation** (in this repository):
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Three-tier hierarchy, module grouping, agent skill design
+- **[VALIDATION_GUIDE.md](docs/VALIDATION_GUIDE.md)** — Compliance modes, CI validation, rule reference
+- **[DEVELOPER_REFERENCE.md](docs/DEVELOPER_REFERENCE.md)** — HITL role mapping, section requirements, template usage
+- **[TAG_REGISTRY_GUIDE.md](docs/TAG_REGISTRY_GUIDE.md)** — Feature tagging, tag registry schema, traceability
+- **[CHANGELOG.md](CHANGELOG.md)** — Release notes and breaking changes
+- **[Copilot Instructions](copilot-instructions/)** — Compressed charters (backend, UI, database)
+- **[Agent Skill](/.github/skills/akr-docs/SKILL.md)** — Mode A/B/C workflow definition
+- **[Compatibility Matrix](/.github/skills/akr-docs/SKILL-COMPAT.md)** — Model pass rates and workarounds
+
+**Full Charters** (reference and detail):
+- `charters/AKR_CHARTER.md` — General standards
+- `charters/AKR_CHARTER_BACKEND.md` — Backend service documentation standards
+- `charters/AKR_CHARTER_UI.md` — UI component documentation standards
+- `charters/AKR_CHARTER_DB.md` — Database documentation standards
+
+**In Application Repositories**:
+- `.akr/modules.yaml` — Your project's module manifest
+- `.github/copilot-instructions.md` — Compressed charter for your project type
+- `.github/skills/akr-docs/SKILL.md` — Agent Skill workflow (distributed)
 
 ---
 
 ## 🤝 Contributing
 
-### For Template Maintainers
+### For Pilot Teams
+Currently accepting managed pilot teams. See [AKR_Tracking.md](AKR_Tracking.md) for onboarding workflow.
+
+### For Standards Maintainers (CDS Team Hawkeye)
 
 #### Adding a New Template
-1. Create template in `.akr/templates/`
-2. Update `TEMPLATE_MANIFEST.json` with metadata
-3. Add charter/guidelines if needed
-4. Create example config in `.akr/examples/`
-5. Update README.md
-6. Tag with new version: `git tag -a v1.1.0 -m "Add new template"`
+1. Create template in `templates/` with YAML front matter structure
+2. Update `TEMPLATE_MANIFEST.json` with metadata and version
+3. Add or update corresponding charter section if introducing new documentation level
+4. Create acceptance test in `workshops/` or `evals/cases/` demonstrating expected output
+5. Update this README.md and `CHANGELOG.md`
+6. Submit PR with template, schema updates (if needed), and tests
+7. After merge, tag with new version: `git tag -a vX.Y.Z -m "Release message"`
 
 #### Updating Existing Templates
-1. Make changes to template file
-2. Update `TEMPLATE_MANIFEST.json` version
-3. Add changelog entry
-4. Consider backwards compatibility
-5. Tag appropriately (patch, minor, or major)
+1. Assess scope: patch (bug/clarification) vs. minor (new section) vs. major (breaking structure)
+2. Make changes to template file(s) and corresponding schemas
+3. Update `TEMPLATE_MANIFEST.json` version field
+4. Add entry to `CHANGELOG.md` with rationale
+5. Consider backwards-compatibility impact on existing docs
+6. Update `evals/benchmark.json` if affecting generation quality criteria
+7. Submit PR with impact assessment
+8. After merge, tag appropriately
+
+#### Updating Compressed Charters
+1. Start from full charter source in `charters/`
+2. Retain required sections, compress explanatory prose
+3. Keep token targets: backend/UI ~2,500, database ~2,500, general ~2,500
+4. Output to `copilot-instructions/{type}.instructions.md`
+5. Validate token counts with dual tokenizers (cl100k for Copilot, o200k for GPT-4o)
+6. Update charter front matter with `compressed: true` and source reference
 
 #### Template Guidelines
-- ✅ Use transparency markers (🤖 ❓ 👤)
+- ✅ Use transparency markers (🤖 ❓ 👤 VERIFY DEFERRED NEEDS)
 - ✅ Include comprehensive usage examples
-- ✅ Define clear mandatory vs optional sections
-- ✅ Provide interview questions for human-required sections
-- ✅ Keep estimated time accurate
-- ✅ Follow Vale linting rules
+- ✅ Define clear mandatory vs optional sections per `project_type`
+- ✅ Provide interview questions/prompts for human-required sections
+- ✅ Target token load: keep templates < 7,000 tokens at 7,000 chars
+- ✅ Follow Vale linting rules from `vale-rules/AKR/`
+- ✅ Include YAML front matter with `feature`, `layer`, `project_type`, `status`, `compliance_mode`
 
 ---
 
-## 📈 Metrics and Success Criteria
+## 📈 Pilot Metrics and Success Criteria
 
-### Coverage Metrics
-- **Documentation coverage**: % of code files with documentation
-- **Completeness**: Average completeness score
-- **Freshness**: Days since last update
+Phase 2 (Pilot) is actively collecting the following metrics:
+
+### Module Grouping (Mode A)
+- **Grouping validation time**: Target ≤ 15 min per project
+- **Reassignment count**: Files moved during review (measures agent accuracy)
+- **Unassigned file rate**: % of files requiring manual assessment
+
+### Documentation Generation (Mode B)
+- **Time-to-first-documented-PR**: Target ≤ 45 min
+- **First-run CI pass rate**: Target ≥ 95%
+- **Unresolved marker rate**: Target < 5% of generated content
+
+### Quality and Compliance
+- **Vale lint pass rate**: Target > 85%
+- **Completeness score**: Target ≥ 75%
+- **Premium request baseline**: Tracks cost per documentation task (Phase 2/2.5 data collection)
 
 ### Time Savings
-- **Before AKR**: 60-80 minutes per file
-- **With AKR**: 10-15 minutes per file
-- **Time savings**: 70-90%
+- **Pre-AKR baseline**: 60-90 minutes per module (full manual documentation)
+- **With AKR v1.1**: 10-15 minutes per module (Mode B generation + Mode C HITL)
+- **Target savings**: 70-85%
 
-### Quality Metrics
-- **Vale lint pass rate**: >80% target
-- **PR merge time**: 50% reduction target
-- **Team satisfaction**: >4.0/5.0 target
+Detailed metrics captured in [AKR_Tracking.md](AKR_Tracking.md#metrics)
 
----
-
-## 💰 Cost Analysis
-
-### Implementation Cost
-- **Template repository setup**: $0 (Git repository)
-- **GitHub Copilot licenses**: $0 (existing licenses)
-- **Local MCP setup**: $0 (runs on developer machines)
-- **GitHub Actions**: $0-20/month (free tier sufficient for most teams)
-
-### Monthly Operating Cost
-- **LLM inference**: $0 (included in GitHub Copilot)
-- **GitHub Actions**: $0-15/month (depends on usage)
-- **Infrastructure**: $0 (no cloud resources needed)
-
-**Total Monthly Cost**: $0-15 🎉
 
 ---
 
@@ -336,46 +464,40 @@ Teams can extend base templates with custom sections while preserving organizati
 
 ### Common Issues
 
-**Templates not syncing**
+**Agent Skill not loading in VS Code**
+- ✅ Confirm `disable-model-invocation: true` is in SKILL.md frontmatter
+- ✅ Use explicit `/akr-docs mode-a` command instead of conversational intent
+- ✅ Check that `SKILL.md` is in `.github/skills/akr-docs/` (distributed via workflow)
+- ⚠️ See [SKILL-COMPAT.md](/.github/skills/akr-docs/SKILL-COMPAT.md) for model-specific workarounds
+
+**Submodule not updating**
 ```bash
-# Manual sync
-cd ~/.akr/templates
-git pull origin main
+# Update submodule to latest core-akr-templates
+git submodule update --remote .akr/templates
 
-# Or use MCP command
-/docs.update-templates
-```
-
-**MCP server not connecting**
-```bash
-# Check Python version
-python --version
-
-# Reload VS Code
-Ctrl+Shift+P → "Reload Window"
-
-# Run health check
-/docs.health-check
+# Or pinned version (Phase 0)
+git submodule set-branch --branch v1.1.0 .akr/templates
+git submodule update .akr/templates
 ```
 
 **Validation failing in CI/CD**
-- Check `.akr-config.json` syntax
-- Verify template repository access
-- Review GitHub Actions logs
-- Run local validation: `python scripts/validate-docs.py`
+- Check `modules.yaml` syntax against [schemas/modules-schema.json](schemas/modules-schema.json)
+- Verify `feature` field matches an entry in `tag-registry.json`
+- Review GitHub Actions logs for `validate_documentation.py` output
+- Run local validation: `python .akr/templates/.akr/scripts/validate_documentation.py --changed-files`
+- See [VALIDATION_GUIDE.md](docs/VALIDATION_GUIDE.md) for compliance mode details
+
+**Unresolved ❓ markers blocking merge (production mode)**
+- Use Mode C: `/akr-docs mode-c docs/modules/YourModule_doc.md`
+- Or manually resolve and replace `❓` markers with content
+- Mark as `DEFERRED` with rationale if deferring intentionally (documented owner required)
 
 ### Getting Help
-- **Support Channel**: #akr-documentation (Teams/Slack)
-- **Technical Lead**: [Your Name]
-- **Documentation**: See `.akr/standards/copilot-instructions.md`
-- **Health Check**: `/docs.health-check` in VS Code
-
----
-
-## 📄 License
-
-**Internal Use Only** - Emerson Electric Co.  
-Not for public distribution.
+- **Support Channel**: #akr-documentation (MS Teams / Slack)
+- **Implementation Tracking**: [AKR_Tracking.md](AKR_Tracking.md)
+- **Technical Documentation**: See [docs/](docs/) directory
+- **Agent Skill Compatibility**: [SKILL-COMPAT.md](/.github/skills/akr-docs/SKILL-COMPAT.md)
+- **Validation Reference**: [VALIDATION_GUIDE.md](docs/VALIDATION_GUIDE.md)
 
 ---
 
@@ -387,6 +509,7 @@ Not for public distribution.
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2026-01-14  
-**Status**: Production Ready ✅
+**Version**: 1.1.0 (Phase 1 - Foundation Complete)  
+**Last Updated**: 2026-03-18  
+**Status**: Beta / Pilot Phase (Phase 2 - Onboarding) ⚠️  
+**Next Gate**: Phase 2.5 (Coding Agent Spike) — TBD  
