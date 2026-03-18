@@ -38,6 +38,51 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+        - name: Validate SKILL template references
+        run: |
+          python - <<'PY'
+          import json
+          import pathlib
+          import re
+          import sys
+
+          repo = pathlib.Path('.')
+          manifest_path = repo / '.akr' / 'TEMPLATE_MANIFEST.json'
+          skill_path = repo / '.github' / 'skills' / 'akr-docs' / 'SKILL.md'
+
+          if not manifest_path.exists() or not skill_path.exists():
+            print('Skipping template reference check (manifest or SKILL missing).')
+            sys.exit(0)
+
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          manifest_files = {
+            pathlib.Path(item.get('file', '')).name
+            for item in manifest.get('templates', [])
+            if isinstance(item, dict) and item.get('file')
+          }
+
+          module_variant_files = {
+            p.name for p in (repo / 'templates').glob('*_module.md')
+          }
+          allowed = manifest_files | module_variant_files
+
+          skill_text = skill_path.read_text(encoding='utf-8')
+          referenced = set(re.findall(r'([A-Za-z0-9_]+\.md)', skill_text))
+          referenced_templates = {
+            name for name in referenced
+            if name.endswith('_template.md') or name.endswith('_template_module.md')
+          }
+
+          missing = sorted(name for name in referenced_templates if name not in allowed)
+          if missing:
+            print('Unknown template references in SKILL.md:')
+            for item in missing:
+              print(f' - {item}')
+            sys.exit(1)
+
+          print('Template reference validation passed.')
+          PY
       
       - name: Clone core-akr-templates
         run: |

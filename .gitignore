@@ -39,6 +39,9 @@ desktop.ini
 *.log
 logs/
 *.log.*
+.akr/logs/
+.akr/logs/session-*.jsonl
+.akr/logs/last-validation.json
 
 # Temporary files
 *.tmp

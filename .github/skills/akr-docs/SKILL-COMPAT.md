@@ -20,7 +20,7 @@ Last updated: 2026-03-17
 ## Known Gap Tracking
 | Gap ID | Description | Impact | Mitigation | Status |
 |---|---|---|---|---|
-| KG-001 | Hook log availability can vary by execution surface | Criterion 10 evidence collection may be incomplete | Treat as hard gate only when hook support is confirmed in Phase 1 | Open |
+| KG-001 | Hook log availability can vary by execution surface (including Copilot sessions) | Criterion 10 evidence collection may be incomplete | If hooks are unavailable, run `python .akr/scripts/validate_documentation.py --changed-files "<space-separated file list>" --fail-on needs` manually before PR (or `--all docs/modules` when no file list is available) | Mitigated |
 
 ## Re-Evaluation Policy
 - Re-run evals after any SKILL.md change.

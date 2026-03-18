@@ -1,4 +1,4 @@
 repositories:
   - owner: reyesmelvinr-emr
-    repo: TrainingTracker.Api
+    repo: training-tracker-backend
     enabled: true

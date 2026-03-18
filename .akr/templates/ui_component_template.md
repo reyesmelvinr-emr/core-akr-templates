@@ -1,8 +1,9 @@
 ---
-businessCapability: [BUSINESS_CAPABILITY_PASCALCASE]
+businessCapability: CourseCatalogManagement
 feature: [FN12345_US678]
 domain: [DOMAIN]
 layer: UI
+project_type: ui-component
 component: [Component Name]
 status: deployed
 version: 1.0

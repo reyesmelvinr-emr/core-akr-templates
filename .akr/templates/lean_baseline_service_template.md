@@ -1,5 +1,5 @@
 ---
-businessCapability: [BUSINESS_CAPABILITY_PASCALCASE]
+businessCapability: CourseCatalogManagement
 feature: [FN12345_US678]
 domain: [DOMAIN]
 layer: API

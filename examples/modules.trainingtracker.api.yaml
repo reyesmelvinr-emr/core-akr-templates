@@ -11,6 +11,10 @@ modules:
     feature: FN99999_US002
     project_type: api-backend
     status: approved
+    # Set true only with documented rationale - see CHARTER-RESTORATION-PLAN.md override guidance
+    ssg_pass3_source_reread: false
+    # Set true only with documented rationale - see CHARTER-RESTORATION-PLAN.md override guidance
+    ssg_pass4_source_reread: false
     max_files: 8
     files:
       - src/Controllers/CoursesController.cs
@@ -26,6 +30,10 @@ modules:
     feature: FN99999_US089
     project_type: api-backend
     status: draft
+    # Set true only with documented rationale - see CHARTER-RESTORATION-PLAN.md override guidance
+    ssg_pass3_source_reread: false
+    # Set true only with documented rationale - see CHARTER-RESTORATION-PLAN.md override guidance
+    ssg_pass4_source_reread: false
     max_files: 8
     files:
       - src/Controllers/EnrollmentsController.cs

@@ -396,11 +396,11 @@
             },
             "requiredTags": {
               "type": "array",
-              "description": "Tags required in front matter",
+              "description": "Tags required in front matter. businessCapability and project_type are conditionally required for MODULE-type documents.",
               "items": {
                 "type": "string"
               },
-              "default": ["feature", "domain", "layer"]
+              "default": ["businessCapability", "feature", "domain", "layer", "project_type"]
             },
             "minCompletenessScore": {
               "type": "number",
@@ -502,6 +502,11 @@
           "enum": ["developer", "technical_lead", "product_owner", "qa_tester", "scrum_master", "general"],
           "default": "developer"
         },
+        "script_approval_required": {
+          "type": "boolean",
+          "description": "When true, custom-agent script execution must require explicit user approval before running side-effecting script skills",
+          "default": false
+        },
         "allowSkip": {
           "type": "boolean",
           "description": "Allow skipping questions",
@@ -531,7 +536,9 @@
               "generation-time",
               "validation-results",
               "human-input-completion",
-              "cross-repo-sync"
+              "cross-repo-sync",
+              "ssg-pass-timings",
+              "ssg-slow-module-events"
             ]
           },
           "default": ["generation-time", "validation-results"]

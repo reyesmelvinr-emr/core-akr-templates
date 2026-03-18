@@ -74,7 +74,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["draft", "approved", "in-progress", "deprecated"]
+            "enum": ["draft", "review", "approved", "in-progress", "deprecated"]
+          },
+          "compliance_mode": {
+            "type": "string",
+            "enum": ["pilot", "production"]
           },
           "max_files": {
             "type": "integer",
@@ -97,6 +101,16 @@
           },
           "notes": {
             "type": "string"
+          },
+          "ssg_pass4_source_reread": {
+            "type": "boolean",
+            "default": false,
+            "description": "Authorizes targeted Service file re-read in SSG Pass 4 for modules where service-file comments are the primary business rule source. Requires rationale in notes field."
+          },
+          "ssg_pass3_source_reread": {
+            "type": "boolean",
+            "default": false,
+            "description": "Authorizes targeted type file re-read in SSG Pass 3 for UI modules where complex generic types are not representable in the component hierarchy summary."
           }
         }
       }
