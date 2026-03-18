@@ -68,19 +68,30 @@ jobs:
 
       - name: Verify Vale config path
         run: |
-          test -f ~/.akr/templates/validation/.vale.ini
-          grep -q '^StylesPath\s*=\s*validation/vale-rules' ~/.akr/templates/validation/.vale.ini
+          if [ -f ~/.akr/templates/validation/.vale.ini ]; then
+            grep -Eq '^StylesPath\s*=\s*validation/vale-rules' ~/.akr/templates/validation/.vale.ini
+          elif [ -f ~/.akr/templates/.akr/.vale.ini ]; then
+            grep -Eq '^StylesPath\s*=\s*\.akr/vale-rules' ~/.akr/templates/.akr/.vale.ini
+          else
+            echo "No Vale config found in expected template paths"
+            exit 1
+          fi
       
       - name: Run Vale linter
         id: vale
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           echo "Running Vale on changed documentation files..."
+          if [ -f ~/.akr/templates/validation/.vale.ini ]; then
+            VALE_CONFIG=~/.akr/templates/validation/.vale.ini
+          else
+            VALE_CONFIG=~/.akr/templates/.akr/.vale.ini
+          fi
           DOC_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | grep -E '\.md$' || true)
           if [ -z "$DOC_FILES" ]; then
             echo '[]' > vale-results.json
           else
-            vale --config ~/.akr/templates/validation/.vale.ini $DOC_FILES --output=JSON > vale-results.json || true
+            vale --config "$VALE_CONFIG" $DOC_FILES --output=JSON > vale-results.json || true
           fi
           
           # Display results
