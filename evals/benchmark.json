@@ -192,9 +192,32 @@
             "avg-cqs": null,
             "note": "operations-map-completeness and mode-c-resolution-minutes collected manually during Phase 2.5 review"
           }
+        },
+        "mode-b-large-module": {
+          "avg-total-seconds": null,
+          "pass-timings-available": null,
+          "avg-pass-seconds": {},
+          "slow-module-rate": null,
+          "developer-single-pass-rate": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null,
+            "with-pass2-split": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "validation-first-pass-rate": null,
+            "avg-cqs": null
+          }
         }
       }
     }
+  },
+  "ssg-forward-payload-observation": {
+    "passes-beyond-2-loaded-source-files": null,
+    "observed-by": null,
+    "observed-at": null
   },
   "quota-planning": {
     "monthly-quota-per-developer": null,
