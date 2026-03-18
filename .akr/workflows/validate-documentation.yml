@@ -106,10 +106,14 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           echo "Running AKR documentation validator..."
-          
-          # Download validation script
-          wget -O validate_documentation.py \
-            https://raw.githubusercontent.com/reyesmelvinr-emr/core-akr-templates/main/.akr/scripts/validate_documentation.py
+
+          # Prefer local script when available (template repo self-validation), fallback to remote
+          if [ -f .akr/scripts/validate_documentation.py ]; then
+            cp .akr/scripts/validate_documentation.py validate_documentation.py
+          else
+            wget -O validate_documentation.py \
+              https://raw.githubusercontent.com/reyesmelvinr-emr/core-akr-templates/main/.akr/scripts/validate_documentation.py
+          fi
           
           MODULE_ARG=""
           if [ -n "${AKR_MODULE_NAME:-}" ]; then
@@ -119,6 +123,10 @@ jobs:
           export CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
           # Run validation (explicit changed-files list from workflow output)
           python validate_documentation.py --changed-files --output json --fail-on needs $MODULE_ARG > akr-results.json || true
+
+          if [ ! -f akr-results.json ]; then
+            echo '{"summary":{"total_errors":1,"total_warnings":0,"average_completeness":0},"results":[]}' > akr-results.json
+          fi
           
           # Display results
           cat akr-results.json
@@ -138,6 +146,9 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            if (!fs.existsSync('akr-results.json')) {
+              fs.writeFileSync('akr-results.json', JSON.stringify({ summary: { total_errors: 1, total_warnings: 0, average_completeness: 0 }, results: [] }));
+            }
             
             const akrResults = JSON.parse(fs.readFileSync('akr-results.json', 'utf8'));
             
@@ -191,6 +202,9 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            if (!fs.existsSync('akr-results.json')) {
+              fs.writeFileSync('akr-results.json', JSON.stringify({ summary: { total_errors: 1, total_warnings: 0, average_completeness: 0 }, results: [] }));
+            }
             const akrResults = JSON.parse(fs.readFileSync('akr-results.json', 'utf8'));
             
             const valeErrors = ${{ steps.vale.outputs.vale_errors || 0 }};
