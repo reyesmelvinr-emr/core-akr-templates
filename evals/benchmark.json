@@ -90,6 +90,9 @@
       }
     },
     "gpt-4o": {
+      "mode-a-standard": { "pass-rate": null, "avg-tokens": null },
+      "mode-b-coursedomain": { "pass-rate": null, "avg-tokens": null },
+      "mode-b-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
       "ssg": {
         "mode-b-coursedomain": {
           "avg-total-seconds": null,
@@ -193,6 +196,25 @@
             "note": "operations-map-completeness and mode-c-resolution-minutes collected manually during Phase 2.5 review"
           }
         },
+        "mode-b-ui-component": {
+          "avg-total-seconds": null,
+          "pass-timings-available": null,
+          "avg-pass-seconds": {},
+          "slow-module-rate": null,
+          "developer-single-pass-rate": null,
+          "premium-requests": {
+            "avg-per-module": null,
+            "min-observed": null,
+            "max-observed": null,
+            "with-pass2-split": null
+          },
+          "quality": {
+            "avg-required-sections-present": null,
+            "validation-first-pass-rate": null,
+            "avg-cqs": null,
+            "note": "operations-map-completeness and mode-c-resolution-minutes collected manually during Phase 2.5 review"
+          }
+        },
         "mode-b-large-module": {
           "avg-total-seconds": null,
           "pass-timings-available": null,
@@ -226,6 +248,7 @@
     "max-modules-per-month-ssg": null,
     "max-modules-per-month-single-pass": null,
     "recommended-mix": null,
-    "notes": "Populate after Phase 2 pilot. recommended-mix is the strategy split that maximizes quality within quota."
+    "quota-reset-cadence": "monthly-first-day",
+    "notes": "Populate after Phase 2 pilot. recommended-mix is the strategy split that maximizes quality within quota. quota-reset-cadence applied org-wide to all developers."
   }
 }
