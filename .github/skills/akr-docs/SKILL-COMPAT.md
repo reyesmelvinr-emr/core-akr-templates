@@ -31,3 +31,18 @@ Last updated: 2026-03-17
 | Enhancement | Description | Trigger Condition | Estimated Effort |
 |---|---|---|---|
 | Dynamic resource-based skill hydration | Replace static condensed charters and benchmark data with runtime resources served by a custom skills provider using @skill.resource patterns | Charter staleness or benchmark drift observed during pilot or multi-repo runs | Medium |
+
+## HITL Role Mapping (Seed)
+| Workflow Stage | Human Role | Expected Action |
+|---|---|---|
+| Mode A grouping review | Tech lead / module owner | Approve or request regrouping edits before modules.yaml updates are finalized |
+| Mode B draft preview | Module owner / reviewer | Review committed draft artifact and confirm readiness for final doc_output write |
+| Mode C unresolved markers | Product owner / domain SME | Resolve critical ❓ items or explicitly approve DEFERRED rationale |
+| Final PR merge | Code owner | Confirm validator results and merge when governance checks pass |
+
+## Governance Stability Assessment Seed (Phase 2.6)
+| Assessment Date | Surface | Observation | Determinism Risk | Proposed Migration | Owner | Status |
+|---|---|---|---|---|---|---|
+| TBD | SKILL Mode A | TBD | Low/Medium/High | Keep in SKILL or migrate to script | TBD | Planned |
+| TBD | SKILL Mode B | TBD | Low/Medium/High | Keep in SKILL or migrate to script | TBD | Planned |
+| TBD | SKILL Mode C | TBD | Low/Medium/High | Keep in SKILL or migrate to script | TBD | Planned |

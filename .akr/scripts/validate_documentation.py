@@ -33,8 +33,9 @@ GENERIC_REQUIRED_SECTIONS = ["Overview"]
 
 PROJECT_LAYER_ENUM = {"UI", "API", "Database", "Integration", "Infrastructure", "Full-Stack"}
 PROJECT_TYPE_ENUM = {"api-backend", "ui-component", "microservice", "general"}
-MODULE_STATUS_ENUM = {"draft", "approved", "in-progress", "deprecated"}
+MODULE_STATUS_ENUM = {"draft", "review", "approved", "in-progress", "deprecated"}
 DB_TYPE_ENUM = {"table", "view", "procedure", "function", "schema"}
+DRAFT_ONLY_FRONT_MATTER_FIELDS = {"preview-generated-at", "review-mode"}
 
 
 @dataclass
@@ -138,6 +139,64 @@ def _load_yaml(path: Path) -> Dict[str, Any]:
     return loaded
 
 
+def _parse_semver(value: Any) -> Optional[Tuple[int, int, int]]:
+    if not isinstance(value, str):
+        return None
+    match = re.match(r"^v?(\d+)\.(\d+)\.(\d+)$", value.strip())
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2)), int(match.group(3))
+
+
+def _extract_front_matter_fields(content: str) -> Dict[str, str]:
+    lines = content.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}
+
+    fields: Dict[str, str] = {}
+    for line in lines[1:]:
+        if line.strip() == "---":
+            break
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        fields[key.strip().lower()] = value.strip()
+    return fields
+
+
+def _collect_declared_artifact_warnings(manifest: Dict[str, Any], workspace_root: Path) -> List[ValidationIssue]:
+    issues: List[ValidationIssue] = []
+    for module in manifest.get("modules", []):
+        if not isinstance(module, dict):
+            continue
+
+        draft_output = module.get("draft_output")
+        if isinstance(draft_output, str) and draft_output.strip():
+            draft_path = (workspace_root / draft_output).resolve()
+            if not draft_path.exists():
+                issues.append(
+                    ValidationIssue(
+                        "warning",
+                        "Draft declared but not found. Run Mode B.",
+                        "declared-artifacts",
+                    )
+                )
+
+        review_sheet = module.get("review_sheet")
+        if isinstance(review_sheet, str) and review_sheet.strip():
+            review_path = (workspace_root / review_sheet).resolve()
+            if not review_path.exists():
+                issues.append(
+                    ValidationIssue(
+                        "warning",
+                        "Review sheet declared but not found. Run Mode A.",
+                        "declared-artifacts",
+                    )
+                )
+
+    return issues
+
+
 def _validate_manifest_schema(manifest: Dict[str, Any]) -> List[ValidationIssue]:
     issues: List[ValidationIssue] = []
 
@@ -171,6 +230,17 @@ def _validate_manifest_schema(manifest: Dict[str, Any]) -> List[ValidationIssue]
     compliance_mode = project.get("compliance_mode")
     if compliance_mode not in {"pilot", "production"}:
         issues.append(ValidationIssue("error", "modules.yaml project.compliance_mode must be pilot or production", "modules-schema"))
+
+    standards_version = _parse_semver(project.get("standards_version"))
+    minimum_standards_version = _parse_semver(project.get("minimum_standards_version"))
+    if standards_version and minimum_standards_version and standards_version < minimum_standards_version:
+        issues.append(
+            ValidationIssue(
+                "error",
+                "modules.yaml project.standards_version must be >= project.minimum_standards_version",
+                "modules-schema",
+            )
+        )
 
     module_names: set[str] = set()
     doc_outputs: set[str] = set()
@@ -255,6 +325,9 @@ def _build_doc_index(manifest: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
                 "doc_type": "module",
                 "module_name": module.get("name"),
                 "project_type": module.get("project_type"),
+                "doc_output": doc_output,
+                "draft_output": module.get("draft_output"),
+                "review_sheet": module.get("review_sheet"),
                 "ssg_pass3_source_reread": bool(module.get("ssg_pass3_source_reread", False)),
                 "ssg_pass4_source_reread": bool(module.get("ssg_pass4_source_reread", False)),
             }
@@ -423,6 +496,16 @@ def _validate_single_file(
 
     if doc_type == "module":
         issues.extend(_check_akr_generated_header(text))
+        front_matter = _extract_front_matter_fields(text)
+        if info.get("doc_output") == _relative_posix(doc_path, workspace_root):
+            if any(field in front_matter for field in DRAFT_ONLY_FRONT_MATTER_FIELDS):
+                issues.append(
+                    ValidationIssue(
+                        "error",
+                        "Final doc contains draft-only front matter fields. Re-run Mode B Step 6a to strip before committing.",
+                        "final-doc-cleanliness",
+                    )
+                )
         if info.get("ssg_pass4_source_reread"):
             issues.append(ValidationIssue("info", "Module override enabled: pass4-override", "pass4-override"))
         if info.get("ssg_pass3_source_reread"):
@@ -470,6 +553,45 @@ def _format_text_output(results: List[ValidationResult], summary: Dict[str, Any]
     return "\n".join(lines)
 
 
+def _format_preview_output(
+    results: List[ValidationResult],
+    preflight_issues: List[ValidationIssue],
+    workspace_root: Path,
+) -> str:
+    lines: List[str] = []
+    for issue in preflight_issues:
+        lines.append(f"[{issue.severity.upper()}] {issue.rule}: {issue.message}")
+
+    for result in results:
+        file_path = (workspace_root / result.file_path).resolve()
+        section_map = {
+            _normalize_heading(name): line
+            for name, line in _extract_h2_headings(file_path.read_text(encoding="utf-8"))
+        }
+        required_sections = MODULE_REQUIRED_SECTIONS if result.doc_type == "module" else DB_REQUIRED_SECTIONS if result.doc_type == "database_object" else GENERIC_REQUIRED_SECTIONS
+        section_status = " | ".join(
+            f"{name} {'OK' if _normalize_heading(name) in section_map else 'MISSING'}" for name in required_sections
+        )
+        question_count = sum(1 for issue in result.issues if issue.rule == "transparency-markers" and "marker(s)" in issue.message)
+        inferred_count = sum(1 for issue in result.issues if issue.rule == "transparency-markers" and "informational" in issue.message)
+
+        content = file_path.read_text(encoding="utf-8")
+        front_matter = _extract_front_matter_fields(content)
+        generation_strategy = front_matter.get("generation-strategy", "unavailable")
+        review_mode = front_matter.get("review-mode", "unavailable")
+
+        lines.append(f"Mode B Preview: {result.module_name or result.file_path}")
+        lines.append(f"Sections present:     {section_status}")
+        lines.append(f"Question markers:    {question_count} sections require human input")
+        lines.append(f"AI inferred content: {inferred_count} items flagged")
+        lines.append(f"Validator result:     {result.error_count()} errors / {result.warning_count()} warnings")
+        lines.append(f"Generation strategy:  {generation_strategy}")
+        lines.append(f"Review mode:          {review_mode}")
+        lines.append("--------------------------------------------------------------")
+
+    return "\n".join(lines)
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate AKR documentation with module-aware rules")
     parser.add_argument("--file", help="Single markdown file to validate")
@@ -477,6 +599,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--changed-files", action="store_true", help="Validate markdown files from changed-files environment output")
     parser.add_argument("--module-name", help="Optional module name filter when modules.yaml exists")
     parser.add_argument("--workspace-root", default=".", help="Workspace root path (default: current directory)")
+    parser.add_argument("--preview", action="store_true", help="Preview mode output for draft review flows")
     parser.add_argument(
         "--fail-on",
         choices=["errors", "warnings", "never", "needs", "all"],
@@ -503,6 +626,7 @@ def main() -> int:
         try:
             manifest = _load_yaml(modules_yaml_path)
             preflight_issues.extend(_validate_manifest_schema(manifest))
+            preflight_issues.extend(_collect_declared_artifact_warnings(manifest, workspace_root))
             doc_index = _build_doc_index(manifest)
             compliance_mode = manifest.get("project", {}).get("compliance_mode", "pilot")
         except Exception as exc:  # noqa: BLE001
@@ -558,7 +682,9 @@ def main() -> int:
         "results": [result.to_dict() for result in results],
     }
 
-    if args.output == "json":
+    if args.preview:
+        print(_format_preview_output(results, preflight_issues, workspace_root))
+    elif args.output == "json":
         print(json.dumps(payload, indent=2))
     else:
         print(_format_text_output(results, summary, preflight_issues))

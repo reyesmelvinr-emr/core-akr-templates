@@ -66,6 +66,31 @@ jobs:
             modules.yaml
             .akr-config.json
 
+      - name: Determine validation fail mode
+        id: validation-fail-mode
+        run: |
+          FAIL_ON="needs"
+          if [ -f modules.yaml ]; then
+            MODE=$(python - <<'PY'
+          import yaml
+          from pathlib import Path
+
+          data = yaml.safe_load(Path("modules.yaml").read_text(encoding="utf-8")) or {}
+          project = data.get("project", {}) if isinstance(data, dict) else {}
+          mode = project.get("compliance_mode", "") if isinstance(project, dict) else ""
+          print(mode)
+          PY
+            )
+
+            if [ "$MODE" = "pilot" ]; then
+              FAIL_ON="never"
+            elif [ "$MODE" = "production" ]; then
+              FAIL_ON="needs"
+            fi
+          fi
+
+          echo "fail_on=$FAIL_ON" >> "$GITHUB_OUTPUT"
+
       - name: Verify Vale config path
         run: |
           if [ -f ~/.akr/templates/validation/.vale.ini ]; then
@@ -122,7 +147,7 @@ jobs:
 
           export CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
           # Run validation (explicit changed-files list from workflow output)
-          python validate_documentation.py --changed-files --output json --fail-on needs $MODULE_ARG > akr-results.json || true
+          python validate_documentation.py --changed-files --output json --fail-on "${{ steps.validation-fail-mode.outputs.fail_on }}" $MODULE_ARG > akr-results.json || true
 
           if [ ! -f akr-results.json ]; then
             echo '{"summary":{"total_errors":1,"total_warnings":0,"average_completeness":0},"results":[]}' > akr-results.json

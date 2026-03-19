@@ -99,6 +99,26 @@
             "type": "string",
             "pattern": "^docs/.+\\.md$"
           },
+          "review_sheet": {
+            "type": "string",
+            "pattern": "^docs/.+\\.md$",
+            "description": "Committed review artifact path, typically docs/modules/.akr/{project}_review.md"
+          },
+          "draft_output": {
+            "type": "string",
+            "pattern": "^docs/.+\\.md$",
+            "description": "Committed draft artifact path, typically docs/modules/.akr/{module}_draft.md"
+          },
+          "last_reviewed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 timestamp for the most recent human review checkpoint"
+          },
+          "review_mode": {
+            "type": "string",
+            "enum": ["full", "incremental"],
+            "description": "Mode used for the latest review pass"
+          },
           "notes": {
             "type": "string"
           },
