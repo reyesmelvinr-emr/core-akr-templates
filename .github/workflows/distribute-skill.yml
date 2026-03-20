@@ -94,9 +94,23 @@ jobs:
       - name: Validate required secret
         run: |
           if [ -z "${GH_TOKEN}" ]; then
-            echo "AKR_DISTRIBUTION_PAT is not configured"
+            echo "::error::AKR_DISTRIBUTION_PAT secret is not configured."
+            echo "::error::Add a fine-grained or classic PAT with 'repo' scope as the AKR_DISTRIBUTION_PAT secret in this repository's settings."
             exit 1
           fi
+
+      - name: Validate target repository access
+        run: |
+          target="${{ matrix.owner }}/${{ matrix.repo }}"
+          if ! gh repo view "$target" --json name > /dev/null 2>&1; then
+            echo "::error::Repository '$target' was not found or is not accessible with the provided token."
+            echo "::error::Please verify:"
+            echo "::error::  1. The repository exists at https://github.com/$target"
+            echo "::error::  2. AKR_DISTRIBUTION_PAT has 'repo' scope and write access to '$target'"
+            echo "::error::  3. The owner and repo name in .github/registered-repos.yaml are correct (names are case-sensitive)"
+            exit 1
+          fi
+          echo "Repository '$target' is accessible."
 
       - name: Clone target repository
         run: |
