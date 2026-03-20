@@ -125,11 +125,14 @@ jobs:
 
           mkdir -p .github/skills/akr-docs
           mkdir -p .github/hooks
+          mkdir -p validation/vale-rules
 
           cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/SKILL.md" .github/skills/akr-docs/SKILL.md
           cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/SKILL-COMPAT.md" .github/skills/akr-docs/SKILL-COMPAT.md
           cp "$GITHUB_WORKSPACE/.github/hooks/postToolUse.json" .github/hooks/postToolUse.json
           cp "$GITHUB_WORKSPACE/.github/hooks/agentStop.json" .github/hooks/agentStop.json
+          cp -r "$GITHUB_WORKSPACE/validation/vale-rules/." validation/vale-rules/
+          cp "$GITHUB_WORKSPACE/validation/.vale.ini" validation/.vale.ini
 
           if [ -f "$GITHUB_WORKSPACE/.github/automated-skill-update.md" ]; then
             cp "$GITHUB_WORKSPACE/.github/automated-skill-update.md" /tmp/automated-skill-update.md
@@ -143,7 +146,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/skills/akr-docs/SKILL.md .github/skills/akr-docs/SKILL-COMPAT.md .github/hooks/postToolUse.json .github/hooks/agentStop.json
+          git add .github/skills/akr-docs/SKILL.md .github/skills/akr-docs/SKILL-COMPAT.md .github/hooks/postToolUse.json .github/hooks/agentStop.json validation/vale-rules validation/.vale.ini
           git commit -m "chore(akr): distribute skill bundle ${{ needs.prepare-matrix.outputs.release_tag }}"
           git push --set-upstream origin "$branch_name"
 
@@ -205,4 +208,4 @@ jobs:
           echo "- Trigger: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Release Tag: ${{ needs.prepare-matrix.outputs.release_tag }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Matrix completion: ${{ needs.distribute.result }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Bundle includes: SKILL.md, SKILL-COMPAT.md, postToolUse.json, agentStop.json" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Bundle includes: SKILL.md, SKILL-COMPAT.md, postToolUse.json, agentStop.json, validation/vale-rules/**, validation/.vale.ini" >> "$GITHUB_STEP_SUMMARY"
