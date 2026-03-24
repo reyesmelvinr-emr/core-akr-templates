@@ -25,7 +25,9 @@
             "avg-per-module": null,
             "min-observed": null,
             "max-observed": null,
-            "with-pass2-split": null
+            "with-pass2-split": null,
+            "github-mcp-calls-per-run": 2,
+            "github-mcp-calls-note": "One @github call for condensed charter (Pass 1) + one @github call for modules.yaml (Pass 1). No additional @github calls authorized in Passes 2-7 per forward payload discipline."
           },
           "quality": {
             "avg-required-sections-present": null,
@@ -56,7 +58,9 @@
             "avg-per-module": null,
             "min-observed": null,
             "max-observed": null,
-            "with-pass2-split": null
+            "with-pass2-split": null,
+            "github-mcp-calls-per-run": 2,
+            "github-mcp-calls-note": "One @github call for condensed charter (Pass 1) + one @github call for modules.yaml (Pass 1). No additional @github calls authorized in Passes 2-7 per forward payload discipline."
           },
           "quality": {
             "avg-required-sections-present": null,
@@ -112,7 +116,9 @@
             "avg-per-module": null,
             "min-observed": null,
             "max-observed": null,
-            "with-pass2-split": null
+            "with-pass2-split": null,
+            "github-mcp-calls-per-run": 2,
+            "github-mcp-calls-note": "One @github call for condensed charter (Pass 1) + one @github call for modules.yaml (Pass 1). No additional @github calls authorized in Passes 2-7 per forward payload discipline."
           },
           "quality": {
             "avg-required-sections-present": null,
@@ -143,7 +149,9 @@
             "avg-per-module": null,
             "min-observed": null,
             "max-observed": null,
-            "with-pass2-split": null
+            "with-pass2-split": null,
+            "github-mcp-calls-per-run": 2,
+            "github-mcp-calls-note": "One @github call for condensed charter (Pass 1) + one @github call for modules.yaml (Pass 1). No additional @github calls authorized in Passes 2-7 per forward payload discipline."
           },
           "quality": {
             "avg-required-sections-present": null,
@@ -249,6 +257,8 @@
     "max-modules-per-month-single-pass": null,
     "recommended-mix": null,
     "quota-reset-cadence": "monthly-first-day",
+    "github-mcp-tool-calls-count-toward-quota": true,
+    "github-mcp-tool-calls-note": "Each @github tool call consumes one premium request in addition to generation calls. Mode B runs budget 2 tool calls per run (charter + modules.yaml). Track separately from generation call counts in Phase 2 pilot data.",
     "notes": "Populate after Phase 2 pilot. recommended-mix is the strategy split that maximizes quality within quota. quota-reset-cadence applied org-wide to all developers."
   }
 }

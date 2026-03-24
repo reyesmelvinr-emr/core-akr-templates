@@ -55,10 +55,13 @@ Use only after Mode A approval. If target module status is draft, stop and reque
 ### Mode B workflow steps
 1. Read modules.yaml and resolve the requested module.
 2. Load condensed charter by project_type from copilot-instructions:
-- api-backend -> backend-service.instructions.md
-- ui-component -> ui-component.instructions.md
-- microservice -> backend-service.instructions.md
-- general -> backend-service.instructions.md
+- PATH A (@github available — VS Code): Use `@github get file <charter_name>` to fetch the condensed charter from `core-akr-templates/copilot-instructions/`:
+  - api-backend -> backend-service.instructions.md
+  - ui-component -> ui-component.instructions.md
+  - microservice -> backend-service.instructions.md
+  - general -> backend-service.instructions.md
+- PATH B (@github unavailable or Visual Studio): Load from `.github/copilot-instructions.md` or local file path directly.
+- PROHIBITION: Do NOT re-read charter files or source files via @github in Passes 2-7. Charter content must be placed in the forward payload in Pass 1 and carried forward as a condensed summary only. Each @github call consumes one premium request; exceeding 2 @github calls per run is prohibited.
 3. Select base template:
 - api-backend/microservice/general -> lean_baseline_service_template.md (module variant)
 - ui-component -> ui_component_template.md (module variant)

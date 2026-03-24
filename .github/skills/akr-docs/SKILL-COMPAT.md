@@ -9,6 +9,8 @@ Last updated: 2026-03-17
 |---|---|---|---|
 | claude-sonnet-4-6 | TBD | TBD | Use explicit /akr-docs mode command and validate metadata header |
 | gpt-4o | TBD | Potential Mode B truncation on large modules | Prefer SSG with split pass 2A/2B and strict validator checks |
+| gpt-4o | TBD | @github tool re-call tendency at high pass depths: model may re-request charter or source files after Pass 2 in violation of forward payload discipline | Explicit PROHIBITION block in SKILL.md Mode B Step 2; monitor premium request counts post-run for unexpected spikes |
+| gpt-4o | TBD | @github tool call output truncation: file content returned by @github may be silently truncated when model context window is near capacity during late SSG passes | Monitor charter completeness in Pass 1 forward payload; if charter appears partial, restart run in PATH B mode |
 
 ## Invocation Surface Matrix
 | Surface | Supported | Notes |
@@ -16,6 +18,13 @@ Last updated: 2026-03-17
 | coding-agent | Yes | Use issue template with explicit Mode B instructions and metadata header checks |
 | custom-agent | Yes | Ensure explicit mode selection and validator invocation |
 | code-skills (run_skill_script) | Yes | Prefer for deterministic script-backed support tasks |
+
+## @github MCP Tool Call Surface Availability
+| Surface | @github Available | Notes |
+|---|---|---|
+| VS Code Copilot Chat | Yes (confirmed 2026-03-23) | GitHub MCP extension installed and authenticated; supports on-demand file fetch via `@github` tool calls |
+| Visual Studio Copilot Chat | TBD — Deliverable 5 | Parity vs VS Code not yet confirmed; determine in Phase 2 Deliverable 5 |
+| GitHub Copilot coding-agent (Actions) | Not applicable | Actions runs do not use VS Code `@github` MCP extension; charter access via local file path only |
 
 ## Known Gap Tracking
 | Gap ID | Description | Impact | Mitigation | Status |
