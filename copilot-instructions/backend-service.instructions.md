@@ -123,13 +123,7 @@ Create explicit unresolved-items list:
 Each unresolved item must use ❓ and include next action/owner if known.
 
 ## Section-Scoped Generation Rules
-Use section-by-section pass behavior to avoid context overload.
-
-Required pass discipline:
-- Load only needed charter slice per section.
-- Build forward payload with extracted facts only.
-- Do not re-expand full context in later passes.
-- If pass split is used (example 2A/2B), record split in metadata.
+SSG pass discipline is governed by SKILL.md §SSG rules. This file does not restate workflow steps.
 
 ## Quality Thresholds
 Minimum quality checks before completion:

@@ -41,13 +41,6 @@ compliance_mode: pilot
 | 🤖 `[path]/[FileName].cs` | 🤖 [Repository Implementation] | 🤖 [Brief description] |
 | 🤖 `[path]/[FileName].cs` | 🤖 [DTO / Models] | 🤖 [Brief description] |
 
-**Module Grouping Principle:**  
-All files in this module share the same domain noun ([DomainNoun]) and represent the full vertical stack from API entry point through data persistence. Files are grouped by:
-- Domain noun identity (what business entity they operate on)
-- Dependency chain (Controller → Service → Repository → Data Access)
-- DTO alignment (request/response models travel with this unit)
-- Interface/implementation pairs (abstractions and concrete implementations stay together)
-
 ---
 
 ## What & Why
@@ -64,21 +57,10 @@ All files in this module share the same domain noun ([DomainNoun]) and represent
 
 🤖 [AI: Bullet list of what the module can do, spanning all files]
 
-**Example:**
-- Enroll users in courses with prerequisite validation
-- Check enrollment eligibility based on business rules
-- Send enrollment confirmation emails
-- Track enrollment history
-
 ### Not Responsible For
 
 🤖 [AI: What this module explicitly does NOT do]  
 ❓ [HUMAN: Clarify scope boundaries - what's handled elsewhere?]
-
-**Example:**
-- Does NOT handle payment processing (handled by [OtherModule])
-- Does NOT validate user authentication (handled by [OtherModule])
-- Does NOT manage course catalog (handled by [OtherModule])
 
 ---
 
@@ -214,13 +196,6 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 🤖 [AI: Explanation of how the files in this module work together]
 
-**File Interaction Pattern:**
-- Controller receives request → calls Service method
-- Service validates business rules → calls Repository method
-- Repository executes query → returns data to Service
-- Service transforms data using DTOs → returns to Controller
-- Controller formats response → returns to client
-
 ---
 
 ## Business Rules
@@ -237,10 +212,6 @@ This section covers ALL operations across ALL files in the module. Operations ar
 - `Service`: Enforced in service layer before data operations
 - `Validator`: Enforced in FluentValidation validators
 - `DB`: Enforced as database constraints (unique, foreign key, check)
-
-**Common Questions:**
-- ❓ [HUMAN: Any rules that seem arbitrary? Document the history.]
-- ❓ [HUMAN: Any rules that changed recently? Document why.]
 
 ---
 
@@ -389,16 +360,6 @@ This section covers ALL operations across ALL files in the module. Operations ar
 | 🤖 `InvalidOperationException` | 🤖 [What causes it] | 🤖 [Which operation fails] | 🤖 [Business consequence] | 🤖 [How module handles it] |
 | 🤖 `DbUpdateException` | 🤖 [DB constraint violated] | 🤖 [Which write operation fails] | 🤖 [Data not persisted] | 🤖 [Retry? Rollback? User message?] |
 
-### Expected vs Unexpected Failures
-
-**Expected Failures** (Module recovers, user informed):
-- Validation errors (400 BadRequest) → User corrects input and retries
-- Resource not found (404 NotFound) → User checks resource ID and retries
-
-**Unexpected Failures** (Module degrades, incident alerting triggered):
-- Database unavailable (500 InternalServerError) → Module down; on-call notified
-- Memory exception (OutOfMemoryException) → Module crash; restart may be needed
-
 ---
 
 ## Questions & Gaps
@@ -454,18 +415,4 @@ git log --grep="BR-[MOD]" docs/modules/[ModuleName]_module_doc.md
 git log --grep="FN#####" docs/modules/[ModuleName]_module_doc.md
 ```
 
----
 
-## Template Metadata
-
-**Template Version**: Lean Baseline Module v1.0  
-**Part of**: Application Knowledge Repo (AKR) system  
-**Time to Complete**: 25-35 minutes (with AI assistance)
-
-**Key Additions from Single-File Template:**
-- Module Files section (maps all files in unit)
-- Operations Map section (all operations across files)
-- Architecture Overview section (full-stack diagram)
-- Module grouping principle (why these files together)
-
-**Pro tip:** Focus on capturing business context (WHY), not rehashing code (WHAT). The code already says WHAT it does - documentation should explain WHY it does it that way.
