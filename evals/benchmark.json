@@ -1,13 +1,13 @@
 {
-  "last-updated": "2026-03-18",
+  "last-updated": "2026-03-31",
   "schema-version": "1.2",
   "models": {
     "claude-sonnet-4-6": {
-      "mode-a-standard": { "pass-rate": null, "avg-tokens": null },
-      "mode-b-coursedomain": { "pass-rate": null, "avg-tokens": null },
-      "mode-b-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
+      "groupings-standard": { "pass-rate": null, "avg-tokens": null },
+      "generate-coursedomain": { "pass-rate": null, "avg-tokens": null },
+      "generate-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
       "ssg": {
-        "mode-b-coursedomain": {
+        "generate-coursedomain": {
           "avg-total-seconds": null,
           "avg-pass-seconds": {
             "pass1": null,
@@ -35,11 +35,11 @@
             "avg-marker-density": null,
             "avg-business-rules-populated": null,
             "validation-first-pass-rate": null,
-            "avg-mode-c-resolution-minutes": null,
+            "avg-resolve-unknowns-resolution-minutes": null,
             "avg-cqs": null
           }
         },
-        "mode-b-large-module": {
+        "generate-large-module": {
           "avg-total-seconds": null,
           "avg-pass-seconds": {
             "pass1": null,
@@ -68,11 +68,11 @@
             "avg-marker-density": null,
             "avg-business-rules-populated": null,
             "validation-first-pass-rate": null,
-            "avg-mode-c-resolution-minutes": null,
+            "avg-resolve-unknowns-resolution-minutes": null,
             "avg-cqs": null
           }
         },
-        "mode-b-single-pass": {
+        "generate-single-pass": {
           "avg-total-seconds": null,
           "section-completeness-vs-ssg": null,
           "premium-requests": {
@@ -86,7 +86,7 @@
             "avg-marker-density": null,
             "avg-business-rules-populated": null,
             "validation-first-pass-rate": null,
-            "avg-mode-c-resolution-minutes": null,
+            "avg-resolve-unknowns-resolution-minutes": null,
             "avg-cqs": null
           },
           "notes": "Populated when developer-elected-single-pass runs are observed in pilot"
@@ -94,11 +94,11 @@
       }
     },
     "gpt-4o": {
-      "mode-a-standard": { "pass-rate": null, "avg-tokens": null },
-      "mode-b-coursedomain": { "pass-rate": null, "avg-tokens": null },
-      "mode-b-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
+      "groupings-standard": { "pass-rate": null, "avg-tokens": null },
+      "generate-coursedomain": { "pass-rate": null, "avg-tokens": null },
+      "generate-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
       "ssg": {
-        "mode-b-coursedomain": {
+        "generate-coursedomain": {
           "avg-total-seconds": null,
           "avg-pass-seconds": {
             "pass1": null,
@@ -126,11 +126,11 @@
             "avg-marker-density": null,
             "avg-business-rules-populated": null,
             "validation-first-pass-rate": null,
-            "avg-mode-c-resolution-minutes": null,
+            "avg-resolve-unknowns-resolution-minutes": null,
             "avg-cqs": null
           }
         },
-        "mode-b-large-module": {
+        "generate-large-module": {
           "avg-total-seconds": null,
           "avg-pass-seconds": {
             "pass1": null,
@@ -159,11 +159,11 @@
             "avg-marker-density": null,
             "avg-business-rules-populated": null,
             "validation-first-pass-rate": null,
-            "avg-mode-c-resolution-minutes": null,
+            "avg-resolve-unknowns-resolution-minutes": null,
             "avg-cqs": null
           }
         },
-        "mode-b-single-pass": {
+        "generate-single-pass": {
           "avg-total-seconds": null,
           "section-completeness-vs-ssg": null,
           "premium-requests": {
@@ -177,7 +177,7 @@
             "avg-marker-density": null,
             "avg-business-rules-populated": null,
             "validation-first-pass-rate": null,
-            "avg-mode-c-resolution-minutes": null,
+            "avg-resolve-unknowns-resolution-minutes": null,
             "avg-cqs": null
           }
         }
@@ -185,7 +185,7 @@
     },
     "coding-agent": {
       "ssg": {
-        "mode-b-coursedomain": {
+        "generate-coursedomain": {
           "avg-total-seconds": null,
           "pass-timings-available": null,
           "avg-pass-seconds": {},
@@ -201,10 +201,10 @@
             "avg-required-sections-present": null,
             "validation-first-pass-rate": null,
             "avg-cqs": null,
-            "note": "operations-map-completeness and mode-c-resolution-minutes collected manually during Phase 2.5 review"
+            "note": "operations-map-completeness and resolve-unknowns-resolution-minutes collected manually during Phase 2.5 review"
           }
         },
-        "mode-b-ui-component": {
+        "generate-ui-component": {
           "avg-total-seconds": null,
           "pass-timings-available": null,
           "avg-pass-seconds": {},
@@ -220,10 +220,10 @@
             "avg-required-sections-present": null,
             "validation-first-pass-rate": null,
             "avg-cqs": null,
-            "note": "operations-map-completeness and mode-c-resolution-minutes collected manually during Phase 2.5 review"
+            "note": "operations-map-completeness and resolve-unknowns-resolution-minutes collected manually during Phase 2.5 review"
           }
         },
-        "mode-b-large-module": {
+        "generate-large-module": {
           "avg-total-seconds": null,
           "pass-timings-available": null,
           "avg-pass-seconds": {},
@@ -258,7 +258,7 @@
     "recommended-mix": null,
     "quota-reset-cadence": "monthly-first-day",
     "github-mcp-tool-calls-count-toward-quota": true,
-    "github-mcp-tool-calls-note": "Each @github tool call consumes one premium request in addition to generation calls. Mode B runs budget 2 tool calls per run (charter + modules.yaml). Track separately from generation call counts in Phase 2 pilot data.",
+    "github-mcp-tool-calls-note": "Each @github tool call consumes one premium request in addition to generation calls. GenerateDocumentation runs budget 2 tool calls per run (charter + modules.yaml). Track separately from generation call counts in Phase 2 pilot data.",
     "notes": "Populate after Phase 2 pilot. recommended-mix is the strategy split that maximizes quality within quota. quota-reset-cadence applied org-wide to all developers."
   }
 }

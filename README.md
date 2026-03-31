@@ -14,7 +14,7 @@
 This repository serves as the **single source of truth** for AKR documentation templates, charters, and standards used across all Emerson projects. It enables:
 
 - ✅ **Module-based documentation** with three-tier architecture (source modules, database objects, consolidated features)
-- ✅ **GitHub Copilot Agent Skill workflow** with three modes: grouping proposal, documentation generation, and interactive HITL completion
+- ✅ **GitHub Copilot Agent Skill workflow** with three modes: groupings proposal, documentation generation, and interactive HITL completion
 - ✅ **Context-efficient generation** with compressed charters and template variants
 - ✅ **Version-controlled standards** with semantic versioning and traceability
 - ✅ **Zero infrastructure cost** (leverages existing GitHub Copilot licenses)
@@ -56,9 +56,9 @@ This repository serves as the **single source of truth** for AKR documentation t
 - **Database** - Database documentation standards (compressed: ~2,500 tokens)
 
 ### 🤖 GitHub Copilot Agent Skill Workflow
-- **Mode A** - Propose module groupings from project source code
-- **Mode B** - Generate module documentation with SSG-style semantic search/generation passes
-- **Mode C** - Interactive HITL completion for unresolved `❓` sections in existing drafts
+  - **ProposeGroupings** - Propose module groupings from project source code
+  - **GenerateDocumentation** - Generate module documentation with SSG-style semantic search/generation passes
+  - **ResolveUnknowns** - Interactive HITL completion for unresolved `❓` sections in existing drafts
 
 ### 🏷️ Tagging Strategy
 - **Module grouping** via `modules.yaml` manifest
@@ -105,7 +105,7 @@ core-akr-templates/
 ├── .github/
 │   ├── skills/                         # GitHub Copilot Agent Skills
 │   │   └── akr-docs/
-│   │       ├── SKILL.md                # Three-mode workflow (A, B, C)
+│   │       ├── SKILL.md                # Skill workflow (ProposeGroupings, GenerateDocumentation, ResolveUnknowns)
 │   │       ├── SKILL-COMPAT.md         # Model compatibility matrix
 │   │       ├── postToolUse.json        # Hook for session logging
 │   │       └── agentStop.json          # Hook for change detection
@@ -121,9 +121,9 @@ core-akr-templates/
 ├── evals/                              # Evaluation cases and benchmarks
 │   ├── benchmark.json                  # Premium request, quality, and quota metrics
 │   └── cases/                          # Test cases for different scenarios
-│       ├── mode-a-standard.yaml
-│       ├── mode-b-coursedomain.yaml
-│       ├── mode-b-large-module.yaml
+│       ├── groupings-standard.yaml
+│       ├── generate-coursedomain.yaml
+│       ├── generate-large-module.yaml
 │       └── ssg-pass-sequence.yaml
 ├── examples/                           # Example configurations
 │   ├── modules.trainingtracker.api.yaml
@@ -228,21 +228,21 @@ cp .akr/templates/examples/workflows/validate-documentation.yml .github/workflow
 
 #### 6. Use the Agent Skill Workflow
 
-**Mode A — Propose Module Groupings** (first time)
+**ProposeGroupings — Propose Module Groupings** (first time)
 ```
-/akr-docs mode-a
+/akr-docs groupings
 → Scans project files, proposes module groupings, creates draft modules.yaml PR
 ```
 
-**Mode B — Generate Documentation** (after Mode A approval)
+**GenerateDocumentation — Generate Documentation** (after ProposeGroupings approval)
 ```
-/akr-docs mode-b CourseDomain
+/akr-docs generate CourseDomain
 → Reads approved modules.yaml, generates module documentation, creates draft PR
 ```
 
-**Mode C — Interactive HITL Completion** (during review)
+**ResolveUnknowns — Interactive HITL Completion** (during review)
 ```
-/akr-docs mode-c CourseDomain_doc.md
+/akr-docs resolve CourseDomain_doc.md
 → Walks through unresolved ❓ sections interactively, applies edits as you approve
 ```
 
@@ -261,7 +261,7 @@ See [.github/skills/akr-docs/SKILL.md](.github/skills/akr-docs/SKILL.md) for ful
 | Cross-Module Feature | `feature-consolidated.md` | Level 3 | 15-20 min (auto-aggregated) |
 
 **Key Differences from v1.0:**
-- Module grouping is **human-proposed first** (Mode A), then approved by tech lead
+- Module grouping is **human-proposed first** (ProposeGroupings), then approved by tech lead
 - Documentation is **generated per module**, not per individual file
 - **Condensed charters** (2,500 tokens) provide context efficiency vs. full charters
 - **Three documentation levels** with clear ownership and audience (Level 1: developer, Level 2: DBA, Level 3: product owner)
@@ -348,14 +348,14 @@ All generated documentation uses transparency markers to communicate automation 
 |---|---|---|
 | `🤖` | Automated content generated with confidence | Review for accuracy; minimal edits expected |
 | `❓` | Unresolved question requiring human input | **PROD MODE**: Blocks PR merge; **PILOT**: Warning only |
-| `👤` | Section marked for human completion | Developer provides input during Mode C HITL pass |
+| `👤` | Section marked for human completion | Developer provides input during ResolveUnknowns HITL pass |
 | `DEFERRED` | Intentionally deferred to later phase or external owner | Document rationale and owner; no merge block |
 | `VERIFY` | Content auto-generated but confidence low; needs verification | Verify against actual code during review |
 | `NEEDS` | Indicates a gap or missing prerequisite | Address explicitly; cannot defer in production mode |
 
 These markers enable:
 - ✅ Clear visibility of automation completeness
-- ✅ Structured HITL workflows (Mode C)
+- ✅ Structured HITL workflows (ResolveUnknowns)
 - ✅ Progressive compliance mode graduation (pilot → production)
 - ✅ Audit trail for governance and compliance
 
@@ -370,7 +370,7 @@ These markers enable:
 - **[TAG_REGISTRY_GUIDE.md](docs/TAG_REGISTRY_GUIDE.md)** — Feature tagging, tag registry schema, traceability
 - **[CHANGELOG.md](CHANGELOG.md)** — Release notes and breaking changes
 - **[Copilot Instructions](copilot-instructions/)** — Compressed charters (backend, UI, database)
-- **[Agent Skill](/.github/skills/akr-docs/SKILL.md)** — Mode A/B/C workflow definition
+- **[Agent Skill](/.github/skills/akr-docs/SKILL.md)** — ProposeGroupings / GenerateDocumentation / ResolveUnknowns workflow definition
 - **[Compatibility Matrix](/.github/skills/akr-docs/SKILL-COMPAT.md)** — Model pass rates and workarounds
 
 **Full Charters** (reference and detail):
@@ -435,12 +435,12 @@ Currently accepting managed pilot teams. See [AKR_Tracking.md](AKR_Tracking.md) 
 
 Phase 2 (Pilot) is actively collecting the following metrics:
 
-### Module Grouping (Mode A)
+### Module Grouping (ProposeGroupings)
 - **Grouping validation time**: Target ≤ 15 min per project
 - **Reassignment count**: Files moved during review (measures agent accuracy)
 - **Unassigned file rate**: % of files requiring manual assessment
 
-### Documentation Generation (Mode B)
+### Documentation Generation (GenerateDocumentation)
 - **Time-to-first-documented-PR**: Target ≤ 45 min
 - **First-run CI pass rate**: Target ≥ 95%
 - **Unresolved marker rate**: Target < 5% of generated content
@@ -452,7 +452,7 @@ Phase 2 (Pilot) is actively collecting the following metrics:
 
 ### Time Savings
 - **Pre-AKR baseline**: 60-90 minutes per module (full manual documentation)
-- **With AKR v1.1**: 10-15 minutes per module (Mode B generation + Mode C HITL)
+- **With AKR v1.1**: 10-15 minutes per module (GenerateDocumentation + ResolveUnknowns HITL)
 - **Target savings**: 70-85%
 
 Detailed metrics captured in [AKR_Tracking.md](AKR_Tracking.md#metrics)
@@ -466,7 +466,7 @@ Detailed metrics captured in [AKR_Tracking.md](AKR_Tracking.md#metrics)
 
 **Agent Skill not loading in VS Code**
 - ✅ Confirm `disable-model-invocation: true` is in SKILL.md frontmatter
-- ✅ Use explicit `/akr-docs mode-a` command instead of conversational intent
+- ✅ Use explicit `/akr-docs groupings` command instead of conversational intent
 - ✅ Check that `SKILL.md` is in `.github/skills/akr-docs/` (distributed via workflow)
 - ⚠️ See [SKILL-COMPAT.md](/.github/skills/akr-docs/SKILL-COMPAT.md) for model-specific workarounds
 
@@ -488,7 +488,7 @@ git submodule update .akr/templates
 - See [VALIDATION_GUIDE.md](docs/VALIDATION_GUIDE.md) for compliance mode details
 
 **Unresolved ❓ markers blocking merge (production mode)**
-- Use Mode C: `/akr-docs mode-c docs/modules/YourModule_doc.md`
+- Use ResolveUnknowns: `/akr-docs resolve docs/modules/YourModule_doc.md`
 - Or manually resolve and replace `❓` markers with content
 - Mark as `DEFERRED` with rationale if deferring intentionally (documented owner required)
 

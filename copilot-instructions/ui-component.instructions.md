@@ -3,7 +3,7 @@
 Version: 1.0
 Extends: .akr/charters/AKR_CHARTER.md
 Source charter: .akr/charters/AKR_CHARTER_UI.md
-Audience: Agent Skill Mode B for ui-component modules
+Audience: Agent Skill GenerateDocumentation for ui-component modules
 
 ## Scope
 Apply these rules when generating documentation for UI modules, including pages, reusable components, hooks, and UI utilities. Emphasize component contracts, state behavior, accessibility, and interaction flow.

@@ -1,7 +1,7 @@
-id: mode-b-coursedomain
-description: Validate Mode B output completeness for CourseDomain
+id: generate-coursedomain
+description: Validate generation output completeness for CourseDomain
 inputs:
-  command: /akr-docs mode-b CourseDomain
+  command: /akr-docs generate CourseDomain
 assertions:
   - required_sections_present
   - module_files_complete

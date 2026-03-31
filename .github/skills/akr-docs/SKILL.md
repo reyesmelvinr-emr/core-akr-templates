@@ -2,7 +2,7 @@
 name: akr-docs
 description: >
   Generate AKR module documentation following charters and templates.
-  Invoke explicitly via /akr-docs [mode-a | mode-b | mode-c] [target].
+  Invoke explicitly via /akr-docs [groupings | generate | resolve] [target].
 disable-model-invocation: true
 compatibility:
   models:
@@ -26,7 +26,7 @@ Steps followed: 1. [step] - completed | 2. [step] - completed | ...
 
 # AKR Documentation Workflow
 
-## Mode A - Propose Module Groupings
+## ProposeGroupings - Propose Module Groupings
 Use when asked to propose module groupings or initialize modules.yaml.
 
 1. Check for modules.yaml in the project root.
@@ -47,17 +47,17 @@ Use when asked to propose module groupings or initialize modules.yaml.
 8. Write draft modules.yaml with status: draft for all module entries.
 9. Produce grouping review checklist and stop for human approval.
 
-Mode A checklist:
+ProposeGroupings checklist:
 - All groupings reviewed for semantic correctness.
 - Module names reflect domain language.
 - No module exceeds max_files.
 - Misplaced and shared files reviewed.
 - businessCapability keys align with tag registry.
 
-## Mode B - Generate Module Documentation
-Use only after Mode A approval. If target module status is draft, stop and request approval first.
+## GenerateDocumentation - Generate Module Documentation
+Use only after ProposeGroupings approval. If target module status is draft, stop and request approval first.
 
-### Mode B workflow steps
+### GenerateDocumentation workflow steps
 1. Read modules.yaml and resolve the requested module.
 2. Load condensed charter by project_type from copilot-instructions:
 - PATH A (@github available — VS Code): Use `@github get file <charter_name>` to fetch the condensed charter from `core-akr-templates/copilot-instructions/`:
@@ -85,7 +85,7 @@ Write this before document sections:
 <!-- akr-generated
 skill: akr-docs
 skill-version: v1.0.0
-mode: B
+mode: generation
 template: {template}
 charter: {condensed charter}
 modules-yaml-status: approved
@@ -117,7 +117,7 @@ SSG rules:
 Marker policy: Apply placement rules as defined in the loaded condensed charter (copilot-instructions/). For grounding-specific marker decisions (when to use 🤖 vs unmarked vs ❓), the Source Grounding rules in this file take precedence.
 
 ## Source Grounding
-Apply in every Mode B pass. These rules are not optional and are not overridden by template placeholders.
+Apply in every GenerateDocumentation pass. These rules are not optional and are not overridden by template placeholders.
 - Do not invent auth requirements, consumers, DB indexes, external integrations, future features, or cross-module dependencies unless directly evidenced by files listed in modules.yaml for this module.
 - Prefer unmarked factual statements for content directly evidenced by source files. Use 🤖 only for synthesis or inference across multiple files. Use ❓ only for missing business context, intent, dates, or ownership that cannot be determined from the listed module files alone.
 - Do not emit ❓ for information directly recoverable from the listed module files. If the code answers the question, state the answer.
@@ -130,7 +130,7 @@ When a conditional section is excluded, record the exclusion reason in the commi
 - Consumer Map: include only if actual callers or explicit dependencies are visible in the listed module files — not inferred from module name.
 - Related Documentation: include only if doc_output paths for related modules are present in modules.yaml.
 
-## Mode C - Interactive HITL Completion
+## ResolveUnknowns - Interactive HITL Completion
 Use for existing documents with unresolved ❓ markers.
 
 1. Read target document and enumerate unresolved markers by section.
@@ -141,7 +141,7 @@ Use for existing documents with unresolved ❓ markers.
 6. Re-run validation after each batch.
 7. Summarize resolved vs deferred items and remaining blockers.
 
-Mode C completion checklist:
+ResolveUnknowns completion checklist:
 - Critical unresolved markers addressed.
 - Deferred items include owner and follow-up trigger.
 - Validation passes for current compliance mode.

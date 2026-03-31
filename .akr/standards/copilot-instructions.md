@@ -38,9 +38,9 @@ Completeness = (Completed Sections / Total Sections) * 100
 
 Always invoke this skill explicitly:
 
-- `/akr-docs mode-a`
-- `/akr-docs mode-b`
-- `/akr-docs mode-c`
+- `/akr-docs groupings`
+- `/akr-docs generate`
+- `/akr-docs resolve`
 
 Never rely on implicit skill auto-discovery for production-bound output.
 
@@ -81,7 +81,7 @@ Apply all four principles during grouping and documentation generation:
 
 ## Three-Mode Skill Guidance
 
-### Mode A (Grouping proposal)
+### ProposeGroupings (Grouping proposal)
 Use when:
 - `modules.yaml` is missing.
 - Existing groupings are draft or outdated.
@@ -92,7 +92,7 @@ Output:
 - Unassigned file list with reasons.
 - Human review checklist.
 
-### Mode B (Documentation generation)
+### GenerateDocumentation (Documentation generation)
 Use when:
 - `modules.yaml` entries are approved.
 - You need generated module documentation.
@@ -102,7 +102,7 @@ Output:
 - Required metadata header in generated document.
 - Validation execution and pass/fail summary.
 
-### Mode C (Interactive HITL completion)
+### ResolveUnknowns (Interactive HITL completion)
 Use when:
 - A generated draft contains unresolved `?` markers.
 - Human context or decisions are needed before production mode.
@@ -153,13 +153,13 @@ For database objects, require object-appropriate tags and keep `businessCapabili
 
 - In `pilot`, unresolved `?` markers are allowed but must be visible.
 - In `production`, unresolved required `?` markers are blocking.
-- Use Mode C to resolve marker debt before graduating compliance mode.
+- Use ResolveUnknowns to resolve marker debt before graduating compliance mode.
 
 ## Operational Checklist
 
 Before merge:
 
-1. Module grouping reviewed (if Mode A changed module boundaries).
+1. Module grouping reviewed (if ProposeGroupings changed module boundaries).
 2. Generated docs contain metadata header and required sections.
 3. `businessCapability` values are PascalCase.
 4. Validator passes at intended compliance mode.

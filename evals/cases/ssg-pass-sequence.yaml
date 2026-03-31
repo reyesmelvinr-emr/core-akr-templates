@@ -1,7 +1,7 @@
 id: ssg-pass-sequence
 description: Validate SSG pass sequencing and timing fields
 inputs:
-  command: /akr-docs mode-b CourseDomain
+  command: /akr-docs generate CourseDomain
 assertions:
   - generation_strategy_section_scoped
   - passes_completed_contains_1_to_7_or_split

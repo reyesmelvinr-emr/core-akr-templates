@@ -7,7 +7,7 @@ review-owner: "{Name}"
 
 # Module Grouping Review Sheet
 
-Use this committed artifact format for Mode A review checkpoints.
+Use this committed artifact format for ProposeGroupings review checkpoints.
 
 ## Review Decision
 - [ ] Approved
@@ -31,5 +31,5 @@ Use this committed artifact format for Mode A review checkpoints.
 
 ## Next Actions
 - [ ] Update modules.yaml with approved regrouping
-- [ ] Re-run Mode B for approved modules only
+- [ ] Re-run GenerateDocumentation for approved modules only
 - [ ] Update AKR_Tracking.md evidence entry

@@ -1,7 +1,7 @@
-id: mode-b-large-module
-description: Stress-test Mode B on large module with no truncation
+id: generate-large-module
+description: Stress-test documentation generation on large module with no truncation
 inputs:
-  command: /akr-docs mode-b EnrollmentDomain
+  command: /akr-docs generate EnrollmentDomain
 assertions:
   - required_sections_present
   - no_truncation_markers

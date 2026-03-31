@@ -3,7 +3,7 @@
 Version: 1.0
 Extends: .akr/charters/AKR_CHARTER.md
 Source charter: .akr/charters/AKR_CHARTER_BACKEND.md
-Audience: Agent Skill Mode B for api-backend modules
+Audience: Agent Skill GenerateDocumentation for api-backend modules
 
 ## Scope
 Apply these rules when generating module documentation for backend service modules. Focus on service-layer behavior, orchestration, and business rules. Do not treat controller-only details as the primary documentation target.

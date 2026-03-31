@@ -8,7 +8,7 @@ passes-completed: 1,2,3,4,5,6,7
 
 # {ModuleName} Draft
 
-This file is a committed draft artifact used in Mode B preview flow.
+This file is a committed draft artifact used in GenerateDocumentation preview flow.
 
 ## Reviewer Checklist
 - [ ] Module Files section complete

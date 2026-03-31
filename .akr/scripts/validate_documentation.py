@@ -177,7 +177,7 @@ def _collect_declared_artifact_warnings(manifest: Dict[str, Any], workspace_root
                 issues.append(
                     ValidationIssue(
                         "warning",
-                        "Draft declared but not found. Run Mode B.",
+                        "Draft declared but not found. Run GenerateDocumentation.",
                         "declared-artifacts",
                     )
                 )
@@ -189,7 +189,7 @@ def _collect_declared_artifact_warnings(manifest: Dict[str, Any], workspace_root
                 issues.append(
                     ValidationIssue(
                         "warning",
-                        "Review sheet declared but not found. Run Mode A.",
+                        "Review sheet declared but not found. Run ProposeGroupings.",
                         "declared-artifacts",
                     )
                 )
@@ -502,7 +502,7 @@ def _validate_single_file(
                 issues.append(
                     ValidationIssue(
                         "error",
-                        "Final doc contains draft-only front matter fields. Re-run Mode B Step 6a to strip before committing.",
+                        "Final doc contains draft-only front matter fields. Re-run GenerateDocumentation Step 6a to strip before committing.",
                         "final-doc-cleanliness",
                     )
                 )
@@ -580,7 +580,7 @@ def _format_preview_output(
         generation_strategy = front_matter.get("generation-strategy", "unavailable")
         review_mode = front_matter.get("review-mode", "unavailable")
 
-        lines.append(f"Mode B Preview: {result.module_name or result.file_path}")
+        lines.append(f"GenerateDocumentation Preview: {result.module_name or result.file_path}")
         lines.append(f"Sections present:     {section_status}")
         lines.append(f"Question markers:    {question_count} sections require human input")
         lines.append(f"AI inferred content: {inferred_count} items flagged")

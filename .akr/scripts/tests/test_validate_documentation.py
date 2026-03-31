@@ -152,7 +152,7 @@ def test_preview_mode_prints_preview_block() -> None:
         _write_module_doc(root / "docs/modules/CourseDomain_doc.md", "review-mode: full\n")
 
         result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--preview"])
-        assert "Mode B Preview: CourseDomain" in result.stdout
+        assert "GenerateDocumentation Preview: CourseDomain" in result.stdout
         assert "Review mode:" in result.stdout
 
 
@@ -191,8 +191,8 @@ def test_declared_artifacts_missing_warns() -> None:
         result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
         payload = json.loads(result.stdout)
         messages = [issue["message"] for issue in payload["preflight_issues"]]
-        assert "Draft declared but not found. Run Mode B." in messages
-        assert "Review sheet declared but not found. Run Mode A." in messages
+        assert "Draft declared but not found. Run GenerateDocumentation." in messages
+        assert "Review sheet declared but not found. Run ProposeGroupings." in messages
 
 
 def test_final_doc_rejects_draft_only_front_matter() -> None:
@@ -232,6 +232,6 @@ def test_final_doc_rejects_draft_only_front_matter() -> None:
         payload = json.loads(result.stdout)
         messages = [issue["message"] for issue in payload["results"][0]["issues"]]
         assert (
-            "Final doc contains draft-only front matter fields. Re-run Mode B Step 6a to strip before committing."
+            "Final doc contains draft-only front matter fields. Re-run GenerateDocumentation Step 6a to strip before committing."
             in messages
         )

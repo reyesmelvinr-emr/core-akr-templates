@@ -1,7 +1,7 @@
-id: mode-a-standard
-description: Validate Mode A grouping output structure and max_files compliance
+id: groupings-standard
+description: Validate grouping proposal output structure and max_files compliance
 inputs:
-  command: /akr-docs mode-a TrainingTracker.Api
+  command: /akr-docs groupings TrainingTracker.Api
 assertions:
   - modules_yaml_exists
   - modules_have_status_draft

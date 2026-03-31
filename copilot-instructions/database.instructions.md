@@ -3,7 +3,7 @@
 Version: 1.0
 Extends: .akr/charters/AKR_CHARTER.md
 Source charter: .akr/charters/AKR_CHARTER_DB.md
-Audience: Agent Skill Mode B for database object docs
+Audience: Agent Skill GenerateDocumentation for database object docs
 
 ## Scope
 Apply these rules to database objects such as tables, views, procedures, functions, and schema-scoped objects. Focus on structure, relationships, usage behavior, constraints, and operational risk.
