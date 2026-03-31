@@ -39,8 +39,9 @@ Before section content, include an AKR metadata header block:
 
 ## Transparency Marker Rules
 Use markers consistently and do not omit them:
-- 🤖 for AI-inferred statements.
-- ❓ for unknowns that require human validation.
+- Prefer unmarked factual statements for content directly evidenced by the listed module source files.
+- 🤖 for AI synthesis or inference across multiple files — not for single-source facts.
+- ❓ for missing business context, intent, dates, or ownership that cannot be determined from the listed module files alone. Do not use ❓ for information directly readable from code.
 - NEEDS for required data pending completion.
 - VERIFY for assumptions requiring confirmation.
 - DEFERRED only with explicit justification text.
@@ -124,6 +125,22 @@ Each unresolved item must use ❓ and include next action/owner if known.
 
 ## Section-Scoped Generation Rules
 SSG pass discipline is governed by SKILL.md §SSG rules. This file does not restate workflow steps.
+
+## Grounding Rules
+All factual claims must be directly traceable to files listed in modules.yaml for this module.
+- Do not infer authorization schemes, persistence constraints, index names, or cross-module dependencies unless they appear in the listed module files.
+- Do not claim a consumer, caller, or external integration exists unless it is visible in the listed files.
+- Prefer concise factual statements over expansive narrative. If the source does not support a statement, mark it ❓ or omit it.
+
+## Readability Floor
+Generated documentation must be readable by a non-implementing reviewer.
+- Include a Quick Reference (TL;DR) that a Product Owner or QA reviewer can understand without reading the rest of the document.
+- Include one end-to-end operational flow narrative if the source supports it.
+
+## Unknowns Discipline
+- Use ❓ for missing business intent, missing lifecycle dates, and unverifiable ownership.
+- Do not use ❓ for information directly observable in the module source files. If the code answers the question, state the answer without a marker.
+- If a section cannot be evidenced from the listed files, mark the entire section ❓ NEEDS with a note rather than generating speculative content.
 
 ## Quality Thresholds
 Minimum quality checks before completion:

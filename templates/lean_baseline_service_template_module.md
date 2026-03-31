@@ -21,13 +21,13 @@ compliance_mode: pilot
 
 **What it does:**  
 🤖 [AI: 1-2 sentences describing the module's primary responsibility across all files]  
-❓ [HUMAN: Add business value - why does this module exist?]
+❓ [HUMAN: Cite the specific business outcome this module enables — do not infer from module name alone]
 
 **When to use it:**  
-❓ [HUMAN: What scenarios trigger use of this module? Web UI? API? Background jobs?]
+❓ [HUMAN: Name the actual caller — UI page, background job, or specific API client — do not guess]
 
 **Watch out for:**  
-❓ [HUMAN: Critical gotcha or common mistake when using this module]
+❓ [HUMAN: Cite a specific code path or error scenario — do not infer from module name alone]
 
 ---
 
@@ -61,21 +61,6 @@ compliance_mode: pilot
 
 🤖 [AI: What this module explicitly does NOT do]  
 ❓ [HUMAN: Clarify scope boundaries - what's handled elsewhere?]
-
----
-
-## Module Files - Detailed Breakdown
-
-### [FileName].cs — [Role]
-
-**Responsibility**: 🤖 [AI: What this file accomplishes]  
-**Dependencies**: 🤖 [AI: What this file depends on]  
-**Consumers**: 🤖 [AI: What depends on this file]  
-
-**Key Methods**:
-| Method | Parameters | Returns | Purpose |
-|--------|-----------|---------|---------|
-| 🤖 `[MethodName]` | 🤖 [list] | 🤖 [type] | 🤖 [brief purpose] |
 
 ---
 
@@ -196,15 +181,29 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 🤖 [AI: Explanation of how the files in this module work together]
 
+### Dependencies (What This Module Needs)
+
+<!-- conditional: include only if external dependencies are visible in the listed module files -->
+| Dependency | Purpose | Failure Mode | Critical? |
+|------------|---------|--------------|-----------|
+| 🤖 `I[DependencyName]` | 🤖 [AI: What it's used for] | 🤖 [AI: What exception occurs] | ❓ [HUMAN: Blocking? Can module degrade gracefully?] |
+
+### Consumers (Who Uses This Module)
+
+<!-- conditional: include only if actual callers are visible in the listed module files — do not guess from module name -->
+| Consumer | Use Case | Impact of Failure |
+|----------|----------|-------------------|
+| 🤖 [Controller/Service name] | 🤖 [AI: How they use it] | ❓ [HUMAN: User-facing? Background?] |
+
 ---
 
 ## Business Rules
 
 | Rule | Why It Exists | Since When | Where Enforced |
 |------|---------------|------------|----------------|
-| 🤖 **BR-[MOD]-001** | 🤖 [AI: Rule description from code] | ❓ [HUMAN: When added] | 🤖 [AI: Service/Validator/DB - where checked?] |
-| 🤖 **BR-[MOD]-002** | 🤖 [AI: Rule description from code] | ❓ [HUMAN: When added] | 🤖 [AI: Service/Validator/DB - where checked?] |
-| 🤖 **BR-[MOD]-003** | 🤖 [AI: Rule description from code] | ❓ [HUMAN: When added] | 🤖 [AI: Service/Validator/DB - where checked?] |
+| 🤖 **BR-[MOD]-001** | 🤖 [AI: Rule description from code] | ❓ [HUMAN: Exact date or sprint — do not estimate] | 🤖 [AI: Service/Validator/DB - where checked?] |
+| 🤖 **BR-[MOD]-002** | 🤖 [AI: Rule description from code] | ❓ [HUMAN: Exact date or sprint — do not estimate] | 🤖 [AI: Service/Validator/DB - where checked?] |
+| 🤖 **BR-[MOD]-003** | 🤖 [AI: Rule description from code] | ❓ [HUMAN: Exact date or sprint — do not estimate] | 🤖 [AI: Service/Validator/DB - where checked?] |
 
 **Rule ID Format:** BR-[ModuleAbbreviation]-### (e.g., BR-CRS-001 for Course module)
 
@@ -215,46 +214,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
-## Architecture
-
-### Where This Module Fits in the System
-
-```
-┌────────────────────────────────────────┐
-│ API Gateway / HTTP Entry Point         │
-└────────────────────────────────────────┘
-                   ↓
-┌────────────────────────────────────────┐
-│ THIS MODULE ([ModuleName])             │
-│ ► Entry: [ControllerName]              │
-│ ► Business: [ServiceInterface]         │
-│ ► Data: [RepositoryInterface]          │
-│ ► Persistence: [DatabaseTable]         │
-└────────────────────────────────────────┘
-                   ↓
-┌────────────────────────────────────────┐
-│ Related Modules (Dependencies)         │
-│ ├─ [Module A] - for [purpose]         │
-│ └─ [Module B] - for [purpose]         │
-└────────────────────────────────────────┘
-```
-
-### Dependencies (What This Module Needs)
-
-| Dependency | Purpose | Failure Mode | Critical? |
-|------------|---------|--------------|-----------|
-| 🤖 `I[DependencyName]` | 🤖 [AI: What it's used for] | 🤖 [AI: What exception occurs] | ❓ [HUMAN: Blocking? Can module degrade?] |
-| 🤖 `I[DependencyName]` | 🤖 [AI: What it's used for] | 🤖 [AI: What exception occurs] | ❓ [HUMAN: Fallback available?] |
-
-### Consumers (Who Uses This Module)
-
-| Consumer | Use Case | Impact of Failure |
-|----------|----------|-------------------|
-| 🤖 [Controller/Service name] | 🤖 [AI: How they use it] | ❓ [HUMAN: User-facing? Background?] |
-| 🤖 [Controller/Service name] | 🤖 [AI: How they use it] | ❓ [HUMAN: What breaks if this fails?] |
-
----
-
+<!-- conditional: include only if module contains a controller with [Http*] attributes or explicit external DTO contracts visible in listed module files -->
 ## API Contract (AI Context)
 
 > 📋 **Interactive Documentation:** [API Portal - [ModuleName]](https://apim.gateway.emerson.com/...) — use for testing
@@ -320,6 +280,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
+<!-- conditional: include only if *Validator.cs files, DTO data annotations, or explicit guard clauses exist in the listed module files -->
 ## Validation Rules
 
 🤖 [AI: Extract from *Validator.cs FluentValidation classes]
@@ -374,45 +335,15 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
-## Maintenance Checklist
 
-**When making code changes to this module:**
-
-- [ ] Update this documentation if behavior changes
-- [ ] Update Operations Map if operations added/removed
-- [ ] Update Module Files if new files added to module
-- [ ] Update business rules table if validation logic changes
-- [ ] Update flow diagram if steps added/removed
-- [ ] Update "Questions & Gaps" if resolving unknowns
-
----
-
+<!-- conditional: include only if doc_output paths for related modules are present in modules.yaml -->
 ## Related Documentation
 
-**Other Modules:** Link to related module docs:
+**Other Modules:** Link to related module docs (confirmed paths from modules.yaml only):
 - `[ModuleName](./[ModuleName]_module_doc.md)`
 
 **Database Tables:** See database documentation:
 - `[Table Name](../../database-repo/docs/tables/TableName_doc.md)`
 
-**API Endpoints:** See API Reference Database: [Link to your API docs system]
-
----
-
-## Change History
-
-**Module evolution is tracked in Git**, not in this document.
-
-```bash
-# View all changes to this documentation file
-git log docs/modules/[ModuleName]_module_doc.md
-
-# View changes with diffs
-git log -p docs/modules/[ModuleName]_module_doc.md
-
-# Search for specific business rule or feature
-git log --grep="BR-[MOD]" docs/modules/[ModuleName]_module_doc.md
-git log --grep="FN#####" docs/modules/[ModuleName]_module_doc.md
-```
 
 
