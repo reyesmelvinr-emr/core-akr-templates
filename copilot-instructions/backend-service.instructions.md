@@ -41,7 +41,7 @@ Before section content, include an AKR metadata header block:
 Use markers consistently and do not omit them:
 - Prefer unmarked factual statements for content directly evidenced by the listed module source files.
 - 🤖 for AI synthesis or inference across multiple files — not for single-source facts.
-- ❓ for missing business context, intent, dates, or ownership that cannot be determined from the listed module files alone. Do not use ❓ for information directly readable from code.
+- ❓ for missing business context, intent, dates, or ownership — see Unknowns Discipline for detailed ❓ placement rules.
 - NEEDS for required data pending completion.
 - VERIFY for assumptions requiring confirmation.
 - DEFERRED only with explicit justification text.
@@ -140,7 +140,7 @@ Generated documentation must be readable by a non-implementing reviewer.
 ## Unknowns Discipline
 - Use ❓ for missing business intent, missing lifecycle dates, and unverifiable ownership.
 - Do not use ❓ for information directly observable in the module source files. If the code answers the question, state the answer without a marker.
-- If a section cannot be evidenced from the listed files, mark the entire section ❓ NEEDS with a note rather than generating speculative content.
+- If an entire section cannot be evidenced from listed files, open with NEEDS [reason] rather than generating speculative content. Do not combine ❓ and NEEDS as a compound marker.
 
 ## Quality Thresholds
 Minimum quality checks before completion:

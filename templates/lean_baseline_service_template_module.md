@@ -43,7 +43,7 @@ compliance_mode: pilot
 
 ---
 
-## What & Why
+## Purpose and Scope
 
 ### Purpose
 
@@ -52,10 +52,6 @@ compliance_mode: pilot
 
 **Business:**  
 ❓ [HUMAN: Business purpose - what problem does this module solve? Why did we build it?]
-
-### Capabilities
-
-🤖 [AI: Bullet list of what the module can do, spanning all files]
 
 ### Not Responsible For
 
@@ -181,16 +177,16 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 🤖 [AI: Explanation of how the files in this module work together]
 
+<!-- conditional: if no external dependencies visible in listed module files, omit this heading and table entirely -->
 ### Dependencies (What This Module Needs)
 
-<!-- conditional: include only if external dependencies are visible in the listed module files -->
 | Dependency | Purpose | Failure Mode | Critical? |
-|------------|---------|--------------|-----------|
+|------------|---------|--------------|----------|
 | 🤖 `I[DependencyName]` | 🤖 [AI: What it's used for] | 🤖 [AI: What exception occurs] | ❓ [HUMAN: Blocking? Can module degrade gracefully?] |
 
+<!-- conditional: if no actual callers are visible in listed module files, omit this heading and table entirely — do not guess from module name -->
 ### Consumers (Who Uses This Module)
 
-<!-- conditional: include only if actual callers are visible in the listed module files — do not guess from module name -->
 | Consumer | Use Case | Impact of Failure |
 |----------|----------|-------------------|
 | 🤖 [Controller/Service name] | 🤖 [AI: How they use it] | ❓ [HUMAN: User-facing? Background?] |
@@ -236,12 +232,12 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ### Request Example
 
-🤖 [AI: Generate realistic examples from DTOs]
+🤖 [AI: Populate field values from DTO property types and constraints only — use the actual type (string, int, Guid, bool) and any explicit constraints (max length, range) visible in the DTO file. Do not invent domain-specific values.]
 
 ```json
 {
-  "propertyName": "🤖 [AI: Realistic value based on property domain semantics]",
-  "propertyId": "🤖 [AI: Smart value, respecting type and constraints]",
+  "propertyName": "🤖 [AI: value from DTO property type/constraint — no invented domain values]",
+  "propertyId": "🤖 [AI: value from DTO property type/constraint]",
   "isActive": true
 }
 ```

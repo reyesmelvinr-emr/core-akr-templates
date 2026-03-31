@@ -76,8 +76,8 @@ Use only after Mode A approval. If target module status is draft, stop and reque
 5.6. Surface preview for human review and wait for explicit approval before finalization.
 6. Strip draft-only front matter fields and write final document to module doc_output path.
 7. Run validate_documentation.py for the final target output.
-8. Open/update draft PR with completion checklist.
-9. Ensure metadata header is present at top of output file.
+8. Ensure metadata header is present at top of output file.
+9. Open/update draft PR with completion checklist.
 
 ### Required metadata header contract
 Write this before document sections:
@@ -114,7 +114,7 @@ SSG rules:
 - Split module and restart if needed.
 - Developer-elected single-pass is allowed only in pilot mode and must set generation-strategy accordingly.
 
-Marker policy: Apply rules as defined in the loaded condensed charter (copilot-instructions/). Do not restate marker rules here.
+Marker policy: Apply placement rules as defined in the loaded condensed charter (copilot-instructions/). For grounding-specific marker decisions (when to use 🤖 vs unmarked vs ❓), the Source Grounding rules in this file take precedence.
 
 ## Source Grounding
 Apply in every Mode B pass. These rules are not optional and are not overridden by template placeholders.
@@ -124,6 +124,7 @@ Apply in every Mode B pass. These rules are not optional and are not overridden 
 
 ## Conditional Sections
 Evaluate conditionality in Pass 1 using the module file list. Record the decision in the committed draft front matter.
+When a conditional section is excluded, record the exclusion reason in the committed draft front matter under `excluded-sections` (e.g., `excluded-sections: [API Contract — no [Http*] controller found]`). Pass 7 treats absent sections listed here as conformant omissions, not errors.
 - API Contract: include only if the module contains a controller with [Http*] attributes or explicit external DTO contracts visible in the listed module files.
 - Validation Rules: include only if *Validator.cs files, DTO data annotations, or explicit guard clauses exist in the listed module files.
 - Consumer Map: include only if actual callers or explicit dependencies are visible in the listed module files — not inferred from module name.
