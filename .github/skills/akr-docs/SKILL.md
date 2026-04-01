@@ -30,7 +30,8 @@ Steps followed: 1. [step] - completed | 2. [step] - completed | ...
 Use when asked to propose module groupings or initialize modules.yaml.
 
 1. Check for modules.yaml in the project root.
-2. If modules exist, proceed only for module targets with status approved; stop and request approval for draft/review targets.
+2. If modules exist, proceed only for module targets where grouping status is approved; stop and request grouping approval for draft/review targets.
+  Note: grouping approval authorizes generation only. It does not set the generated document front matter status.
 3. Scan source files and group by dominant business/domain noun.
 4. Assign roles by file patterns:
 - Backend: controller, service interface/impl, repository interface/impl, DTO/contracts.
@@ -42,10 +43,8 @@ Use when asked to propose module groupings or initialize modules.yaml.
 - ui-component
 - microservice
 - general
-7.5. Write committed review artifact to docs/modules/.akr/{project}_review.md.
-7.6. Stop and wait for explicit human approval before applying module regrouping changes.
 8. Write draft modules.yaml with status: draft for all module entries.
-9. Produce grouping review checklist and stop for human approval.
+9. Produce grouping review checklist, instruct the reviewer to inspect modules.yaml directly in VS Code, and stop for explicit human approval before any PR or downstream generation.
 
 ProposeGroupings checklist:
 - All groupings reviewed for semantic correctness.
@@ -75,6 +74,8 @@ Use only after ProposeGroupings approval. If target module status is draft, stop
 5.5. Write committed draft to docs/modules/.akr/{module}_draft.md.
 5.6. Surface preview for human review and wait for explicit approval before finalization.
 6. Strip draft-only front matter fields and write final document to module doc_output path.
+  Status rule: first-generation output must use `status: draft` in generated document front matter unless document-content approval has already been explicitly completed and recorded.
+  Do not copy module grouping status from modules.yaml into generated document front matter.
 7. Run validate_documentation.py for the final target output.
 8. Ensure metadata header is present at top of output file.
 9. Open/update draft PR with completion checklist.
@@ -88,7 +89,7 @@ skill-version: v1.0.0
 mode: generation
 template: {template}
 charter: {condensed charter}
-modules-yaml-status: approved
+modules-yaml-status: {actual module status from modules.yaml at generation time}
 generation-strategy: {single-pass (default) or section-scoped when --use-ssg is specified}
 passes-completed: {single-pass (default) or pass-list for --use-ssg runs, e.g. 1,2A,2B,3,4,5,6,7}
 pass-timings-seconds: {comma-separated or unavailable}
@@ -96,6 +97,8 @@ total-generation-seconds: {value or unavailable}
 steps-completed: {workflow-step list completed in this run}
 generated-at: {ISO-8601 timestamp}
 -->
+
+Interpretation note: `modules-yaml-status` is a traceability field only. It records the Mode A grouping state used when Mode B ran. It must not be interpreted as generated document approval state.
 
 ### Section-Scoped Generation (SSG) passes
 Pass 1: Module Files and role mapping.

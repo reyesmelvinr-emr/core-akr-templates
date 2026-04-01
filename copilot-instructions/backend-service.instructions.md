@@ -27,7 +27,9 @@ Rules:
 - feature: required work-item tag in FN#####_US##### format.
 - layer: required and must match module layer.
 - project_type: required, expected api-backend.
-- status: draft or approved based on workflow stage.
+- status: governs the generated document's maturity state, not the module grouping approval state.
+- for first-generation Mode B output, set status to draft unless document-content approval has already occurred through the documented review flow.
+- do not copy `modules.yaml` module status directly into document front matter.
 - compliance_mode: pilot or production.
 
 ## Metadata Header Requirements
@@ -35,6 +37,8 @@ Before section content, include an AKR metadata header block:
 
 - Header marker: <!-- akr-generated -->
 - Required fields: skill, mode, template, steps-completed, generated-at
+- Required traceability field: modules-yaml-status
+- Interpretation rule: modules-yaml-status records the Mode A grouping state used to authorize generation; it does not define the generated document's front matter status
 - For section-scoped generation include: generation-strategy, passes-completed, pass-timings-seconds, total-generation-seconds
 
 ## Transparency Marker Rules

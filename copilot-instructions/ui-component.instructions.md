@@ -27,7 +27,10 @@ Rules:
 - feature: required work-item format FN#####_US#####.
 - layer: required (UI).
 - project_type: required (ui-component unless validated otherwise).
-- status and compliance_mode must align with workflow stage.
+- status: governs the generated document's maturity state, not the module grouping approval state.
+	For first-generation Mode B output, set status to draft unless document-content approval has already occurred through the documented review flow.
+	Do not copy modules.yaml module status directly into document front matter.
+- compliance_mode: pilot or production.
 
 ## Metadata Header Requirements
 Insert an AKR metadata header before body content:
