@@ -46,11 +46,7 @@
         "type": "object",
         "required": [
           "name",
-          "businessCapability",
-          "feature",
-          "project_type",
-          "status",
-          "max_files",
+          "grouping_status",
           "files",
           "doc_output"
         ],
@@ -58,32 +54,11 @@
         "properties": {
           "name": {
             "type": "string",
-            "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+            "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
           },
-          "businessCapability": {
+          "grouping_status": {
             "type": "string",
-            "pattern": "^[A-Z][A-Za-z0-9]*$"
-          },
-          "feature": {
-            "type": "string",
-            "pattern": "^FN\\d{5}_US\\d{3,}$"
-          },
-          "project_type": {
-            "type": "string",
-            "enum": ["api-backend", "ui-component", "microservice", "general"]
-          },
-          "status": {
-            "type": "string",
-            "enum": ["draft", "review", "approved", "in-progress", "deprecated"]
-          },
-          "compliance_mode": {
-            "type": "string",
-            "enum": ["pilot", "production"]
-          },
-          "max_files": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 8
+            "enum": ["draft", "approved"]
           },
           "files": {
             "type": "array",
@@ -173,7 +148,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["path", "reason"],
+        "required": ["path"],
         "additionalProperties": false,
         "properties": {
           "path": {

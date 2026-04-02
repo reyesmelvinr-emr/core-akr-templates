@@ -37,8 +37,6 @@ Before section content, include an AKR metadata header block:
 
 - Header marker: <!-- akr-generated -->
 - Required fields: skill, mode, template, steps-completed, generated-at
-- Required traceability field: modules-yaml-status
-- Interpretation rule: modules-yaml-status records the Mode A grouping state used to authorize generation; it does not define the generated document's front matter status
 - For section-scoped generation include: generation-strategy, passes-completed, pass-timings-seconds, total-generation-seconds
 
 ## Transparency Marker Rules
