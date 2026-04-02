@@ -1,0 +1,17 @@
+# modules.yaml seed for AKR onboarding
+# Update project fields before first Mode A run.
+project:
+  name: ReplaceWithProjectName
+  layer: API
+  standards_version: v1.1.0
+  minimum_standards_version: v1.0.0
+  compliance_mode: pilot
+
+# Populated by Mode A after grouping review.
+modules: []
+
+# Optional database-object entries.
+database_objects: []
+
+# Files requiring manual grouping follow-up.
+unassigned: []

@@ -1,0 +1,151 @@
+name: Distribute Onboarding Bundle
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: "Full target repository (owner/repo)"
+        required: true
+        type: string
+      dry_run:
+        description: "Preview changes only (no commit, no PR)"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  distribute:
+    name: Distribute to ${{ inputs.target_repo }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.AKR_DISTRIBUTION_PAT }}
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Validate required secret
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::error::AKR_DISTRIBUTION_PAT secret is not configured."
+            exit 1
+          fi
+
+      - name: Validate target repository input
+        run: |
+          target="${{ inputs.target_repo }}"
+          if [[ "$target" != */* ]]; then
+            echo "::error::target_repo must use owner/repo format"
+            exit 1
+          fi
+          if ! gh repo view "$target" --json name > /dev/null 2>&1; then
+            echo "::error::Repository '$target' was not found or is not accessible with AKR_DISTRIBUTION_PAT"
+            exit 1
+          fi
+
+      - name: Clone target repository
+        run: |
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ inputs.target_repo }}.git" target
+
+      - name: Apply onboarding bundle
+        id: bundle
+        run: |
+          cd target
+          branch_name="akr-onboarding-bundle-${GITHUB_RUN_NUMBER}"
+          git checkout -B "$branch_name"
+
+          mkdir -p .github/pull_request_template
+          cp "$GITHUB_WORKSPACE/source/.github/pull_request_template/documentation.md" \
+             .github/pull_request_template/documentation.md
+
+          mkdir -p .github
+          codeowners_path=".github/CODEOWNERS"
+          touch "$codeowners_path"
+          if grep -q "BEGIN AKR GOVERNANCE" "$codeowners_path"; then
+            echo "AKR governance CODEOWNERS block already present"
+          else
+            printf "\n" >> "$codeowners_path"
+            cat "$GITHUB_WORKSPACE/source/examples/onboarding/CODEOWNERS.baseline" >> "$codeowners_path"
+          fi
+
+          if [ -f "modules.yaml" ]; then
+            echo "modules.yaml already exists - seed skipped"
+          else
+            cp "$GITHUB_WORKSPACE/source/examples/onboarding/modules.yaml.seed" modules.yaml
+          fi
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "branch_name=$branch_name" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "branch_name=$branch_name" >> "$GITHUB_OUTPUT"
+
+      - name: Dry run summary
+        if: ${{ inputs.dry_run == true }}
+        run: |
+          echo "## Onboarding Bundle Dry Run" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Target repo: ${{ inputs.target_repo }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source file: .github/pull_request_template/documentation.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source file: examples/onboarding/CODEOWNERS.baseline" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source file: examples/onboarding/modules.yaml.seed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Destination file: .github/pull_request_template/documentation.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Destination file: .github/CODEOWNERS (append-mode, idempotent)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Destination file: modules.yaml (only if absent)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and push changes
+        if: ${{ inputs.dry_run == false && steps.bundle.outputs.changed == 'true' }}
+        run: |
+          cd target
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/pull_request_template/documentation.md .github/CODEOWNERS
+          if [ -f "modules.yaml" ]; then
+            git add modules.yaml
+          fi
+          git commit -m "chore(akr): add onboarding governance bundle"
+          git push --set-upstream origin "${{ steps.bundle.outputs.branch_name }}"
+
+      - name: Open or reuse PR
+        if: ${{ inputs.dry_run == false && steps.bundle.outputs.changed == 'true' }}
+        run: |
+          cd target
+          existing_url=$(gh pr list --head "${{ steps.bundle.outputs.branch_name }}" --json url --jq '.[0].url // ""')
+          if [ -n "$existing_url" ]; then
+            echo "pr_url=$existing_url" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          base_branch=$(gh repo view "${{ inputs.target_repo }}" --json defaultBranchRef --jq '.defaultBranchRef.name')
+          pr_url=$(gh pr create \
+            --title "chore(akr): add onboarding governance scaffolds" \
+            --body "Automated onboarding bundle from core-akr-templates.\n\nDistributed sources:\n- .github/pull_request_template/documentation.md\n- examples/onboarding/CODEOWNERS.baseline\n- examples/onboarding/modules.yaml.seed\n\nRequired follow-up:\n- [ ] Enable branch protection on default branch\n- [ ] Add required status check: AKR Documentation Validation\n- [ ] Confirm CODEOWNERS review enforcement for .github/pull_request_template/ and validation/ paths" \
+            --base "$base_branch" \
+            --head "${{ steps.bundle.outputs.branch_name }}")
+          echo "pr_url=$pr_url" >> "$GITHUB_ENV"
+
+      - name: Final workflow summary
+        if: always()
+        run: |
+          echo "## Onboarding Bundle Distribution" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Target repo: ${{ inputs.target_repo }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Dry run: ${{ inputs.dry_run }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source directory (PR template): .github/pull_request_template/" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source directory (seed assets): examples/onboarding/" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.bundle.outputs.changed }}" = "false" ]; then
+            echo "- Status: no file changes required" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "- Status: dry run complete (no PR opened)" >> "$GITHUB_STEP_SUMMARY"
+          elif [ -n "$pr_url" ]; then
+            echo "- Status: PR ready" >> "$GITHUB_STEP_SUMMARY"
+            echo "- PR: $pr_url" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Status: changes pushed (PR URL not captured)" >> "$GITHUB_STEP_SUMMARY"
+          fi

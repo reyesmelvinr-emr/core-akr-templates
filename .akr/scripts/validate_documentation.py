@@ -36,6 +36,14 @@ PROJECT_TYPE_ENUM = {"api-backend", "ui-component", "microservice", "general"}
 MODULE_STATUS_ENUM = {"draft", "review", "approved", "in-progress", "deprecated"}
 DB_TYPE_ENUM = {"table", "view", "procedure", "function", "schema"}
 DRAFT_ONLY_FRONT_MATTER_FIELDS = {"preview-generated-at", "review-mode"}
+MODULE_REQUIRED_FRONT_MATTER_FIELDS = {
+    "businesscapability",
+    "feature",
+    "layer",
+    "project_type",
+    "status",
+    "compliance_mode",
+}
 
 
 @dataclass
@@ -421,6 +429,78 @@ def _check_akr_generated_header(content: str) -> List[ValidationIssue]:
     ]
 
 
+def _check_module_front_matter(content: str, front_matter: Dict[str, str]) -> List[ValidationIssue]:
+    issues: List[ValidationIssue] = []
+
+    if not front_matter:
+        issues.append(
+            ValidationIssue(
+                "error",
+                "Missing YAML front matter for module document",
+                "front-matter",
+                line=1,
+            )
+        )
+        return issues
+
+    missing = sorted(field for field in MODULE_REQUIRED_FRONT_MATTER_FIELDS if not front_matter.get(field, "").strip())
+    for field in missing:
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"Missing required front matter field: {field}",
+                "front-matter",
+                line=_find_line_number(content, f"{field}:") or 1,
+            )
+        )
+
+    layer = front_matter.get("layer")
+    if layer and layer not in PROJECT_LAYER_ENUM:
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"Invalid front matter layer: {layer}",
+                "front-matter",
+                line=_find_line_number(content, "layer:") or 1,
+            )
+        )
+
+    project_type = front_matter.get("project_type")
+    if project_type and project_type not in PROJECT_TYPE_ENUM:
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"Invalid front matter project_type: {project_type}",
+                "front-matter",
+                line=_find_line_number(content, "project_type:") or 1,
+            )
+        )
+
+    status = front_matter.get("status")
+    if status and status not in MODULE_STATUS_ENUM:
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"Invalid front matter status: {status}",
+                "front-matter",
+                line=_find_line_number(content, "status:") or 1,
+            )
+        )
+
+    compliance_mode = front_matter.get("compliance_mode")
+    if compliance_mode and compliance_mode not in {"pilot", "production"}:
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"Invalid front matter compliance_mode: {compliance_mode}",
+                "front-matter",
+                line=_find_line_number(content, "compliance_mode:") or 1,
+            )
+        )
+
+    return issues
+
+
 def _compute_completeness(required_sections: List[str], issues: List[ValidationIssue]) -> float:
     if not required_sections:
         base = 100.0
@@ -497,6 +577,7 @@ def _validate_single_file(
     if doc_type == "module":
         issues.extend(_check_akr_generated_header(text))
         front_matter = _extract_front_matter_fields(text)
+        issues.extend(_check_module_front_matter(text, front_matter))
         if info.get("doc_output") == _relative_posix(doc_path, workspace_root):
             if any(field in front_matter for field in DRAFT_ONLY_FRONT_MATTER_FIELDS):
                 issues.append(

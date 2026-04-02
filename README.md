@@ -208,6 +208,18 @@ The GitHub Copilot Agent Skill and supporting files are distributed via:
 
 These are automatically copied during enrollment from the [skill distribution workflow](distribute-skill.yml).
 
+#### Onboarding Bundle Reference (One-Time Scaffolds)
+
+For one-time onboarding artifacts (not recurring skill updates), use the onboarding bundle sources:
+
+- PR template source: `.github/pull_request_template/documentation.md`
+- Onboarding seed sources: `examples/onboarding/`
+  - `examples/onboarding/CODEOWNERS.baseline`
+  - `examples/onboarding/modules.yaml.seed`
+- Distribution workflow: `.github/workflows/distribute-onboarding-bundle.yml`
+
+Use this onboarding workflow for initial setup or targeted governance baseline refreshes. Keep recurring skill/hook/Vale updates on `.github/workflows/distribute-skill.yml`.
+
 #### 4. Add Condensed Charter Instructions
 Copy the compressed charter for your project type to `.github/copilot-instructions.md`:
 
