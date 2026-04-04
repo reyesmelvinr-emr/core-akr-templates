@@ -21,6 +21,7 @@ This implementation plan transforms the AKR Documentation Governance system from
 | **`@skill.script` before Azure Functions** | Code-defined in-process scripts evaluated first for Phase 3 Path B; Azure Functions authorized only if subprocess isolation required (see Phase 3 Deployment Options) |
 | **v2.0 code-defined skills are Phase 3+ scope, not Phase 1-2 replacements** | SKILL.md is the delivery mechanism for GitHub Copilot interactive surfaces; code-defined Python skills require `agent-framework` SDK (currently unconfirmed on target surface) and are authorized only after Phase 2.6 Governance Stability Assessment. Mixing architectures mid-pilot invalidates benchmark data and removes Phase 2.6 assessment evidence. |
 | **Section-Scoped Generation (SSG) as Mode B generation strategy** | Loads charter guidance and source files per section rather than all at once; reduces per-pass context load without requiring additional charter condensation; forward payload discipline prevents context re-expansion across passes; maps naturally to Copilot coding agent background execution |
+| **`akr:` directive template architecture** | Templates carry `akr:section` HTML comment blocks as machine-readable generation contracts; template is the single source of truth for required/conditional section IDs, ordering, and condition tokens; SKILL.md is a pure executor with zero embedded structural knowledge; `parse_template_directives.py` is the blocking dependency for directive-aware section validation (see Part 20) |
 
 ---
 

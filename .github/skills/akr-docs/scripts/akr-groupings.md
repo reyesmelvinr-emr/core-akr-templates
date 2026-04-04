@@ -65,7 +65,22 @@ unassigned:
    - `{Noun}Types.ts` or `{noun}.types.ts` → Type definitions
 
 3. **Silently omit** (do not add to unassigned):
-   - Config files (`appsettings*.json`, `*.csproj`, `Program.cs` unless it contains significant DI logic)
+   - Config files (`appsettings*.json`, `*.csproj`, `Program.cs`) with the following exception:
+
+     Include `Program.cs` in a `Runtime` or `Platform` module if it meets ANY of these
+     criteria (evaluated in order — stop at first match):
+       1. Registers 3 or more non-infrastructure services via `builder.Services.Add*`
+          where the registered type is NOT one of: `AddDbContext`, `AddCors`,
+          `AddAuthentication`, `AddAuthorization`, `AddControllers`, `AddEndpointsApiExplorer`,
+          `AddSwaggerGen`, `AddHealthChecks`, `AddLogging`, `AddHttpClient`.
+       2. Contains factory registrations (`builder.Services.AddSingleton<T>(sp => ...)`)
+          for domain types.
+       3. Contains conditional registration blocks (`if (env.IsDevelopment())`) that
+          affect domain services.
+
+     If `Program.cs` qualifies under any criterion, add it to a `Runtime` module alongside
+     other shared infrastructure files (middleware, `DbContext`, global exception handler).
+     If it does not qualify, omit it silently.
    - Test files (`*.test.*`, `*.spec.*`, `*Tests.cs`)
    - Dev tooling (`.editorconfig`, `Dockerfile`, `*.yml` workflows)
    - Local documentation (`RUN_LOCAL.md`, `README.md`)

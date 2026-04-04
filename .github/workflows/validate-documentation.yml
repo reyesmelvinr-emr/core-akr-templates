@@ -14,6 +14,16 @@ on:
       - 'src/**'
       - 'modules.yaml'
 
+# ---------------------------------------------------------------------------
+# Version pinning
+# Override CORE_AKR_TEMPLATES_REF in your repo's workflow env or via
+# repository variable to pin to a specific release tag.
+# Default: main (always latest — suitable for pilot mode repos)
+# Production mode recommendation: pin to a release tag, e.g. v1.2.0
+# ---------------------------------------------------------------------------
+env:
+  CORE_AKR_TEMPLATES_REF: main
+
 permissions:
   contents: read
   pull-requests: write
@@ -37,21 +47,39 @@ jobs:
           python-version: '3.11'
 
       - name: Fetch core-akr-templates at runtime
-        # This replaces both git submodules and locally distributed vale rules.
-        # Always fetches latest from main. Pin to a tag here if release stability is needed:
-        # git clone --branch v1.1.0 --depth 1 ...
+        # Authentication: GITHUB_TOKEN provides read access to public repos and
+        # to private repos within the same GitHub org/installation.
+        # If core-akr-templates is private and in a different org, add a
+        # repository secret named AKR_READ_PAT with repo:read scope and use it below.
+        #
+        # Pinning: Set CORE_AKR_TEMPLATES_REF env var (top of this file) to a
+        # release tag (e.g. v1.2.0) for production compliance mode repos.
+        # Default 'main' gives latest — acceptable for pilot mode.
         run: |
-          git clone --depth 1 \
-            https://github.com/reyesmelvinr-emr/core-akr-templates.git \
+          CLONE_URL="https://github.com/reyesmelvinr-emr/core-akr-templates.git"
+
+          # Use PAT if provided, fall back to GITHUB_TOKEN (read-only, same org)
+          if [ -n "${{ secrets.AKR_READ_PAT }}" ]; then
+            AUTH_URL="https://x-access-token:${{ secrets.AKR_READ_PAT }}@${CLONE_URL#https://}"
+          else
+            AUTH_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${CLONE_URL#https://}"
+          fi
+
+          git clone \
+            --depth 1 \
+            --branch "${{ env.CORE_AKR_TEMPLATES_REF }}" \
+            "$AUTH_URL" \
             ~/.akr/templates
-          echo "✓ core-akr-templates fetched to ~/.akr/templates"
+
+          echo "✓ core-akr-templates@${{ env.CORE_AKR_TEMPLATES_REF }} fetched"
+          echo "  Validator: ~/.akr/templates/.akr/scripts/validate_documentation.py"
           echo "  Vale rules: ~/.akr/templates/.akr/vale-rules/"
-          echo "  Validator:  ~/.akr/templates/.akr/scripts/validate_documentation.py"
-          echo "  Charters:   ~/.akr/templates/copilot-instructions/"
+          echo "  Parser:     ~/.akr/templates/.akr/scripts/parse_template_directives.py"
 
       - name: Install Vale
         run: |
-          wget -q https://github.com/errata-ai/vale/releases/download/v2.29.0/vale_2.29.0_Linux_64-bit.tar.gz
+          wget -q \
+            https://github.com/errata-ai/vale/releases/download/v2.29.0/vale_2.29.0_Linux_64-bit.tar.gz
           tar -xzf vale_2.29.0_Linux_64-bit.tar.gz
           sudo mv vale /usr/local/bin/
           vale --version
@@ -66,6 +94,31 @@ jobs:
           files: |
             docs/**/*.md
             modules.yaml
+
+      - name: Assert validator constant sync
+        # Runs test_constants_sync.py to verify that VALID_LAYERS, VALID_PROJECT_TYPES,
+        # etc. are identical between akr_inline_validate.py and validate_documentation.py.
+        # Fails fast with a clear message if drift is detected.
+        run: |
+          SYNC_TEST=~/.akr/templates/.akr/scripts/tests/test_constants_sync.py
+
+          # Resolve the inline validator path — it's distributed to the app repo
+          INLINE_VALIDATOR=.github/skills/akr-docs/scripts/akr_inline_validate.py
+
+          if [ -f "$SYNC_TEST" ] && [ -f "$INLINE_VALIDATOR" ]; then
+            # Override paths for this repo's layout
+            INLINE_VALIDATOR_PATH="$(pwd)/$INLINE_VALIDATOR" \
+            FULL_VALIDATOR_PATH="$(pwd)/.akr/templates/.akr/scripts/validate_documentation.py" \
+            python "$SYNC_TEST" || {
+              echo "::error::Shared constants are out of sync between inline and full validators."
+              echo "::error::See CONSTANTS_VERSION in akr_inline_validate.py for the sync protocol."
+              exit 1
+            }
+          else
+            echo "::warning::Constant sync test skipped — test file or inline validator not found."
+            echo "  Expected: $SYNC_TEST"
+            echo "  Expected: $INLINE_VALIDATOR"
+          fi
 
       - name: Determine validation fail mode from modules.yaml
         id: fail-mode
@@ -88,7 +141,7 @@ jobs:
             fi
           fi
           echo "fail_on=$FAIL_ON" >> "$GITHUB_OUTPUT"
-          echo "Compliance mode derived fail-on: $FAIL_ON"
+          echo "Compliance mode: ${MODE:-unknown} → fail-on: $FAIL_ON"
 
       - name: Run Vale linter
         id: vale
@@ -96,7 +149,6 @@ jobs:
         run: |
           VALE_CONFIG=~/.akr/templates/.akr/.vale.ini
 
-          # Verify the config points to the correct rules path
           grep -Eq '^StylesPath\s*=\s*\.akr/vale-rules' "$VALE_CONFIG" || {
             echo "::error::Vale config StylesPath mismatch in fetched templates"
             exit 1
@@ -110,15 +162,34 @@ jobs:
             echo '{}' > vale-results.json
             echo "vale_errors=0" >> $GITHUB_OUTPUT
           else
-            # Run vale from workspace root so changed-file paths resolve correctly.
-            # StylesPath still resolves via the fetched config at ~/.akr/templates/.akr/.vale.ini.
             vale --config "$VALE_CONFIG" $DOC_FILES --output=JSON \
               > vale-results.json 2>&1 || true
 
-            ERRORS=$(jq '[.. | objects | select(has("Severity")) | select(.Severity == "error")] | length' \
+            ERRORS=$(jq \
+              '[.. | objects | select(has("Severity")) | select(.Severity == "error")] | length' \
               vale-results.json 2>/dev/null || echo "0")
             echo "vale_errors=$ERRORS" >> $GITHUB_OUTPUT
             echo "Vale errors: $ERRORS"
+          fi
+
+      - name: Build directive-aware required section list
+        # Runs parse_template_directives.py to get the authoritative required sections
+        # from template akr: directives. Output is passed to the full validator via
+        # an environment variable so it uses the same source of truth as the model.
+        # Falls back gracefully if parser is unavailable (pre-directive templates).
+        id: directive-sections
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          PARSER=~/.akr/templates/.akr/scripts/parse_template_directives.py
+          TEMPLATE_DIR=~/.akr/templates/templates
+
+          if [ -f "$PARSER" ] && [ -d "$TEMPLATE_DIR" ]; then
+            python "$PARSER" --all "$TEMPLATE_DIR" --compact > directive-registry.json 2>/dev/null || true
+            echo "directive_registry_available=true" >> "$GITHUB_OUTPUT"
+            echo "Directive registry built from templates."
+          else
+            echo "directive_registry_available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Template directive parser not available — validator uses hardcoded section lists."
           fi
 
       - name: Run AKR documentation validator
@@ -132,13 +203,22 @@ jobs:
             MODULE_ARG="--module-name ${AKR_MODULE_NAME}"
           fi
 
+          # Pass directive registry path if available — validator uses it to
+          # override hardcoded MODULE_REQUIRED_SECTIONS with template-derived list
+          DIRECTIVE_ARG=""
+          if [ "${{ steps.directive-sections.outputs.directive_registry_available }}" = "true" ]; then
+            DIRECTIVE_ARG="--directive-registry directive-registry.json"
+          fi
+
           export CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
 
           python "$VALIDATOR" \
             --changed-files \
             --output json \
             --fail-on "${{ steps.fail-mode.outputs.fail_on }}" \
-            $MODULE_ARG > akr-results.json || true
+            $MODULE_ARG \
+            $DIRECTIVE_ARG \
+            > akr-results.json || true
 
           if [ ! -s akr-results.json ]; then
             echo '{"summary":{"total_errors":0,"total_warnings":0,"average_completeness":0},"results":[]}' \
@@ -162,7 +242,7 @@ jobs:
             const fs = require('fs');
             const akrResults = fs.existsSync('akr-results.json')
               ? JSON.parse(fs.readFileSync('akr-results.json', 'utf8'))
-              : { summary: { total_errors: 0, total_warnings: 0, average_completeness: 0 }, results: [] };
+              : { summary: { total_errors: 0, total_warnings: 0 }, results: [] };
 
             const valeErrors = parseInt('${{ steps.vale.outputs.vale_errors || 0 }}');
             const akrErrors = parseInt('${{ steps.akr-validation.outputs.akr_errors || 0 }}');
@@ -186,7 +266,8 @@ jobs:
                   `- AKR Errors: ${akrErrors}`,
                   `- AKR Warnings: ${{ steps.akr-validation.outputs.akr_warnings || 0 }}`,
                   `- Average Completeness: ${{ steps.akr-validation.outputs.completeness || 0 }}%`,
-                  `- Rules fetched from: core-akr-templates (runtime clone, no local copy)`,
+                  `- core-akr-templates ref: ${{ env.CORE_AKR_TEMPLATES_REF }}`,
+                  `- Directive registry: ${{ steps.directive-sections.outputs.directive_registry_available }}`,
                   totalErrors === 0 ? '✅ All checks passed!' : '❌ Please fix errors before merging.'
                 ].join('\n'),
                 annotations: akrResults.results
@@ -223,11 +304,11 @@ jobs:
               const icon = r.valid ? '✅' : '❌';
               const issues = r.issues.length > 0
                 ? r.issues.map(i => {
-                    const sev = {error:'❌',warning:'⚠️',suggestion:'💡',info:'ℹ️'}[i.severity];
+                    const sev = {error:'❌',warning:'⚠️',suggestion:'💡',info:'ℹ️'}[i.severity] || '•';
                     return `  - ${sev} **${i.severity.toUpperCase()}**${i.line ? ` (line ${i.line})` : ''}: ${i.message}`;
                   }).join('\n')
                 : '  No issues found';
-              return `<details>\n<summary>${icon} <strong>${r.file_path}</strong> (Completeness: ${r.completeness_score.toFixed(2)}%)</summary>\n\n${issues}\n</details>`;
+              return `<details>\n<summary>${icon} <strong>${r.file_path}</strong> (Completeness: ${(r.completeness_score||0).toFixed(2)}%)</summary>\n\n${issues}\n</details>`;
             }).join('\n');
 
             const comment = [
@@ -239,7 +320,7 @@ jobs:
               `| **AKR Errors** | ${akrErrors} |`,
               `| **AKR Warnings** | ${akrWarnings} |`,
               `| **Completeness** | ${completeness.toFixed(2)}% |`,
-              `| **Rules Source** | core-akr-templates (runtime fetch) |`,
+              `| **Templates ref** | \`${{ env.CORE_AKR_TEMPLATES_REF }}\` |`,
               `| **Status** | ${(valeErrors + akrErrors) === 0 ? '✅ Pass' : '❌ Fail'} |`,
               '',
               detailRows,
@@ -281,6 +362,7 @@ jobs:
           path: |
             vale-results.json
             akr-results.json
+            directive-registry.json
           if-no-files-found: warn
           retention-days: 30
 

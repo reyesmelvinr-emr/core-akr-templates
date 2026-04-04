@@ -1407,6 +1407,84 @@ def check_question_markers(doc, config):
         # Only fail on ❓ markers tagged as [CRITICAL]
     elif priority_filter == "important":
         # Fail on all unresolved ❓ markers (current v1.0 behavior)
+
+---
+
+## Deliverable 2C: Template Directive Architecture & Inline Validator v2
+
+### Objective
+
+Complete the `akr:` directive architecture and prepare the inline validator v2 for distribution. This deliverable implements the finding from CL 42 that templates should be the single source of truth for structural documentation knowledge via machine-readable `akr:` HTML comment blocks.
+
+### Why a Separate Deliverable
+
+The directive architecture (`parse_template_directives.py` + `akr_inline_validate_v2.py` + `test_constants_sync.py`) forms a cohesive subsystem that builds on Deliverables 1 and 2 (validator + CI workflow). Grouping these tasks here keeps the directive-architecture scope explicit and avoids retrofitting Deliverables 1 and 2 retroactively.
+
+**Dependencies:**
+- Deliverable 1 (`validate_documentation.py`) must be complete before `akr_inline_validate_v2.py` changes can be tested against the validator contract.
+- Deliverable 2A (`distribute-skill.yml`) must be complete before dist-bundle testing includes the updated inline validator.
+
+### Key Design Principle (from analysis Part 20)
+
+Templates carry `akr:section` HTML comment blocks as machine-readable generation contracts. The SKILL.md is a pure executor — it reads structural knowledge from the template at runtime rather than embedding it. This eliminates silent structural drift between the template and the skill.
+
+All required/conditional section IDs, ordering, and condition tokens live in the template. `parse_template_directives.py` is the blocking dependency for directive-aware section validation inside the CI workflow.
+
+### Tasks
+
+| Task | Owner | Acceptance Criteria | Estimated Time | Priority |
+|---|---|---|---|---|
+| Merge `parse_template_directives.py` implementations | Standards author | Single file at `.akr/scripts/parse_template_directives.py`; passes all existing tests; `--all DIR`, `--compact`, duplicate-order validation, and `required`+`condition` contradiction check added from review version; typed field schema and `--output text` retained from current base | 3 hours | High |
+| Add duplicate `order` key validation | Standards author (part of merge) | Parser emits a named error when two sections share the same `order` value | (included above) | High |
+| Add `required: true` + `condition:` contradiction check | Standards author (part of merge) | Parser emits a named error when a section declares both `required: true` and a non-empty `condition` | (included above) | High |
+| Fix compliance mode default in `akr_inline_validate_v2.py` | Standards author | When `--compliance-mode` is not passed, `validate_file()` detects mode from front matter; `"pilot"` is used only when neither CLI flag nor front matter specifies a mode; production-mode docs no longer validate as pilot silently | 1 hour | **Blocking** |
+| Apply remaining `akr_inline_validate_v2.py` changes | Standards author | `CONSTANTS_VERSION = "1.0.0"` string present; all four shared enum sets use `frozenset`; `re.DOTALL` comment extraction applied; `_extract_required_sections_from_directives()` returns `None` (not `[]`) when no directive file found; `--constants-version` CLI flag present | 2 hours | High |
+| Fix `test_constants_sync.py` path resolution (Bugs 1 and 3) | Standards author | Script reads `os.environ.get("INLINE_VALIDATOR_PATH")` first; falls back to `__file__`-relative path only when env var is absent; env var wiring in `validate-documentation-v2.yml` is consumed correctly | 1 hour | **Blocking** |
+| Fix `test_constants_sync.py` hardcoded frozenset comparison (Bug 2) | Standards author | Comparison uses `getattr(full_validator_module, "VALID_COMPLIANCE_MODES", frozenset())` instead of hardcoded literal; test does not break when a third compliance mode is added | 30 min | High |
+| Integrate `test_constants_sync.py` into `validate-documentation-v2.yml` | Standards author | "Assert validator constant sync" step runs after checkout and before inline validation; step env includes `INLINE_VALIDATOR_PATH` pointing to the just-fetched inline validator; CI fails if parity check fails | 45 min | High |
+| Integrate `parse_template_directives.py` into `validate-documentation-v2.yml` | Standards author | "Build directive-aware required section list" step runs before inline validator execution; output passed as `--required-sections` argument (or equivalent) to inline validator; CI fails if template has no parseable directive blocks | 1 hour | High |
+| Clarify `akr-generate.md` Step 2 wording | Standards author | Step 2 text updated to: full template file is fetched via `@github get file`; `parse_template_directives.py` extracts directive blocks from full content; parser output is the required-section list used in generation steps | 30 min | Minor |
+| Apply `akr-resolve.md` Phase 4 re-validation path fix | Standards author | Phase 4 re-validation step references correct `validate_documentation.py` path after Phase 1 reorganization; no broken path references | 15 min | Minor |
+| Apply `akr-groupings.md` Program.cs 3-criterion threshold table | Standards author | Explicit threshold table added for Program.cs classification rule (3 criteria required to classify as module anchor vs. infrastructure entry point) | 30 min | Minor |
+| Test directive pipeline end-to-end | Standards author | `parse_template_directives.py --all templates/` against all templates in `core-akr-templates`; zero errors; CI workflow runs constant sync + directive extraction before inline validation; all existing tests pass | 2 hours | High |
+
+### Known Bugs Addressed by This Deliverable
+
+| Bug Reference | Description | Fix Location |
+|---|---|---|
+| Gap CL42-1 | `parse_template_directives.py` missing 4 features | Merge task above |
+| Gap CL42-2 | `akr_inline_validate_v2.py` compliance mode false-pass | Compliance mode fix task above |
+| Gap CL42-3 | `test_constants_sync.py` path hardcoded; env var ignored | Path resolution fix task above |
+| Gap CL42-4 | `test_constants_sync.py` hardcoded frozenset comparison | Hardcoded frozenset fix task above |
+| Gap CL42-6 | `akr-generate.md` Step 2 wording ambiguous | Step 2 clarification task above |
+
+Note: Gap CL42-5 (Vale working directory regression) is already addressed in Deliverable 2 Change 5. No work item here.
+
+### Output Locations
+
+```
+core-akr-templates/
+  .akr/
+    scripts/
+      parse_template_directives.py          (UPDATED — merge from review version)
+      akr_inline_validate_v2.py             (NEW — replaces inline validator in dist)
+      test_constants_sync.py                (NEW — CI parity test)
+  .github/
+    workflows/
+      validate-documentation-v2.yml         (UPDATED — directive + parity steps added)
+  review/
+    akr-generate.md                         (UPDATED — Step 2 clarification)
+    akr-resolve.md                          (UPDATED — Phase 4 path fix)
+    akr-groupings.md                        (UPDATED — Program.cs threshold table)
+```
+
+### Acceptance Criteria
+
+- [ ] `parse_template_directives.py` passes all existing template parse tests; new features (`--all`, `--compact`, duporder check, contradiction check) verified against lean baseline service template.
+- [ ] `akr_inline_validate_v2.py`: production-mode document validates as production when `--compliance-mode production` is passed; also validates as production when front matter declares `compliance_mode: production` and no CLI flag is passed; pilot remains the ultimate fallback only when neither source specifies a mode.
+- [ ] `test_constants_sync.py` reads `INLINE_VALIDATOR_PATH` env var when present; parity test passes clean on correct copies; parity test fails with a named error when enum diverges.
+- [ ] `validate-documentation-v2.yml` runs constant sync and directive extraction steps before inline validation; CI fails on parity mismatch; CI fails on directive parse failure; Vale step runs from `$GITHUB_WORKSPACE` (Change 5 in Deliverable 2).
+- [ ] All 7 pending implementation tasks from Part 20.9 of the analysis are resolved or explicitly scoped to a later phase with justification.
     elif priority_filter == "optional":
         # Warn only; do not fail
 ```

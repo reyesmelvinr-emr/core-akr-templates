@@ -2896,3 +2896,246 @@ Assessment criteria:
 **If any criterion not acceptable:** Authorize targeted migration of the specific failing step to `@skill.script`. Surgical replacement only - not full v2.0 migration. Most likely candidate: Operations Map extraction (Scope Example 1, already specified in Phase 3). Migration runs in parallel with Phase 4 and does not block it unless verdict is Full Migration Recommended.
 
 Phase 2.6 migration is authorized independently of Phase 2.5's binary verdict.
+---
+
+# Part 20 — CL 42 Review: Directive Template Architecture & Inline Validator Components
+
+**Source material:** CL 42 — Directive Architecture & Inline Validator Component Review (Review 12)
+**Files reviewed:** `review/parse_template_directives.py`, `review/akr_inline_validate_v2.py`, `review/test_constants_sync.py`, `review/validate-documentation-v2.yml`, `review/akr-generate.md`
+
+---
+
+## 20.1 Key Finding: `akr:` Directive Architecture
+
+The CL 42 review confirmed a new fundamental design principle for the AKR template system: **templates carry machine-readable generation contracts** via HTML comment blocks.
+
+### Design Principle: Template as Single Source of Truth
+
+Templates are the single source of truth for all structural knowledge about documentation sections:
+- Which sections are required vs. conditional
+- Section IDs and canonical ordering
+- Condition tokens (values that activate conditional sections)
+- Relationship between sections
+
+The Agent Skill (`akr-docs SKILL.md`) is a **pure executor** — it holds zero embedded structural knowledge. All structural logic is read from the template at runtime via `parse_template_directives.py`.
+
+This eliminates the primary prior maintenance risk: structural knowledge duplicated between the template and the skill diverging silently as templates evolve.
+
+### Directive Block Format
+
+Templates embed three types of directives as HTML comment blocks, invisible in rendered Markdown and parsed by `parse_template_directives.py`:
+
+```text
+<!-- akr:template
+name: lean_baseline_service_template
+version: 1.0
+description: Backend service module documentation template
+project_types: api-backend,microservice,general
+compliance_modes: pilot,production
+-->
+
+<!-- akr:conditions
+values:
+  - token: has_controller
+    description: Module includes a Controller file
+  - token: has_repository
+    description: Module includes a Repository or data access layer
+  - token: is_event_driven
+    description: Module is event-driven (no HTTP controller)
+-->
+
+<!-- akr:section
+id: module_files
+title: Module Files
+required: true
+order: 1
+-->
+
+<!-- akr:section
+id: controller_routes
+title: Controller Routes
+required: false
+order: 3
+condition: has_controller
+-->
+```
+
+The three directive block types and their mandatory fields:
+
+| Directive | Mandatory Fields | Purpose |
+|---|---|---|
+| `akr:template` | `name`, `version`, `description` | Template identity; parsed once at initialization |
+| `akr:conditions` | `values` list (each with `token` + `description`) | Registers all condition tokens used in conditional sections |
+| `akr:section` | `id`, `title`, `required`, `order` | Section contract; non-empty `condition` field means conditional |
+
+### Why This Architecture Is Blocking for Directive-Aware Generation
+
+Without `parse_template_directives.py`, the skill must either:
+- (a) Hard-code required section IDs in SKILL.md — creating a second source of structural truth that drifts from the template, or
+- (b) Ask the LLM to infer section requirements from template text at generation time — producing non-deterministic required-section detection.
+
+The directive parser eliminates both failure modes by making the template self-describing.
+
+---
+
+## 20.2 `parse_template_directives.py` — Status and Merge Gap
+
+### Current State
+
+A working implementation exists at `.akr/scripts/parse_template_directives.py`. Verified correct output against the lean baseline service template: **16 sections parsed (12 required, 4 conditional), 0 errors**.
+
+Key implementation characteristics:
+- `re.DOTALL` comment extraction — captures multi-line directive blocks correctly
+- `_order_sort_key()` — converts fractional order notation (e.g., `7a` → `7.1`) for stable sort
+- Error accumulation pattern — collects all parse errors before raising, not fail-fast
+- `--output json` (machine-readable) and `--output text` (human-readable) formats
+
+### Missing Features (Review Version Has These)
+
+The review version at `review/parse_template_directives.py` contains features not in the current implementation:
+
+| Feature | Review Version | Current `.akr/scripts/` Version |
+|---|---|---|
+| `--all DIR` — batch parse all templates in a directory | ✅ | ❌ |
+| `--compact` — token-efficient output for model feeding | ✅ | ❌ |
+| Duplicate `order` key validation | ✅ | ❌ |
+| `required: true` + `condition:` contradiction check | ✅ | ❌ |
+| Typed section field schema | ❌ | ✅ |
+| `--output text` human-readable format | ❌ | ✅ |
+
+**Resolution:** Merge both versions. The current `.akr/scripts/` version is the base. Add the four missing features from the review version. Both versions' unique capabilities must be present in the merged result.
+
+---
+
+## 20.3 Two-Tier Validation v2 Changes
+
+### `akr_inline_validate_v2.py` Changes
+
+The review version at `review/akr_inline_validate_v2.py` introduces the following changes over the distributed inline validator:
+
+| Change | Description | Status |
+|---|---|---|
+| `CONSTANTS_VERSION = "1.0.0"` | Named version string for the shared enum constants block, enabling programmatic parity checking by `test_constants_sync.py` | Ready to apply |
+| `frozenset` on all shared enums | `VALID_COMPLIANCE_MODES`, `VALID_STATUSES`, `VALID_LAYERS`, `VALID_PROJECT_TYPES` use `frozenset` — immutable, hashable, explicit | Ready to apply |
+| `re.DOTALL` comment extraction | Ensures multi-line `<!-- akr-generated ... -->` blocks are extracted correctly regardless of internal line breaks | Ready to apply |
+| `_extract_required_sections_from_directives()` returns `None` | Returns `None` (not `[]`) when no directive file found — correctly triggers baseline fallback in the caller vs. treating "zero sections found" as success | Ready to apply |
+| `--constants-version` CLI flag | Allows external callers to check which constants version is embedded without running a full validation pass | Ready to apply |
+
+### Known Bug: Compliance Mode Default
+
+**Bug:** `--compliance-mode` argument in `argparse` has `default=None`. In `main()`, the code falls back to `"pilot"` when the argument is not passed. This means production-mode documents validate as pilot when the flag is not explicitly passed on the CLI.
+
+**Impact:** False-pass on production-mode documents if the CI workflow does not explicitly pass `--compliance-mode production`.
+
+**Fix:** `main()` should pass `None` to `validate_file()` when the flag is absent. `validate_file()` should detect compliance mode from front matter with `"pilot"` as the ultimate fallback only when neither CLI flag nor front matter specifies it.
+
+---
+
+## 20.4 `test_constants_sync.py` — Purpose and Known Bugs
+
+### Purpose
+
+`test_constants_sync.py` is a new CI test that verifies enum parity between the distributed inline validator and the CI runtime validator. It uses `importlib.util.spec_from_file_location` to load both validators as modules and compares their `frozenset` enum constants, failing the build if any diverge.
+
+This test is the enforcement mechanism that prevents silent drift between the inline validator (distributed to consumer repos) and the CI validator (fetched at runtime from `core-akr-templates`).
+
+### Known Bugs (All Three Require Fixes Before CI Integration)
+
+| Bug | Description | Fix |
+|---|---|---|
+| **Bug 1 — Hardcoded path** | `INLINE_VALIDATOR_PATH` is hardcoded to `.github/skills/akr-docs/scripts/akr_inline_validate.py` — a path that does not exist in the source repo CI context | Add `os.environ.get("INLINE_VALIDATOR_PATH")` override; use env var when present, fall back to `__file__`-relative default only when absent |
+| **Bug 2 — Hardcoded frozenset comparison** | Compares `VALID_COMPLIANCE_MODES` against hardcoded `frozenset({"pilot", "production"})` — breaks enforcement if a third compliance mode is added | Use `getattr(full_validator, "VALID_COMPLIANCE_MODES", ...)` from the CI validator module instead of a hardcoded literal |
+| **Bug 3 — Env var set but ignored** | `validate-documentation-v2.yml` sets `INLINE_VALIDATOR_PATH` as a step env var but `test_constants_sync.py` ignores it and uses `__file__`-relative paths | Fix is the same as Bug 1: read `os.environ.get("INLINE_VALIDATOR_PATH")` first |
+
+All three bugs are in the same file and are related. Bugs 1 and 3 share the same root cause.
+
+---
+
+## 20.5 `validate-documentation-v2.yml` — Known Bugs
+
+The review version at `review/validate-documentation-v2.yml` adds the following over the current CI workflow:
+
+| Addition | Description |
+|---|---|
+| `CORE_AKR_TEMPLATES_REF: main` | Version pin for the branch reference used when fetching CI-runtime resources from `core-akr-templates` |
+| `AKR_READ_PAT` fallback auth | Auth token fallback for `core-akr-templates` access when default GITHUB_TOKEN is insufficient |
+| "Assert validator constant sync" step | Runs `test_constants_sync.py` to verify enum parity between inline and CI validators |
+| "Build directive-aware required section list" step | Runs `parse_template_directives.py` to extract required section IDs and passes them to the validator |
+
+### Known Bugs
+
+**Bug 1 — Vale working directory regression (BLOCKING):** The Vale step `cd`s into `~/.akr/templates` then uses workspace-relative `$DOC_FILES` paths. Files will not be found.
+- **Fix:** Run Vale from `$GITHUB_WORKSPACE`; pass config path as absolute: `vale --config ~/.akr/templates/.akr/.vale.ini $DOC_FILES`
+- **Note:** PHASE_1_FOUNDATION.md Deliverable 2 Change 5 already specifies this exact fix. The regression exists only in the review version; the production plan already contains the correct approach.
+
+**Bug 2 — `INLINE_VALIDATOR_PATH` env var set but ignored:** The workflow correctly sets `INLINE_VALIDATOR_PATH` as a step-level env var for the "Assert validator constant sync" step, but `test_constants_sync.py` does not read it (Bug 3 from 20.4). The env var wiring in the workflow is correct; the missing consumer in the test script is the gap.
+
+---
+
+## 20.6 `akr-generate.md` — Minor Clarification
+
+`akr-generate.md` Step 2 states: "fetch only the `akr:` directive blocks from the template."
+
+This is misleading because `@github get file` returns the full file content. The actual mechanism is:
+1. The skill fetches the full template file via `@github get file`
+2. `parse_template_directives.py` extracts only the `akr:` directive comment blocks from the full file content
+3. The parser output (structured section list) is what Step 2 actually produces
+
+The wording should clarify: "run `parse_template_directives.py` against the full template file to extract the `akr:` directive blocks and build the required-section list."
+
+---
+
+## 20.7 CL 42 Assessment Verdict
+
+The CL 42 12-item assessment of the 5 review folder files was confirmed accurate. No items were found to be incorrect or over-stated in severity.
+
+Assessment summary by file:
+- `akr-generate.md`: READY with minor Step 2 wording clarification
+- `parse_template_directives.py` (review): READY WITH MERGE — needs to be merged with `.akr/scripts/` base version
+- `akr_inline_validate_v2.py`: READY WITH FIX — compliance mode default bug requires fix before distribution
+- `test_constants_sync.py`: BLOCKING — 3 bugs require fixes before CI integration
+- `validate-documentation-v2.yml`: READY WITH FIX — env var wiring gap requires fix; Vale regression already addressed in production plan
+
+---
+
+## 20.8 Gap Inventory Additions (Part 12B Supplement)
+
+| Gap ID | Finding Source | Description | Resolution |
+|---|---|---|---|
+| CL42-1 | CL 42 | `parse_template_directives.py` at `.akr/scripts/` missing 4 features from review version: `--all`, `--compact`, order key deduplication, `required`+`condition` contradiction check | Merge review version features into `.akr/scripts/` base |
+| CL42-2 | CL 42 | `akr_inline_validate_v2.py` compliance mode defaults silently to `"pilot"` when `--compliance-mode` flag not passed; causes false-pass on production-mode docs | Fix `main()`: detect mode from front matter; `"pilot"` only as last resort |
+| CL42-3 | CL 42 | `test_constants_sync.py` `INLINE_VALIDATOR_PATH` hardcoded; env var set in CI workflow but not consumed by the test | Add `os.environ.get("INLINE_VALIDATOR_PATH")` in test; use env var when present |
+| CL42-4 | CL 42 | `test_constants_sync.py` compares `VALID_COMPLIANCE_MODES` against hardcoded literal; breaks when third mode added | Use `getattr(full_validator, "VALID_COMPLIANCE_MODES", ...)` |
+| CL42-5 | CL 42 | `validate-documentation-v2.yml` Vale step uses workspace-relative paths after `cd ~/.akr/templates` (regression in review version only) | Already addressed in PHASE_1_FOUNDATION.md Deliverable 2 Change 5; no new task needed |
+| CL42-6 | CL 42 | `akr-generate.md` Step 2 wording ambiguous: "fetch only the `akr:` directive blocks" implies partial API fetch | Clarify: full file fetched; `parse_template_directives.py` extracts directive blocks from full content |
+
+---
+
+## 20.9 Pending Implementation Tasks
+
+The following 7 tasks remain open as of CL 42 assessment completion. The assessment phase is complete; these are all file-change implementation tasks.
+
+| # | Task | Scope | Blocking? | Notes |
+|---|---|---|---|---|
+| 1 | Merge `parse_template_directives.py` implementations | Add `--all`, `--compact`, order deduplication, and contradiction check from review version into `.akr/scripts/` base | No — current version functional for single-file use | Gap CL42-1 |
+| 2 | Fix compliance mode edge case in `akr_inline_validate_v2.py` | Change `main()` fallback: detect mode from front matter; `"pilot"` as last resort only | Yes — production-mode docs validate incorrectly without this fix | Gap CL42-2 |
+| 3 | Fix `test_constants_sync.py` path resolution (Bugs 1 and 3) | Add `os.environ.get("INLINE_VALIDATOR_PATH")` override before `__file__`-relative default | Yes — source repo CI context has no inline validator at hardcoded path | Gaps CL42-3 |
+| 4 | Fix `test_constants_sync.py` hardcoded frozenset comparison (Bug 2) | Replace hardcoded `frozenset({"pilot", "production"})` with `getattr()` on CI validator module | Conditional — blocks if third compliance mode added | Gap CL42-4 |
+| 5 | Clarify `akr-generate.md` Step 2 wording | Replace ambiguous partial-fetch language with accurate description of parser-driven extraction | Minor — no functional impact | Gap CL42-6 |
+| 6 | Apply `akr-resolve.md` Phase 4 re-validation path fix | Update Phase 4 re-validation step to reference correct `validate_documentation.py` script path | Minor — Phase 4 scope | Tracked from CL 42 |
+| 7 | Apply `akr-groupings.md` Program.cs 3-criterion threshold table | Add explicit threshold table for the Program.cs 3-criterion classification rule | Minor — accuracy improvement | Tracked from CL 42 |
+
+**Note on Vale working directory fix:** The Vale working directory regression identified in the CL 42 review of `validate-documentation-v2.yml` is already addressed in the production plan. PHASE_1_FOUNDATION.md Deliverable 2 Change 5 specifies "no `cd ~/.akr/templates` before Vale" with the correct `--config` flag approach. No additional implementation task is required for this item.
+
+---
+
+## 20.10 Relationship to Prior Decisions
+
+| Prior Decision | Directive Architecture Impact |
+|---|---|
+| Templates as structural source (implicitly assumed throughout) | Now explicit: `akr:section` blocks ARE the structural truth; no duplication in SKILL.md |
+| Charter compression as Phase 0 blocker (Part 3) | Unchanged; directive blocks are compact comment metadata, not prose charter content |
+| Two-tier validation (Part 6) | Extended in v2: `CONSTANTS_VERSION` + `frozenset` enums + directive-sourced required section list |
+| `validate_documentation.py` as CI gate (Part 6) | Unchanged in gating role; v2 adds directive-aware required section detection |
+| SSG as opt-in Mode B strategy (Part 18) | SSG passes reference required sections from directive parser output; consistent with forward-payload discipline |
+| Phase 2.6 SKILL.md stability assessment (Part 19) | Directive architecture is additive to SKILL.md — it does not change the stability assessment criteria |

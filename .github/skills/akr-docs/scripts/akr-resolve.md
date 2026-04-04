@@ -67,16 +67,28 @@ Accept this? (yes / no / provide different answer)
 
 ### Phase 4: Re-Validation
 
-After resolving a batch of items (or all items), run:
+After resolving a batch of items (or all items), run the inline validator
+locally. The full CI validator (`validate_documentation.py`) is not available
+in the local development environment — it runs only in CI after PR open.
 
 ```bash
-python .akr/scripts/validate_documentation.py \
-  --file {doc_path} \
-  --output json \
-  --fail-on needs
+python .github/skills/akr-docs/scripts/akr_inline_validate.py \
+  {doc_path} \
+  --output text
 ```
 
-Report the before/after unresolved count.
+If the inline validator is not yet present locally (first run before distribution):
+
+```bash
+python ~/.akr/templates/.github/skills/akr-docs/scripts/akr_inline_validate.py \
+  {doc_path}
+```
+
+The inline validator checks front matter completeness, metadata header presence,
+required sections, and unresolved ❓ markers. Full CI validation (Vale, completeness
+scoring, modules.yaml cross-checks) runs automatically when a PR is opened.
+
+Report the before/after unresolved ❓ count from the inline validator output.
 
 ### Phase 5: Summary
 
