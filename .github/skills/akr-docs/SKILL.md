@@ -29,6 +29,8 @@ This skill operates in four modes. Load only the script for the requested mode.
 
 Default behavior: load the mode script from the bundled workspace copy under `.github/skills/akr-docs/scripts/`. Use a live remote mode script only when the invocation includes `--remote` (generate/resolve debugging only).
 
+Deterministic output guarantee: for the same codebase and module target, cache hit/miss must not change section plan, required coverage, or metadata key shape. Cache state may change retrieval timings and cache hit/miss flags only.
+
 Prerequisite reminder: for `--remote` runs, start the GitHub MCP server (and confirm GitHub extension auth) before invoking `/akr-docs`. If GitHub MCP is not running, remote mode-script, template, and charter fetches will fail.
 
 Prerequisite reminder for `/akr-docs refresh-assets`: GitHub MCP server must be available because this mode re-fetches templates/charters from the remote source of truth and rewrites local cache entries.
@@ -47,6 +49,7 @@ Prerequisite reminder for `/akr-docs refresh-assets`: GitHub MCP server must be 
 - **PATH C (CI / coding-agent):** The GitHub Actions workflow clones `core-akr-templates` to `~/.akr/templates/` during setup. All assets are available from that path on the runner.
 - **`--remote` flag (generate and resolve modes only):** Force PATH A for the mode script, template, and charter fetches. Skip the PATH B workspace copy for the mode script. Use when you need to confirm live core-akr-templates script content before the next distribution cycle.
 - **`refresh-assets` mode switches:** `--template-only` refreshes template cache entries only, `--charter-only` refreshes charter cache entries only, and no switch refreshes both.
+- `refresh-assets` impacts template/charter freshness only. It must not change mode-script routing behavior or document structure contracts.
 
 ## Token Budget Rules (apply across all modes)
 
