@@ -25,6 +25,7 @@ This is the definitive pre-implementation analysis for the AKR Documentation Gov
 | Review 10 — GitHub Copilot (Pilot Manifest Simplification) | Direct repo + pilot manifest inspection | Confirmed training-tracker-backend testing supports a lean `modules.yaml` schema (`name`, `grouping_status`, `doc_output`, `files` only), removed `modules-yaml-status` metadata header field as non-value traceability, and retained `status: draft` as the default generated-document maturity state |
 | Review 9 — Skill Optimization Analysis | Post-implementation planning conversation | Three failure modes of Copilot skill non-invocation identified; three-layer reliability stack specified (`disable-model-invocation` frontmatter + session hooks + in-document metadata contract); LLM execution quality variance quantified (Claude Sonnet 4.6 ≥90% vs. GPT-4o ~75%); eval framework and `benchmark.json` schema defined; `SKILL-COMPAT.md` as companion model compatibility matrix introduced; hooks (`postToolUse` + `agentStop`) specified as Layer 2 enforcement |
 | CL 41 — Architectural Review (Review 11) | review/ folder inspection + direct file comparison against production files | Architecture tension confirmed: local copy proliferation vs. remote-source model. Three confirmed fixes: (1) vale rules distributed redundantly — stop distribution, fetch at CI runtime from `.akr/vale-rules/` only; (2) SKILL.md monolith token waste — v1.1.0 dispatcher architecture with on-demand mode scripts (65–77% token savings for groupings/resolve modes); (3) `copilot-instructions.md` overwritten by distribution — explicitly excluded from `distribute-skill.yml`. New bug found: vale working-directory path resolution error in `review/validate-documentation.yml` (`cd ~/.akr/templates` + workspace-relative `$DOC_FILES`). New guidance gap: custom vale rule handling ambiguous in Migration Guide Step 2. Submodule removal recommended in favor of runtime clone (CI already uses this pattern). |
+| D15 — No-Local-Clone Architecture Correction (2026-04-05) | Correction pass following D14 implementation | Architecture decision: end-user developers do NOT clone `core-akr-templates` locally. D14 cache management distribution rolled back. PATH B redefined as workspace distributed copy (`.github/skills/akr-docs/scripts/`). Hook validator gap resolved via Option A (distribute `validate_documentation.py`). `akr-cache.md` moved to `docs/` as maintainer-only reference. See Section 5.B for full corrected PATH table. |
 
 ---
 
@@ -176,7 +177,7 @@ The file `.github/pull_request_template/documentation.md` is a governance artifa
 
 - Keep a canonical copy in `core-akr-templates` (single source of truth).
 - Distribute via a dedicated onboarding-only workflow (`distribute-onboarding-bundle.yml`) rather than extending the recurring `distribute-skill.yml`.
-- Use `distribute-skill.yml` only for high-frequency artifacts (SKILL, compatibility guidance, hooks, and shared validator/lint governance assets).
+- Use `distribute-skill.yml` only for high-frequency artifacts (SKILL dispatcher, mode scripts, hooks, and `validate_documentation.py` — the hook validator dependency).
 - Re-runs of the onboarding bundle workflow are manual/on-demand (`workflow_dispatch` only), not tag-triggered.
 
 Why this split is preferred:
@@ -543,6 +544,39 @@ The dispatcher enforces a budget of **max 2 `@github` tool calls per run** (one 
 **Implication for `distribute-skill.yml`:** v1.1.0 distributes `SKILL.md` (dispatcher) + `scripts/` directory (mode scripts as PATH B/C fallbacks). `validation/vale-rules/` and `validation/.vale.ini` are **not distributed** — vale rules are fetched at CI runtime from `.akr/vale-rules/` in `core-akr-templates` only. `.github/copilot-instructions.md` is **explicitly excluded** from distribution (team ownership preserved).
 
 The full v1.0.0 specification below remains the reference for mode content requirements. The v1.1.0 dispatcher splits that content across the mode scripts without altering the mode logic itself. Phase 0 SKILL.md authoring targets v1.0.0; the v1.1.0 refactor is a Phase 1 follow-on task once the mode content is validated.
+
+---
+
+### 5.B PATH B Definition and Hook Validator Architecture (Deliverable 14 → Corrected by D15 — 2026-04-05)
+
+**Architecture decision (D15, 2026-04-05):** End-user developers do NOT clone `core-akr-templates` locally. Only the select maintainer team maintains a local `~/.akr/templates/` clone. CI GitHub Actions runners clone at runtime via `git clone ... ~/.akr/templates` — unchanged. This decision invalidated parts of D14 (cache management distribution) and required the following corrections.
+
+**Corrected PATH definitions:**
+
+| Path | Mechanism | When Used |
+|---|---|---|
+| PATH A | `@github get file` loads resource from `core-akr-templates` at runtime | Standard for all end users; **required** for templates and charters (never distributed) |
+| PATH B | Resource loaded from `.github/skills/akr-docs/scripts/` in the current workspace — the distributed copy delivered by `distribute-skill.yml` | Mode scripts only; VS Code without GitHub MCP; Visual Studio |
+| PATH C | Resource pre-fetched in CI/coding agent setup step via `git clone ... ~/.akr/templates` | CI runners; Copilot coding agent async context |
+
+**PATH A failure behavior:** Templates and charters are PATH A only — never distributed. If `@github` is unavailable and the resource is a template or charter, generation hard-stops with an error report. There is no silent fallback. For mode scripts only, PATH B workspace copy is the fallback.
+
+**`--remote` flag semantics (corrected):** Forces PATH A for the mode script fetch step only. Templates and charters already require PATH A regardless. When `--remote` is present, a `@github` failure on the mode script is reported as an error rather than falling back to the PATH B workspace copy.
+
+**Hook validator gap resolution (Option A — distribute full validator):**
+
+Prior to D15, `agentStop.json` referenced `$HOME/.akr/templates/.akr/scripts/validate_documentation.py` which is absent on all end-user developer workstations (no local clone). Resolution: `validate_documentation.py` is now distributed to `.github/skills/akr-docs/scripts/validate_documentation.py` in all app repos via `distribute-skill.yml` (sourced from `.akr/scripts/validate_documentation.py` in `core-akr-templates`). Hook validation now works without any local clone requirement.
+
+| Component | Before D15 | After D15 |
+|---|---|---|
+| `agentStop.json` VALIDATOR | `$HOME/.akr/templates/.akr/scripts/validate_documentation.py` | `.github/skills/akr-docs/scripts/validate_documentation.py` |
+| `distribute-skill.yml` | Distributed `akr-cache.md` (maintainer cache tool) | Distributes `validate_documentation.py` (hook dependency) |
+| PATH B | `~/.akr/templates/.github/skills/akr-docs/scripts/` | `.github/skills/akr-docs/scripts/` (workspace distributed copy) |
+| `akr-generate.md` fallback | Soft fallback to `~/.akr/templates/` on PATH A failure | Hard stop — report error, PATH A required |
+
+**`akr-cache.md` status:** Moved to `core-akr-templates/docs/akr-cache.md` as a maintainer-only reference document. Not distributed. Cache management commands (`/akr-docs update-cache`, `/akr-docs cache-status`) are maintainer tools only and are not exposed in end-user SKILL.md routing.
+
+**Known deferred gap:** `validate_documentation.py` distributed to `.github/skills/akr-docs/scripts/` may drift from the canonical `.akr/scripts/validate_documentation.py` between distribution runs. Resolution deferred to a later session.
 
 ---
 

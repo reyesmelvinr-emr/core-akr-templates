@@ -73,14 +73,13 @@ Onboard pilot project with all Phase 1 deliverables; configure tooling end-to-en
 
 | Task | Owner | Acceptance Criteria | Estimated Time |
 |---|---|---|---|
-| Initialize local AKR cache (replaces submodule) | Pilot dev | Run `scripts/setup-local-cache.sh` (or VS Code task equivalent, delivered via `distribute-onboarding-bundle.yml` extension — D12) to clone `core-akr-templates` into `~/.akr/templates/`; until script is available, manual command: `git clone https://github.com/reyesmelvinr-emr/core-akr-templates ~/.akr/templates`; `~/.akr/templates/.akr/scripts/validate_documentation.py` must be resolvable before hook validation proceeds — this step is **mandatory**, not optional | 15 min |
 | Remove `.akr/templates` git submodule (migration only — pilot repos onboarded under old model) | Pilot dev | `git submodule deinit -f .akr/templates`; `git rm .akr/templates`; `rm -rf .git/modules/.akr/templates`; `.gitmodules` emptied or removed; `git submodule status` returns empty; dedicated migration PR merged before hook validation proceeds | 30 min |
 | Step 1a: Confirm GitHub MCP Server (`@github`) available in VS Code | Pilot dev | GitHub MCP extension installed and authenticated; `@github get files with names like CHARTER.md` returns charter files | 10 min |
 | Step 1b: Configure hosted MCP context source OR `.github/copilot-instructions.md` as primary charter delivery fallback | Pilot dev | Context source configured; condensed backend charter accessible | 30 min |
-| Confirm initial skill and mode-scripts copy from cache | Pilot dev | `.github/skills/akr-docs/SKILL.md` and `.github/skills/akr-docs/scripts/akr-*.md` copied from `.akr/templates/.github/skills/akr-docs/`; `SKILL_VERSION` matches current release | 10 min |
+| Confirm initial skill and mode-scripts distribution | Pilot dev | `distribute-skill.yml` workflow has run for this repo; `.github/skills/akr-docs/SKILL.md`, all three mode scripts (`akr-groupings.md`, `akr-generate.md`, `akr-resolve.md`), `akr_inline_validate.py`, and `validate_documentation.py` are present under `.github/skills/akr-docs/scripts/`; `SKILL_VERSION` matches current release | 10 min |
 | Deploy `validate-documentation.yml` | Pilot dev | Workflow file in `.github/workflows/`; triggered on draft PR | 30 min |
 | Create initial `modules.yaml` | Pilot dev | Project section complete; `modules[]` empty; `database_objects[]` empty | 30 min |
-| Run onboarding bundle distribution workflow (recommended) | Pilot dev + standards author | `core-akr-templates/.github/workflows/distribute-onboarding-bundle.yml` executed for target repo; source directories confirmed: `.github/pull_request_template/` and `examples/onboarding/`; PR template + seed assets arrive via PR; **planned extension (D12):** workflow will also deliver `scripts/setup-akr-cache.sh` / `setup-akr-cache.ps1` and `.vscode/tasks.json` setup task — until extension is complete, distribute manual setup instructions via `DEVELOPER_REFERENCE.md` or `SETUP.md` | 20 min |
+| Run onboarding bundle distribution workflow (recommended) | Pilot dev + standards author | `core-akr-templates/.github/workflows/distribute-onboarding-bundle.yml` executed for target repo; source directories confirmed: `.github/pull_request_template/` and `examples/onboarding/`; PR template + seed assets arrive via PR | 20 min |
 | Test CI workflow | Pilot dev | Trigger workflow on draft PR; verify it runs without errors | 30 min |
 | Create CODEOWNERS file | Pilot dev | Standards team + tech lead as owners for `docs/**`, `modules.yaml`, and `.github/skills/akr-docs/SKILL.md` | 20 min |
 | Register repo in `core-akr-templates` | Standards author | Entry added to `registered-repos.yaml`; registration PR merged | 15 min |
@@ -93,9 +92,9 @@ Recommended CODEOWNERS additions:
 - `.github/skills/akr-docs/SKILL.md  @org/standards-team`
 - `.github/skills/akr-docs/scripts/**  @org/standards-team`
 
-**Critical:** Do not use a git submodule for `core-akr-templates` in application repositories. Use runtime clone in CI plus local cache initialization (`~/.akr/templates/`) for developer sessions. If a repo was onboarded under the old submodule model, the submodule must be removed via git operations (see submodule removal row above) before running hook validation — file deletion alone is not sufficient.
+**Critical:** Do not use a git submodule for `core-akr-templates` in application repositories. The CI workflow clones `core-akr-templates` to `~/.akr/templates/` on GitHub Actions runners at runtime. Developer workstations do not need a local clone. If a repo was onboarded under the old submodule model, the submodule must be removed via git operations (see migration row above) before hook validation — file deletion alone is not sufficient.
 
-**Critical (2026-04-04):** Local cache initialization (`~/.akr/templates/`) is **mandatory** for every developer, not optional. Hook validation (`agentStop.json`) depends on `$HOME/.akr/templates/.akr/scripts/validate_documentation.py` being resolvable. Onboarding is not complete until each developer has run the setup-local-cache step in their own working environment. The `distribute-onboarding-bundle.yml` workflow delivers this setup script into the repo, but it does not execute on developer workstations — each developer must run it once. Per-developer setup instructions must also be documented in `DEVELOPER_REFERENCE.md` or `SETUP.md`.
+**Note on hook validation (2026-04-05):** `agentStop.json` now resolves `validate_documentation.py` from `.github/skills/akr-docs/scripts/` (the distributed workspace copy), not from `~/.akr/templates/`. Hook validation requires `distribute-skill.yml` to have run for this repo at least once. Until `validate_documentation.py` is present in the workspace, the hook exits gracefully with an advisory message and does not block the session.
 
 **Note on skill maintenance:** After onboarding, developers should never manually edit `.github/skills/akr-docs/SKILL.md` in application repositories. All updates originate in `core-akr-templates` and are delivered automatically via pull request.
 
@@ -622,11 +621,10 @@ Finalize onboarding checklist based on pilot learnings; prepare for second proje
 - [ ] Project identified and team assigned
 - [ ] core-akr-templates v1.0.0+ available
 
-## Setup (estimated: 3 hours)
-- [ ] **[MANDATORY]** Initialize local AKR cache (`~/.akr/templates/`) via `scripts/setup-local-cache.sh` or VS Code task equivalent (each developer must run this once; hook validation cannot proceed until resolvable)
+## Setup (estimated: 2 hours)
 - [ ] **[MIGRATION ONLY]** Remove `.akr/templates` git submodule if repo was onboarded under old submodule model: `git submodule deinit -f .akr/templates` → `git rm .akr/templates` → `rm -rf .git/modules/.akr/templates` → remove `.gitmodules`
 - [ ] Configure hosted MCP context source (or .github/copilot-instructions.md)
-- [ ] Confirm initial SKILL.md and scripts copy from local cache and verify `SKILL_VERSION` header
+- [ ] Run `distribute-skill.yml` workflow for this repo; confirm SKILL.md, mode scripts, `akr_inline_validate.py`, and `validate_documentation.py` are present under `.github/skills/akr-docs/scripts/`; verify `SKILL_VERSION` header
 - [ ] Confirm `.github/hooks/postToolUse.json` and `.github/hooks/agentStop.json` present (distributed with SKILL.md); run Mode B session to verify `.akr/logs/` is created
 - [ ] Deploy validate-documentation.yml workflow
 - [ ] Create initial modules.yaml (project section only)
