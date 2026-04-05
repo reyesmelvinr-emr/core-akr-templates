@@ -27,6 +27,8 @@ Steps followed: 1. [step] - completed | 2. [step] - completed | ...
 
 This skill operates in three modes. Load only the script for the requested mode.
 
+Prerequisite reminder: for `--remote` runs, start the GitHub MCP server (and confirm GitHub extension auth) before invoking `/akr-docs`. If GitHub MCP is not running, remote template/charter fetches will fail.
+
 | Command | Mode Script | When to Use |
 |---------|-------------|-------------|
 | `/akr-docs groupings` | `@github get file core-akr-templates/.github/skills/akr-docs/scripts/akr-groupings.md` | No modules.yaml, or re-grouping needed |
@@ -48,15 +50,25 @@ This skill operates in three modes. Load only the script for the requested mode.
 - Forward payload between SSG passes must be structured facts only — no raw source re-expansion.
 - Maximum 2 `@github` calls per generate/resolve run (1 for mode script, 1 for charter slice).
 
+## Step 0: MCP Pre-flight Check
+
+Before loading a mode script, perform a lightweight `@github get file` pre-flight check.
+
+- If pre-flight succeeds: continue normally.
+- If pre-flight fails and user invoked `--remote`: stop immediately and return a blocking reminder to start GitHub MCP server and verify extension authentication, then re-run the same command.
+- If pre-flight fails and user did not invoke `--remote`: continue with PATH B for mode script only, and warn that templates/charters still require PATH A (`@github`) and generation may be stale or incomplete until MCP is available.
+
 ## Execution Path Constraint
 
 Do not generate or validate documentation by running Python scripts or terminal commands directly. The ONLY valid execution lanes are PATH A (`@github get file`), PATH B (workspace distributed scripts in `.github/skills/akr-docs/scripts/`), and PATH C (CI runner clone), as defined above.
 
 ## Failure Handling
 
-If mode script cannot be fetched via PATH A:
+If PATH A fetch cannot be completed:
 1. Confirm the GitHub MCP extension is installed and authenticated in VS Code.
-2. Fall back to PATH B: load mode script from `.github/skills/akr-docs/scripts/` in the current workspace.
-3. If PATH B files are absent, re-run the `distribute-skill.yml` workflow to populate the distributed bundle.
+2. Confirm GitHub MCP server is started and available.
+3. If invocation includes `--remote`: do not fall back; stop and instruct user to restart MCP and re-run with the same command.
+4. If invocation does not include `--remote`: fall back to PATH B for mode script only.
+5. If PATH B files are absent, re-run the `distribute-skill.yml` workflow to populate the distributed bundle.
 
 If modules.yaml is absent when `generate` is invoked, redirect to `groupings` mode automatically.
