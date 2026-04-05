@@ -78,13 +78,13 @@ DRAFT_ONLY_FIELDS = frozenset({"preview-generated-at", "review-mode"})
 # Keep in sync with MODULE_REQUIRED_SECTIONS in validate_documentation.py.
 # ---------------------------------------------------------------------------
 BASELINE_REQUIRED_SECTIONS = [
-    "Quick Reference",
+    "Quick Reference (TL;DR)",
     "Module Files",
     "Operations Map",
     "Architecture Overview",
     "Business Rules",
     "Data Operations",
-    "Questions and Gaps",
+    "Questions & Gaps",
 ]
 
 
