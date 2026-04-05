@@ -48,6 +48,10 @@ This skill operates in three modes. Load only the script for the requested mode.
 - Forward payload between SSG passes must be structured facts only — no raw source re-expansion.
 - Maximum 2 `@github` calls per generate/resolve run (1 for mode script, 1 for charter slice).
 
+## Execution Path Constraint
+
+Do not generate or validate documentation by running Python scripts or terminal commands directly. The ONLY valid execution lanes are PATH A (`@github get file`), PATH B (workspace distributed scripts in `.github/skills/akr-docs/scripts/`), and PATH C (CI runner clone), as defined above.
+
 ## Failure Handling
 
 If mode script cannot be fetched via PATH A:
