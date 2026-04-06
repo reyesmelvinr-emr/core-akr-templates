@@ -58,12 +58,9 @@ jobs:
         run: |
           CLONE_URL="https://github.com/reyesmelvinr-emr/core-akr-templates.git"
 
-          # Use PAT if provided, fall back to GITHUB_TOKEN (read-only, same org)
-          if [ -n "${{ secrets.AKR_READ_PAT }}" ]; then
-            AUTH_URL="https://x-access-token:${{ secrets.AKR_READ_PAT }}@${CLONE_URL#https://}"
-          else
-            AUTH_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@${CLONE_URL#https://}"
-          fi
+          # Use the workflow token for read access.
+          # If cross-org private repo access is needed, switch this to a PAT secret in that repo.
+          AUTH_URL="https://x-access-token:${{ github.token }}@${CLONE_URL#https://}"
 
           git clone \
             --depth 1 \

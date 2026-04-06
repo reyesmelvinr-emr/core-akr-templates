@@ -74,7 +74,9 @@ JSON Output Schema
         "flow_fields_per_step": [string, ...],
         "required_elements": [string, ...],
         "source":           string | null,
-        "sync_note":        string | null
+        "sync_note":        string | null,
+        "authorship":       string,          -- "ai", "human", or "mixed" (default: "human")
+        "human_columns":    [string, ...],   -- columns requiring human authorship (for "mixed")
       },
       ...                                    -- sorted by order_sort_key ascending
     ],
@@ -349,6 +351,8 @@ def _parse_akr_section_block(inline_rest: str, body_lines: List[str]) -> Dict[st
         "markers": _body_list("markers"),
         "flow_fields_per_step": _body_list("flow_fields_per_step"),
         "required_elements": _body_list("required_elements"),
+        "authorship": inline.get("authorship") or _body_str("authorship") or "human",
+        "human_columns": _body_list("human_columns"),
     }
 
 

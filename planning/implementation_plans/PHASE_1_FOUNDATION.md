@@ -301,9 +301,109 @@ core-akr-templates/
 
 | Risk | Mitigation |
 |---|---|---|
-| 500-650 lines exceeds capacity for standards team | Prioritize critical path; defer `--auto-fix` and `--tier` scoring to v1.1 |
+| 500-650 lines exceeds capacity for standards team | Prioritize critical path; defer `--auto-fix` to v1.1; `--tier` completeness scoring is addressed by Deliverable 1A semantic scoring PoC |
 | YAML parsing breaks on Windows paths | Test with Windows-style paths in unit tests; use `pathlib.Path` for normalization |
 | Vale subprocess integration issues | Run Vale as separate CI step in v1.0; tight integration in v1.1 |
+
+---
+
+## Deliverable 1A: Semantic Scoring PoC Infrastructure
+
+### Objective
+
+Implement the skill-as-scorer model for semantic validation quality scoring (PoC). Extends Deliverable 1 (`validate_documentation.py`) with score-reading capability; adds the new `/akr-docs score` mode script; extends `parse_template_directives.py` with `authorship` directive support.
+
+See `akr_implementation_ready_analysis.md` Part 22 for full architecture specification.
+
+### Why a Separate Deliverable
+
+The scoring infrastructure forms a cohesive subsystem that depends on Deliverable 1 (validator front matter reading contract) and Deliverable 2C (template directive architecture). Grouping these tasks here keeps the scoring scope explicit and advisory-only for the PoC phase.
+
+**Dependencies:**
+- Deliverable 1 (`validate_documentation.py`) must be complete before score-reading extensions are added.
+- Deliverable 2C (`parse_template_directives.py` directive extension) provides the `authorship` field that the score mode reads.
+
+### Scope
+
+**PoC constraint — advisory only. No merge gates introduced by this deliverable.**
+
+#### Validator Extensions (`validate_documentation.py`)
+- `_is_template_placeholder(content: str) -> bool` — pure Python check; detects bare `❓` markers, unchanged bracket placeholders, empty cells
+- `_read_semantic_score_from_front_matter(file_path) -> Optional[float]` — reads `semantic-score` field; returns `None` if absent
+- `_compute_combined_score(structural: float, semantic: Optional[float]) -> float` — `(structural × 0.4) + (semantic × 0.6)` when semantic is present; structural-only fallback when absent
+- Extend `ValidationResult` with `semantic_score: Optional[float]` and `combined_score: float`
+- Update JSON output schema: add `semantic_score` and `combined_score` to `.results[].scores`
+
+#### `SCORE_FRONT_MATTER_FIELDS` Constant (`akr_inline_validate.py`)
+- Add `SCORE_FRONT_MATTER_FIELDS = frozenset({"semantic-score", "semantic-scored-at", "semantic-score-version"})`
+- These fields are recognized as valid front matter; never added to `DRAFT_ONLY_FIELDS`
+- **CRITICAL:** `DRAFT_ONLY_FIELDS` must never include any field from `SCORE_FRONT_MATTER_FIELDS`
+
+#### `authorship` Directive Extension (`parse_template_directives.py`)
+- Parse `authorship` attribute from `akr:section` directive blocks; valid values: `ai`, `human`, `mixed`
+- Parse `human_columns` attribute (comma-separated string); emit as list
+- Include `authorship` and `human_columns` in directive JSON output
+
+#### New Score Mode Script (`.github/skills/akr-docs/scripts/akr-score.md`)
+- 5th mode script; invoked via `/akr-docs score [ModuleName]`
+- Reads `doc_output` path from `modules.yaml` for the named module
+- Parses directive blocks to identify `authorship: human` and `authorship: mixed` sections
+- Evaluates each human-authored section per rubric (0–10 scale; see Part 22.5)
+- Writes `semantic-score`, `semantic-scored-at`, `semantic-score-version` into document YAML front matter in-place
+- Displays per-section score summary in Copilot Chat before writing
+
+#### SKILL.md Update
+- Add `score` row to dispatcher routing table
+- Update `description` frontmatter to include `score` mode reference
+
+#### Template Annotations (Deliverable 3 dependency)
+- When adapting templates in Deliverable 3, add `authorship` attribute to all `akr:section` directive blocks per Part 22.6 assignments
+
+### Tasks
+
+| Task | Owner | Acceptance Criteria | Estimated Time |
+|---|---|---|---|
+| Add `_is_template_placeholder()` to `validate_documentation.py` | Standards author | Detects bare `❓`, unchanged bracket placeholders, empty content; unit tested | 2 hours |
+| Add `_read_semantic_score_from_front_matter()` | Standards author | Returns float when field present; returns `None` when absent; handles malformed values gracefully | 1 hour |
+| Add `_compute_combined_score()` and extend `ValidationResult` | Standards author | Combined formula correct; structural-only fallback when semantic absent; JSON output updated | 1 hour |
+| Add `SCORE_FRONT_MATTER_FIELDS` to `akr_inline_validate.py` | Standards author | Fields recognized as valid; not in `DRAFT_ONLY_FIELDS`; assert test if `test_constants_sync.py` covers it | 30 min |
+| Extend `parse_template_directives.py` with `authorship` | Standards author | `authorship` and `human_columns` parsed and emitted; invalid values emit named error | 2 hours |
+| Author `akr-score.md` mode script | Standards author | Score mode reads directives, evaluates rubric, writes front matter in-place; per-section summary in chat | 4 hours |
+| Update SKILL.md dispatcher for `score` mode | Standards author | `score` entry in dispatcher table; SKILL_VERSION bump | 30 min |
+| Write unit tests for scoring extensions | Standards author | Placeholder detection, front matter reader, combined formula, no-score fallback all tested | 2 hours |
+
+### Test Cases
+
+```python
+def test_is_template_placeholder_bare_marker():
+    # Bare ❓ marker → True
+
+def test_is_template_placeholder_bracket_unchanged():
+    # "[ModuleName]" unchanged → True
+
+def test_is_template_placeholder_real_content():
+    # "Validates course enrollment eligibility before allowing registration" → False
+
+def test_read_semantic_score_present():
+    # Front matter with semantic-score: 78 → 78.0
+
+def test_read_semantic_score_absent():
+    # Front matter without semantic-score → None
+
+def test_compute_combined_score_both_present():
+    # structural=80, semantic=70 → (80*0.4)+(70*0.6) = 32+42 = 74.0
+
+def test_compute_combined_score_structural_only():
+    # structural=80, semantic=None → 80.0
+```
+
+### Risk Mitigation
+
+| Risk | Mitigation |
+|---|---|
+| Score fields accidentally added to `DRAFT_ONLY_FIELDS` | Document safety constraint; add assert in `test_constants_sync.py` that `SCORE_FRONT_MATTER_FIELDS` ∩ `DRAFT_ONLY_FIELDS` = ∅ |
+| Score mode not run before PR | CI warns (not blocks) when `semantic-score` absent; developer guidance in onboarding checklist |
+| Rubric weights miscalibrated | `advisory_only: true` in PoC config; no merge gates; weights adjusted after Phase 2 pilot retrospective |
 
 ---
 

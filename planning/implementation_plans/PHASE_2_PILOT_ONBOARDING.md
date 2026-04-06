@@ -311,6 +311,7 @@ CI validates final file. modules.yaml updated with draft_output, last_reviewed_a
 | Apply reusable TL;DR section guidance block in draft review | Pilot dev | TL;DR section aligns with `SECTION_GUIDANCE_BLOCK_DRAFT.md` and is readable by non-implementing stakeholders | 5 min |
 | Review and fill content | Pilot dev | All checklist items completed | 30 min |
 | Run `validate_documentation.py` locally | Pilot dev | Zero errors; all required sections present | 5 min |
+| Run `/akr-docs score CourseDomain` | Pilot dev | Skill writes `semantic-score`, `semantic-scored-at`, `semantic-score-version` into document front matter; per-section score summary displayed in Copilot Chat | 5 min |
 | Open Mode B PR | Pilot dev | Draft PR with completed checklist | 5 min |
 | Tech lead approval | Tech lead | Content accuracy validated; PR approved | 10 min |
 | Record generation time | Standards author | Actual time vs. 30 min target documented | 2 min |
@@ -649,6 +650,7 @@ Finalize onboarding checklist based on pilot learnings; prepare for second proje
 - [ ] Invoke Agent Skill Mode B: "generate documentation for [Module]"
 - [ ] Review and fill ❓ sections (30 minutes)
 - [ ] Run validate_documentation.py locally
+- [ ] Run `/akr-docs score [ModuleName]`; `semantic-score` present in document front matter (advisory — does not block PR)
 - [ ] Open Mode B PR
 - [ ] CI validation passes
 - [ ] Tech lead approves content

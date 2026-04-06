@@ -117,5 +117,14 @@
   "monitoring": {
     "enabled": false,
     "trackMetrics": ["generation-time", "validation-results"]
+  },
+
+  "scoring": {
+    "minimum_combined_score": 70,
+    "minimum_semantic_score": 60,
+    "minimum_structural_score": 80,
+    "block_on_template_text": false,
+    "block_on_unengaged_sections": false,
+    "advisory_only": true
   }
 }

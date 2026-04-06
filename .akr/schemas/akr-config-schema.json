@@ -549,6 +549,49 @@
           "format": "uri"
         }
       }
+    },
+
+    "scoring": {
+      "type": "object",
+      "description": "Semantic scoring thresholds and advisory flags (PoC — advisory_only is true by default)",
+      "properties": {
+        "minimum_combined_score": {
+          "type": "integer",
+          "description": "Minimum combined (structural + semantic) score threshold (0–100). Only enforced when advisory_only is false.",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 70
+        },
+        "minimum_semantic_score": {
+          "type": "integer",
+          "description": "Minimum semantic score threshold (0–100). Only enforced when advisory_only is false.",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 60
+        },
+        "minimum_structural_score": {
+          "type": "integer",
+          "description": "Minimum structural (completeness) score threshold (0–100). Enforced independently of advisory_only.",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 80
+        },
+        "block_on_template_text": {
+          "type": "boolean",
+          "description": "Fail validation when template placeholder text (bare \u2753, bracket markers) is detected in human-authored sections.",
+          "default": false
+        },
+        "block_on_unengaged_sections": {
+          "type": "boolean",
+          "description": "Fail validation when a human-authored section scores 0\u20132 (template placeholder tier).",
+          "default": false
+        },
+        "advisory_only": {
+          "type": "boolean",
+          "description": "When true, semantic and combined scores are surfaced in PR comments and artifacts but never block merge. Set to false only after Phase 2 pilot retrospective calibration.",
+          "default": true
+        }
+      }
     }
   }
 }

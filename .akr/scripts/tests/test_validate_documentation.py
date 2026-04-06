@@ -235,3 +235,119 @@ def test_final_doc_rejects_draft_only_front_matter() -> None:
             "Final doc contains draft-only front matter fields. Re-run GenerateDocumentation Step 6a to strip before committing."
             in messages
         )
+
+
+def test_semantic_score_present_surfaced_in_json() -> None:
+    """When semantic-score is in front matter, JSON output must include it in the scores block."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "modules.yaml").write_text(
+            textwrap.dedent(
+                """\
+                project:
+                  name: TrainingTracker.Api
+                  layer: API
+                  standards_version: v1.1.0
+                  minimum_standards_version: v1.1.0
+                  compliance_mode: pilot
+                modules:
+                  - name: CourseDomain
+                    businessCapability: CourseCatalogManagement
+                    feature: FN00001_US100
+                    project_type: api-backend
+                    status: approved
+                    max_files: 3
+                    files:
+                      - src/Controllers/CoursesController.cs
+                    doc_output: docs/modules/CourseDomain_doc.md
+                database_objects: []
+                unassigned: []
+                """
+            ),
+            encoding="utf-8",
+        )
+        _write_module_doc(root / "docs/modules/CourseDomain_doc.md", "semantic-score: 75\n")
+
+        result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
+        payload = json.loads(result.stdout)
+        scores = payload["results"][0]["scores"]
+        assert scores["semantic"] == 75.0
+        assert scores["combined"] is not None
+
+
+def test_semantic_score_absent_combined_equals_structural() -> None:
+    """When semantic-score is absent, combined_score must equal completeness_score."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "modules.yaml").write_text(
+            textwrap.dedent(
+                """\
+                project:
+                  name: TrainingTracker.Api
+                  layer: API
+                  standards_version: v1.1.0
+                  minimum_standards_version: v1.1.0
+                  compliance_mode: pilot
+                modules:
+                  - name: CourseDomain
+                    businessCapability: CourseCatalogManagement
+                    feature: FN00001_US100
+                    project_type: api-backend
+                    status: approved
+                    max_files: 3
+                    files:
+                      - src/Controllers/CoursesController.cs
+                    doc_output: docs/modules/CourseDomain_doc.md
+                database_objects: []
+                unassigned: []
+                """
+            ),
+            encoding="utf-8",
+        )
+        _write_module_doc(root / "docs/modules/CourseDomain_doc.md")
+
+        result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
+        payload = json.loads(result.stdout)
+        scores = payload["results"][0]["scores"]
+        assert scores["semantic"] is None
+        assert scores["combined"] == scores["structural"]
+
+
+def test_score_fields_not_flagged_as_draft_only() -> None:
+    """Score front matter fields must NOT trigger the draft-only-fields validation error."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "modules.yaml").write_text(
+            textwrap.dedent(
+                """\
+                project:
+                  name: TrainingTracker.Api
+                  layer: API
+                  standards_version: v1.1.0
+                  minimum_standards_version: v1.1.0
+                  compliance_mode: pilot
+                modules:
+                  - name: CourseDomain
+                    businessCapability: CourseCatalogManagement
+                    feature: FN00001_US100
+                    project_type: api-backend
+                    status: approved
+                    max_files: 3
+                    files:
+                      - src/Controllers/CoursesController.cs
+                    doc_output: docs/modules/CourseDomain_doc.md
+                database_objects: []
+                unassigned: []
+                """
+            ),
+            encoding="utf-8",
+        )
+        _write_module_doc(
+            root / "docs/modules/CourseDomain_doc.md",
+            "semantic-score: 80\nsemantic-scored-at: 2026-04-06T14:00:00Z\nsemantic-score-version: v1.0\n",
+        )
+
+        result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
+        payload = json.loads(result.stdout)
+        messages = [issue["message"] for issue in payload["results"][0]["issues"]]
+        assert not any("draft-only front matter" in m for m in messages)

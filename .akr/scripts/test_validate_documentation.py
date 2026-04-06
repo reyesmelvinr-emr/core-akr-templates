@@ -356,5 +356,75 @@ class TestCommandLineInterface:
             assert any("test.md" in p for p in parsed)
 
 
+class TestScoringExtensions:
+    """Tests for semantic scoring PoC functions."""
+
+    def test_is_template_placeholder_bare_marker(self):
+        assert validator_module._is_template_placeholder("❓") is True
+
+    def test_is_template_placeholder_empty(self):
+        assert validator_module._is_template_placeholder("") is True
+        assert validator_module._is_template_placeholder("   ") is True
+
+    def test_is_template_placeholder_bracket_unchanged(self):
+        assert validator_module._is_template_placeholder("[MODULE_NAME]") is True
+        assert validator_module._is_template_placeholder("[to be filled]") is True
+
+    def test_is_template_placeholder_real_content(self):
+        assert validator_module._is_template_placeholder(
+            "Validates course enrollment eligibility before allowing registration"
+        ) is False
+
+    def test_read_semantic_score_present(self):
+        content = "---\nbusinessCapability: Test\nsemantic-score: 78\n---\n# Doc\n"
+        result = validator_module._read_semantic_score_from_front_matter(content)
+        assert result == 78.0
+
+    def test_read_semantic_score_absent(self):
+        content = "---\nbusinessCapability: Test\n---\n# Doc\n"
+        result = validator_module._read_semantic_score_from_front_matter(content)
+        assert result is None
+
+    def test_read_semantic_score_malformed(self):
+        content = "---\nbusinessCapability: Test\nsemantic-score: notanumber\n---\n"
+        result = validator_module._read_semantic_score_from_front_matter(content)
+        assert result is None
+
+    def test_compute_combined_score_both_present(self):
+        result = validator_module._compute_combined_score(80.0, 70.0)
+        assert result == 74.0  # (80*0.4) + (70*0.6) = 32+42
+
+    def test_compute_combined_score_structural_only(self):
+        result = validator_module._compute_combined_score(80.0, None)
+        assert result == 80.0
+
+    def test_validation_result_includes_combined_score(self):
+        """ValidationResult with semantic score sets combined_score field."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            doc_path = root / "test.md"
+            doc_path.write_text(
+                "---\nbusinesscapability: Test\nfeature: FN001\nlayer: API\n"
+                "project_type: api-backend\nstatus: draft\ncompliance_mode: pilot\n"
+                "semantic-score: 70\n---\n"
+                "<!-- akr-generated -->\n## Overview\n## Module Files\n"
+                "## Operations Map\n## Architecture Overview\n## Business Rules\n",
+                encoding="utf-8",
+            )
+            result = validator_module._validate_single_file(doc_path, root, {}, "pilot")
+            assert result.semantic_score == 70.0
+            assert result.combined_score is not None
+
+    def test_validation_result_no_semantic_score_falls_back(self):
+        """ValidationResult without semantic score falls back to structural-only combined."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            doc_path = root / "test.md"
+            doc_path.write_text("## Overview\n", encoding="utf-8")
+            result = validator_module._validate_single_file(doc_path, root, {}, "pilot")
+            assert result.semantic_score is None
+            assert result.combined_score == result.completeness_score
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

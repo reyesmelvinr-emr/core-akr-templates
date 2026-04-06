@@ -26,6 +26,8 @@ This is the definitive pre-implementation analysis for the AKR Documentation Gov
 | Review 9 — Skill Optimization Analysis | Post-implementation planning conversation | Three failure modes of Copilot skill non-invocation identified; three-layer reliability stack specified (`disable-model-invocation` frontmatter + session hooks + in-document metadata contract); LLM execution quality variance quantified (Claude Sonnet 4.6 ≥90% vs. GPT-4o ~75%); eval framework and `benchmark.json` schema defined; `SKILL-COMPAT.md` as companion model compatibility matrix introduced; hooks (`postToolUse` + `agentStop`) specified as Layer 2 enforcement |
 | CL 41 — Architectural Review (Review 11) | review/ folder inspection + direct file comparison against production files | Architecture tension confirmed: local copy proliferation vs. remote-source model. Three confirmed fixes: (1) vale rules distributed redundantly — stop distribution, fetch at CI runtime from `.akr/vale-rules/` only; (2) SKILL.md monolith token waste — v1.1.0 dispatcher architecture with on-demand mode scripts (65–77% token savings for groupings/resolve modes); (3) `copilot-instructions.md` overwritten by distribution — explicitly excluded from `distribute-skill.yml`. New bug found: vale working-directory path resolution error in `review/validate-documentation.yml` (`cd ~/.akr/templates` + workspace-relative `$DOC_FILES`). New guidance gap: custom vale rule handling ambiguous in Migration Guide Step 2. Submodule removal recommended in favor of runtime clone (CI already uses this pattern). |
 | D15 — No-Local-Clone Architecture Correction (2026-04-05) | Correction pass following D14 implementation | Architecture decision: end-user developers do NOT clone `core-akr-templates` locally. D14 cache management distribution rolled back. PATH B redefined as workspace distributed copy (`.github/skills/akr-docs/scripts/`). Hook validator gap resolved via Option A (distribute `validate_documentation.py`). `akr-cache.md` moved to `docs/` as maintainer-only reference. See Section 5.B for full corrected PATH table. |
+| Review 16 — Skill File Audit (2026-04-06) | Direct read of all canonical skill files: `SKILL.md` v1.2.0, `akr-groupings.md`, `akr-generate.md`, `akr-resolve.md`, `akr-refresh-assets.md`, `akr_inline_validate.py`, `SKILL-COMPAT.md` | Confirmed: (1) `akr-refresh-assets.md` is an untracked 4th mode script for `.akr/cache/` refresh — added as D16; (2) SKILL.md at v1.2.0 in-file only, D12 Git tag still pending — tracked as D17; (3) `.akr/cache/` workspace-level caching with key format `{owner}/{repo}@{branch}/{encoded-path}` formalized in generate Steps 2-3; (4) `stage_timers` dict (6 stage keys) added to generate script; (5) CL42 tasks 2/5/6/7 resolved in canonical files; CL42 tasks 1/3/4 pending in `review/` artifacts — tracked as D18; (6) SKILL-COMPAT.md still at v1.0.0, update deferred to Phase 2.6 |
+| Review 17 — Validation Scoring Design (April 2026) | Post-implementation planning conversation | Original proposal for LLM API-based two-component scoring assessed and rejected (cost concern; 6 structural problems identified). Validated replacement: skill-as-scorer model using Copilot session inference — zero marginal API cost, exactly mirroring the `akr-resolve` pattern. Score transport: `semantic-score`/`semantic-scored-at`/`semantic-score-version` embedded in document YAML front matter by new `/akr-docs score` mode before PR; no committed JSON file. CI reads score from front matter it already processes; generates per-section breakdown uploaded as ephemeral GitHub Actions artifact (`retention-days: 7`, native expiry). Combined score formula: `(structural × 0.4) + (semantic × 0.6)`, PoC baseline. Scoring rubric 0–10 per section; score 5–6 explicitly rewards acknowledged gaps ("For further confirmation"). Section weights: Business Rules = 2.0, Quick Reference/Purpose and Scope = 1.5, Questions & Gaps = 1.0. `authorship` directive extension (`ai`/`human`/`mixed`) added to `akr:section` blocks to drive which sections are semantically scored. `DRAFT_ONLY_FIELDS` safety constraint: score front matter fields must never enter that frozenset. Advisory-only PoC governance confirmed. See Part 22 for full architecture. |
 
 ---
 
@@ -3173,3 +3175,309 @@ The following 7 tasks remain open as of CL 42 assessment completion. The assessm
 | `validate_documentation.py` as CI gate (Part 6) | Unchanged in gating role; v2 adds directive-aware required section detection |
 | SSG as opt-in Mode B strategy (Part 18) | SSG passes reference required sections from directive parser output; consistent with forward-payload discipline |
 | Phase 2.6 SKILL.md stability assessment (Part 19) | Directive architecture is additive to SKILL.md — it does not change the stability assessment criteria |
+
+---
+
+## Part 21: April 5–6, 2026 Skill File Audit — Current State
+
+### 21.1 Confirmed Canonical Skill Artifacts (as of 2026-04-06)
+
+| Artifact | Path | Version / Status | Key Contents |
+|---|---|---|---|
+| SKILL.md (dispatcher) | `.github/skills/akr-docs/SKILL.md` | v1.2.0 | 4-mode dispatcher: groupings / generate / resolve / refresh-assets; PATH B = workspace distributed copy (`.github/skills/akr-docs/scripts/`); PATH A = `@github get file`; `--remote` flag for generate/resolve; `.akr/cache/` readiness check at Step 0; cache-invariant output guarantee; MCP pre-flight branch for refresh-assets |
+| akr-groupings.md | `.github/skills/akr-docs/scripts/akr-groupings.md` | Current | ProposeGroupings mode script; Program.cs 3-criterion classification table (non-infrastructure `Add*` count ≥3, factory registrations, conditional domain registrations); output steps with summary table and checklist |
+| akr-generate.md | `.github/skills/akr-docs/scripts/akr-generate.md` | Current | GenerateDocumentation; `stage_timers` dict (6 keys: preflight, template_fetch, charter_fetch, source_extraction, assembly, write); `.akr/cache/` key-format template/charter caching (Steps 2-3); `project_type` inference table; feature-tag placeholder detection (`FN00000_US000` pattern); 🤖 marker mandate in Step 6; cache-invariant output rule per Step 6; single-pass default (`--use-ssg` opt-in) |
+| akr-resolve.md | `.github/skills/akr-docs/scripts/akr-resolve.md` | Current | ResolveUnknowns; Phases 1–5 structured workflow; inline validator invoked via `.github/skills/akr-docs/scripts/akr_inline_validate.py` (workspace-distributed path); DEFERRED format specification |
+| akr-refresh-assets.md | `.github/skills/akr-docs/scripts/akr-refresh-assets.md` | Current (NEW — D16) | RefreshAssets 4th mode; `/akr-docs refresh-assets [--template-only\|--charter-only]`; refreshes `.akr/cache/` entries from core-akr-templates remote via `@github`; reads `modules.yaml` for `project_types_in_scope`; deduplicates template/charter target lists; 4-step flow: pre-flight → asset targets → refresh cache entries → report |
+| akr_inline_validate.py | `.github/skills/akr-docs/scripts/akr_inline_validate.py` | CONSTANTS_VERSION 1.0.0 | Distributed inline validator; `_extract_required_sections_from_directives()` for directive-based section discovery; `BASELINE_REQUIRED_SECTIONS` fallback = ["Quick Reference (TL;DR)", ..., "Questions & Gaps"]; `_COMMENT_RE = re.compile(r"<!--(.*?)-->", re.DOTALL)` multi-line fix; `Optional[str]=None` compliance mode (reads front matter first); `--output json/text`; `--final` flag; metadata canonical format checks |
+| SKILL-COMPAT.md | `.github/skills/akr-docs/SKILL-COMPAT.md` | v1.0.0 (STALE) | Model matrix at v1.0.0; `Last updated: 2026-03-31`; charter version compatibility table needs v1.2.0 entry; Phase 2.6 governance stability seeds present but empty (pass-rate columns TBD); update deferred to Phase 2.6 data collection |
+
+### 21.2 New Capabilities Introduced April 5, 2026 (Deliverable 16)
+
+**refresh-assets mode:**
+- `/akr-docs refresh-assets` is the 4th invocation mode, handling the developer-facing cache refresh use case. Replaces the retired D14 `akr-cache.md` mechanism for the end-user context; D15 no-local-clone constraint is maintained.
+- Workspace-local `.akr/cache/` is the cache surface. Cache keys: `{owner}/{repo}@{branch}/{encoded-path}`. `.akr/cache/` must be added to `.gitignore`.
+- `--template-only` and `--charter-only` are mutually exclusive switches for selective refresh.
+- Derives `project_types_in_scope` from `modules.yaml`; falls back to all 4 types if `modules.yaml` is absent.
+- GitHub MCP pre-flight required before first refresh fetch. Token budget: ≤2 `@github` calls (1 with a selective switch active).
+
+**`.akr/cache/` cross-chat caching (generate/resolve modes):**
+- Templates and charters fetched via `@github` in generate/resolve mode are written to `.akr/cache/{encoded_cache_key}.md`.
+- New VS Code sessions in the same workspace read from this cache — eliminating repeat `@github` calls across sessions on the same machine.
+- **Cache-invariant output rule:** cache hit/miss may affect retrieval timings only. Must NOT change section inclusion/exclusion decisions, required section coverage, metadata key shape, or output style conventions.
+- To force a live re-fetch: run `/akr-docs refresh-assets` before generating, or pass `--remote` to skip PATH B mode script.
+
+**Stage timing metrics in generate script:**
+- `stage_timers` dict initializes at invocation with 6 stage keys: `preflight_seconds`, `template_fetch_seconds`, `charter_fetch_seconds`, `source_extraction_seconds`, `assembly_seconds`, `write_seconds`.
+- Each stage records elapsed time. Emitted in `akr-generated` metadata header alongside existing `total-generation-seconds`.
+- Feeds Phase 2 `benchmark.json` `pass-timings-seconds` field for the Phase 2.5 coding agent spike.
+
+**SKILL.md v1.2.0 version bump (Deliverable 17):**
+- In-file headers updated: `metadata.skill-version: 1.2.0` and `<!-- SKILL_VERSION: v1.2.0 -->`.
+- Reflects: addition of refresh-assets 4th mode; PATH B redefinition; `.akr/cache/` caching mechanism; `--remote` flag semantics; updated token budget rules.
+- D12 Git tag task (`git tag v1.2.0` on core-akr-templates) remains NOT_STARTED.
+
+### 21.3 CL42 Task Resolution Assessment
+
+| CL42 Task | Status in Canonical Files | Action Required |
+|---|---|---|
+| CL42-1: `parse_template_directives.py` missing `--all`, `--compact`, order-key dedup, `required`+`condition` contradiction check | **PENDING** — review version has these features; canonical `.akr/scripts/` base does not | D18 row added; merge review features into canonical before Phase 2.6 directive CI integration |
+| CL42-2: `akr_inline_validate_v2.py` compliance mode defaults silently to `"pilot"` | **RESOLVED** — canonical `akr_inline_validate.py` uses `Optional[str]=None`; reads front matter compliance_mode field first | No action required |
+| CL42-3: `test_constants_sync.py` path resolution bug (Bugs 1 & 3) | **PENDING** — test is in `review/`; `os.environ.get("INLINE_VALIDATOR_PATH")` env-var override not yet implemented | D18 row added |
+| CL42-4: `test_constants_sync.py` hardcoded `frozenset({"pilot","production"})` literal (Bug 2) | **PENDING** — same file as CL42-3 | D18 row added |
+| CL42-5: `akr-generate.md` Step 2 wording ambiguity | **RESOLVED** — Step 2 now states "Fetch the full template file; parse and carry forward only the `akr:` directive blocks. Discard the template prose body." | No action required |
+| CL42-6: `akr-resolve.md` Phase 4 re-validation path | **RESOLVED** — Phase 4 uses `python .github/skills/akr-docs/scripts/akr_inline_validate.py {doc_path} --output text` (workspace-distributed path) | No action required |
+| CL42-7: `akr-groupings.md` Program.cs 3-criterion threshold table | **RESOLVED** — 3-criterion classification table already present in canonical `akr-groupings.md` | No action required |
+
+### 21.4 Open Gaps After April 5–6 Changes
+
+| Gap | Severity | Owner | When |
+|---|---|---|---|
+| SKILL-COMPAT.md stale at v1.0.0; needs v1.2.0 charter compatibility row and pilot model pass-rate data | Low — non-blocking | Standards author | Phase 2.6 data collection |
+| `validate_documentation.py` sync gap: distributed copy (`.github/skills/akr-docs/scripts/`) may diverge from canonical (`.akr/scripts/`) over time | Medium — latent correctness risk | Standards author | Before Phase 2.6 governance assessment |
+| Git tag v1.2.0 on core-akr-templates not yet created (in-file version bumped; formal release tag outstanding) | Low — governance | Standards lead | D12 completion |
+| CL42 tasks 1/3/4: `parse_template_directives.py` and `test_constants_sync.py` fixes pending in `review/` artifacts | Medium — blocks directive-aware CI integration | Standards author | D18 |
+| `training-tracker-backend` submodule removal may still be outstanding (`.gitmodules` + residual `.akr/templates/` dir) | Medium — technical debt | Pilot developer | D12 |
+| D11-A full charter reduction not started | Medium — required before Phase 2 retrospective sign-off | Standards author | Phase 2 |
+| D11-F distribution (execute `distribute-skill.yml` + open `training-tracker-backend` PR) | HIGH — blocks benchmark data collection from Mode B pilot runs | Standards author | Immediate |
+
+---
+
+## Part 22: Validation Scoring Architecture — Semantic Scoring PoC (April 2026)
+
+**Date:** April 2026  
+**Source:** Validation Scoring Design conversation (Review 17)  
+**Review type:** Architecture validation — design rejected, replacement validated  
+**Follows:** Part 21 (Skill File Audit, April 5–6, 2026)
+
+---
+
+### 22.1 Background — What Was Proposed and What Was Rejected
+
+A design document proposed a two-component validation scoring system: structural scoring (existing `_compute_completeness`) plus semantic scoring via LLM API calls at CI time. Six problems were identified in that design:
+
+1. **LLM API cost in CI** — marginal API cost added to every PR run, violating the zero-incremental-cost architectural constraint
+2. **False `git diff` foundation** — git diff is a noise signal, not a quality signal; recently changed sections are not inherently lower quality
+3. **`HUMAN_AUTHORED_SECTIONS` hardcoding** — contradicts the `akr:section` directive architecture where templates are the single source of truth for section metadata
+4. **Untested 40/60 weighting** — presented as validated, not as a calibratable PoC baseline
+5. **Brittle `_is_template_placeholder` regex** — would break on template variation; pure Python pattern detection is more robust
+6. **New PR comment surface** — added without integration plan for existing CI comment structure
+
+All six problems are resolved by the architecture documented in this part.
+
+---
+
+### 22.2 Architecture: Skill-as-Scorer
+
+**Core decision:** The Copilot skill session performs semantic scoring. The developer's existing Copilot seat pays the inference cost — no marginal API charges. This exactly mirrors the pattern used by `akr-resolve` mode: skill inference already in progress handles a new quality-assessment responsibility.
+
+**New invocation:** `/akr-docs score [ModuleName]`  
+**Script:** `.github/skills/akr-docs/scripts/akr-score.md` (new file; 5th mode script alongside groupings, generate, resolve, refresh-assets)
+
+The score mode:
+
+1. Reads the final module document at the `doc_output` path recorded in `modules.yaml`
+2. Reads `akr:section` directive blocks to identify sections with `authorship: human` or `authorship: mixed`
+3. Evaluates each human-authored section per the scoring rubric (section 22.5)
+4. Writes three fields into the document's YAML front matter in-place:
+   - `semantic-score` — 0–100 weighted average
+   - `semantic-scored-at` — ISO 8601 timestamp
+   - `semantic-score-version` — rubric version string (e.g., `v1.0`)
+5. Displays a per-section score summary in Copilot Chat with section name, score, tier label, and notes
+
+**Lifecycle position:** Score mode is invoked by the developer **after** Mode B generation and content review are complete, and **before** opening the PR. It is a pre-PR developer step, not a CI step.
+
+**`akr-generate.md` unchanged:** Generate and score lifecycles are intentionally separate. Generate produces the document; score evaluates it. No coupling between the two modes.
+
+---
+
+### 22.3 Score Transport Mechanism
+
+**Score carrier:** YAML front matter of the final module document.
+
+The three score fields travel with the document through the feature branch, PR review process, and merge. The CI workflow reads the document it already processes; no additional artifact download is required. No separate `.akr/scores/*.json` file is committed to the repository.
+
+**Front matter example (after `/akr-docs score` runs):**
+
+```yaml
+---
+businessCapability: CourseCatalogManagement
+feature: CourseDomain
+layer: API
+project_type: api-backend
+status: draft
+compliance_mode: pilot
+semantic-score: 78
+semantic-scored-at: "2026-04-10T14:32:00Z"
+semantic-score-version: "v1.0"
+---
+```
+
+**`DRAFT_ONLY_FIELDS` safety constraint (CRITICAL):**
+
+The frozenset `DRAFT_ONLY_FIELDS` in `akr_inline_validate.py` lists fields that must be stripped from draft documents before final commit. The three score fields (`semantic-score`, `semantic-scored-at`, `semantic-score-version`) must **never** be added to this frozenset. Score fields must survive from the developer's scored state through the PR and merge. Adding them to `DRAFT_ONLY_FIELDS` would silently discard the score on every final write.
+
+A complementary `SCORE_FRONT_MATTER_FIELDS = frozenset({"semantic-score", "semantic-scored-at", "semantic-score-version"})` frozenset in `akr_inline_validate.py` declares them as recognized valid front matter fields so the validator does not flag them as unknown keys.
+
+---
+
+### 22.4 CI Artifact Strategy — Ephemeral Per-Section Breakdown
+
+**CI behavior when `semantic-score` is present in front matter:**
+
+1. CI reads `semantic-score`, `semantic-scored-at`, `semantic-score-version` from the document's front matter (same document already being validated)
+2. Uses the structural score from `_compute_completeness` to compute: `combined_score = (structural_score × 0.4) + (semantic_score × 0.6)`
+3. Generates a detailed Markdown per-section breakdown report (section name, raw score, rubric tier label, notes column)
+4. Uploads the breakdown as a GitHub Actions artifact with 7-day retention:
+   ```yaml
+   - uses: actions/upload-artifact@v4
+     with:
+       name: akr-scoring-${{ github.event.pull_request.number }}
+       path: .akr/reports/scoring-${{ github.sha }}.md
+       retention-days: 7
+   ```
+5. Updates the PR comment to surface a three-component score table: structural score, semantic score, combined score
+
+**No event-driven deletion workflow needed.** Native artifact expiration (`retention-days: 7`) is sufficient for the PoC. No cleanup workflow is warranted until artifact volume is measured in pilot.
+
+**CI behavior when `semantic-score` is absent:**
+
+CI emits a warning: "Semantic score not present in front matter. Run `/akr-docs score [ModuleName]` before opening the PR to enable combined scoring. Structural-only score applies for this PR."
+
+CI does not block on missing semantic score. The combined score in pilot mode falls back to structural-only when semantic score is absent.
+
+---
+
+### 22.5 Scoring Rubric and Section Weights
+
+#### Per-Section Rubric (0–10 scale)
+
+| Score | Tier Label | Description |
+|---|---|---|
+| 0–2 | **Template placeholder** | Content unchanged from template; bare `❓` markers with no additional context; empty cells in required table columns |
+| 3–4 | **Generic** | Some content present but no module-specific context; description could apply to any module in the codebase |
+| 5–6 | **Acknowledged gap** | Explicitly notes what is unknown or pending: "For further confirmation", "Pending confirmation from product owner", "DEFERRED: needs domain-owner input" — **explicitly rewarded at this tier** |
+| 7–8 | **Substantive** | Business context evident; describes this module's specific behavior, data, or rules; minor gaps acceptable |
+| 9–10 | **Complete** | Genuine domain knowledge present; no remaining template filler; all required sub-fields populated with real content |
+
+**Design intent for the 5–6 tier:** A developer who explicitly acknowledges uncertainty provides more governance value than one who silently leaves a template placeholder. Honest documentation of gaps is the foundation of the ❓ / DEFERRED marker system. The rubric rewards this directly.
+
+#### Section Weights
+
+| Section | Weight | Rationale |
+|---|---|---|
+| Business Rules | 2.0 | Highest governance value; "Why It Exists" + "Since When" knowledge is the hardest to recover from code inspection alone |
+| Quick Reference (TL;DR) | 1.5 | Primary surface for Product Owner and QA audiences; must be business-readable |
+| Purpose and Scope | 1.5 | Domain intent and boundary; not derivable from code analysis |
+| Questions & Gaps | 1.0 | Transparency marker section; completeness of gap documentation is a quality signal |
+
+#### Combined Score Formula (PoC baseline)
+
+```
+semantic_score  = weighted_average(per_section_scores × section_weights)   [0–100]
+combined_score  = (structural_score × 0.4) + (semantic_score × 0.6)        [0–100]
+```
+
+The 40/60 weighting is a PoC starting point — not validated against pilot data. Calibration is deferred to after the Phase 2 pilot retrospective when actual document quality distributions are known. `advisory_only: true` in the PoC config removes all risk from miscalibration during the pilot.
+
+#### Template Placeholder Detection
+
+`_is_template_placeholder(content: str) -> bool` is a pure Python function — no LLM call required. It checks for:
+- Content matching known bare marker patterns from the actual template files
+- Empty or whitespace-only cells in table columns
+- Unchanged bracket placeholder text from the template (e.g., `[MODULE_NAME]`, `[TO BE FILLED]`)
+
+This detection is deterministic and does not add to inference cost.
+
+---
+
+### 22.6 Authorship Directive Extension
+
+**Problem:** Structural CI scoring does not distinguish AI-generated sections from human-authored ones. Semantic scoring should apply only to sections where a human is expected to provide judgement; applying it to AI-generated structural sections would produce misleading scores.
+
+**Solution:** Add `authorship` field to `akr:section` directive blocks in templates.
+
+```html
+<!-- akr:section id="business-rules" required="true" order="5" authorship="mixed" human_columns="why_it_exists,since_when" -->
+<!-- akr:section id="purpose-scope" required="true" order="2" authorship="human" -->
+<!-- akr:section id="questions-gaps" required="true" order="9" authorship="human" -->
+<!-- akr:section id="module-files" required="true" order="6" authorship="ai" -->
+<!-- akr:section id="operations-map" required="true" order="7" authorship="ai" -->
+```
+
+| `authorship` Value | Scoring Behavior |
+|---|---|
+| `authorship: ai` | Structural validation only; excluded from semantic scoring |
+| `authorship: human` | Full semantic scoring applied to section content |
+| `authorship: mixed` | Score only the columns listed in `human_columns`; other columns treated as `ai` |
+
+**`parse_template_directives.py` extension:** Parser must emit `authorship` (`ai`/`human`/`mixed`) and `human_columns` list (for `mixed` sections) in its JSON output schema. The score mode reads these to select which sections and columns to evaluate.
+
+**Template annotations required for `lean_baseline_service_template_module.md`:**
+- `authorship: human` — Quick Reference (TL;DR), Purpose and Scope, Questions & Gaps
+- `authorship: mixed` + `human_columns: [why_it_exists, since_when]` — Business Rules (Name/Description are AI-populated from operations table; Why It Exists/Since When are human knowledge)
+- `authorship: ai` — Module Files, Operations Map, Architecture Overview, Data Operations
+
+**Same pattern applies to `ui_component_template_module.md`** for equivalent sections.
+
+---
+
+### 22.7 File Impact List
+
+| File | Change Type | Summary |
+|---|---|---|
+| `.akr/scripts/validate_documentation.py` | Extend | Add `_is_template_placeholder()` (pure Python); `_read_semantic_score_from_front_matter()`; `_compute_combined_score()`; extend `ValidationResult` with `semantic_score`/`combined_score`; update JSON output schema with new fields |
+| `.akr/scripts/parse_template_directives.py` | Extend | Parse and emit `authorship` and `human_columns` from directive blocks; update JSON output schema |
+| `templates/lean_baseline_service_template_module.md` | Annotate | Add `authorship` attribute to all `akr:section` directive blocks |
+| `templates/ui_component_template_module.md` | Annotate | Add `authorship` attribute to all `akr:section` directive blocks |
+| `.github/skills/akr-docs/SKILL.md` | Extend | Add `score` to dispatcher routing table; update `description` frontmatter; add PATH/cache pre-flight for score mode; update `tested-on` annotations |
+| `.github/skills/akr-docs/scripts/akr-score.md` | **NEW** | Score mode script; reads document via `doc_output` path from `modules.yaml`; reads directive `authorship` fields; evaluates human-authored sections per rubric; writes `semantic-score`/`semantic-scored-at`/`semantic-score-version` into YAML front matter in-place; displays per-section summary in chat |
+| `.github/skills/akr-docs/scripts/akr_inline_validate.py` | Extend | Add `SCORE_FRONT_MATTER_FIELDS = frozenset({"semantic-score", "semantic-scored-at", "semantic-score-version"})`; recognized as valid front matter keys, never in `DRAFT_ONLY_FIELDS` |
+| `.akr/workflows/validate-documentation.yml` | Extend | Extract `semantic_score`/`combined_score` from validation JSON output; add `upload-artifact` step (`retention-days: 7`); update PR comment to surface three-component score table |
+| `.github/workflows/validate-documentation.yml` | Extend | Same changes as `.akr/workflows/` copy (consumer-facing distribution copy) |
+| `.akr/schemas/akr-config-schema.json` | Extend | Add `scoring` object: `minimum_combined_score`, `minimum_semantic_score`, `minimum_structural_score`, `block_on_template_text`, `block_on_unengaged_sections`, `advisory_only` |
+| `examples/.akr-config-api.json` | Update | Add `scoring` block with PoC defaults: `combined: 70`, `semantic: 60`, `structural: 80`, `advisory_only: true`, all `block_*` flags `false` |
+| `.akr/scripts/test_validate_documentation.py` | Extend | New tests for placeholder detection, front matter score reader, combined vs. structural-only scoring path, graceful no-score fallback |
+| `.akr/scripts/tests/test_validate_documentation.py` | Extend | Same test additions in the alternate test location |
+
+**Total: 13 existing files extended/updated + 1 new file**
+
+---
+
+### 22.8 PoC Governance
+
+**Advisory-only:** The semantic score never blocks merge in PoC mode (`advisory_only: true` in config). It is a warn signal for the tech lead and product owner to review sections that score below threshold. No merge gates are added by score results during the pilot period.
+
+**Calibration deferred:** The 40/60 weight split is a starting point. After the Phase 2 pilot retrospective, actual section quality correlations can be measured against pilot documents and weights adjusted using real data.
+
+**Score validity window:** A score written to front matter by `/akr-docs score` is valid at time of PR opening. If substantive content changes are made after scoring and before merge, the developer should re-run the score command to refresh the front matter fields.
+
+**`akr-config-schema.json` PoC defaults:**
+
+```json
+"scoring": {
+  "minimum_combined_score": 70,
+  "minimum_semantic_score": 60,
+  "minimum_structural_score": 80,
+  "block_on_template_text": false,
+  "block_on_unengaged_sections": false,
+  "advisory_only": true
+}
+```
+
+---
+
+### 22.9 What This Architecture Permanently Changes
+
+| Item | Before | After |
+|---|---|---|
+| Semantic quality signal in CI | None | Per-section and combined scores surfaced in PR comment; front matter carries score |
+| Inference cost for scoring | Would require LLM API call per PR | Zero marginal cost — inference in developer's existing Copilot session |
+| Score transport mechanism | N/A | YAML front matter fields travel with document through review and merge |
+| Score detail report | N/A | GitHub Actions artifact, 7-day retention, native expiry |
+| Template section scoring policy | Not defined | `authorship` directive field drives which sections receive semantic scoring |
+| Acknowledged gaps rewarded | Not rewarded | 5–6 rubric tier explicitly credits "For further confirmation" and DEFERRED entries |
+| `DRAFT_ONLY_FIELDS` collision risk | Not identified | Safety constraint documented: score fields must never enter `DRAFT_ONLY_FIELDS` |
+| `--tier completeness scoring` deferred item | Listed as v1.1 deferred in Phase 1 | Addressed by semantic scoring PoC; structural `_compute_completeness` provides structural score; this PoC adds the quality dimension; the two-number combined score supersedes the single `--tier` completeness threshold concept |
+
+*April 2026 — Validation Scoring Design conversation (Review 17)*

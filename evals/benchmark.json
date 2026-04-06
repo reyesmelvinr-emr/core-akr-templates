@@ -5,6 +5,14 @@
     "claude-sonnet-4-6": {
       "groupings-standard": { "pass-rate": null, "avg-tokens": null },
       "generate-coursedomain": { "pass-rate": null, "avg-tokens": null },
+      "score-coursedomain": {
+        "pass-rate": null,
+        "avg-section-count": null,
+        "avg-semantic-score": null,
+        "avg-seconds-to-confirm": null,
+        "front-matter-write-success-rate": null,
+        "rubric-calibration-notes": null
+      },
       "generate-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
       "ssg": {
         "generate-coursedomain": {
@@ -96,6 +104,14 @@
     "gpt-4o": {
       "groupings-standard": { "pass-rate": null, "avg-tokens": null },
       "generate-coursedomain": { "pass-rate": null, "avg-tokens": null },
+      "score-coursedomain": {
+        "pass-rate": null,
+        "avg-section-count": null,
+        "avg-semantic-score": null,
+        "avg-seconds-to-confirm": null,
+        "front-matter-write-success-rate": null,
+        "rubric-calibration-notes": null
+      },
       "generate-large-module": { "pass-rate": null, "avg-tokens": null, "known-issue": null },
       "ssg": {
         "generate-coursedomain": {
@@ -184,6 +200,14 @@
       }
     },
     "coding-agent": {
+      "score-coursedomain": {
+        "pass-rate": null,
+        "avg-section-count": null,
+        "avg-semantic-score": null,
+        "avg-seconds-to-confirm": null,
+        "front-matter-write-success-rate": null,
+        "rubric-calibration-notes": null
+      },
       "ssg": {
         "generate-coursedomain": {
           "avg-total-seconds": null,

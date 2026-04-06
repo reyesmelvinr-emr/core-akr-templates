@@ -17,6 +17,7 @@ compliance_mode: pilot
 
 ---
 
+<!-- akr:section id="quick_reference" required=true order=1 authorship="mixed" human_columns="business_outcome,specific_caller,watch_out" -->
 ## Quick Reference (TL;DR)
 
 **What it does:**  
@@ -31,6 +32,7 @@ compliance_mode: pilot
 
 ---
 
+<!-- akr:section id="module_files" required=true order=2 authorship="ai" -->
 ## Module Files
 
 | File | Role | Primary Responsibilities |
@@ -43,6 +45,7 @@ compliance_mode: pilot
 
 ---
 
+<!-- akr:section id="purpose_scope" required=true order=3 authorship="mixed" human_columns="business_purpose,scope_boundaries" -->
 ## Purpose and Scope
 
 ### Purpose
@@ -60,6 +63,7 @@ compliance_mode: pilot
 
 ---
 
+<!-- akr:section id="operations_map" required=true order=4 authorship="ai" -->
 ## Operations Map
 
 This section covers ALL operations across ALL files in the module. Operations are grouped by public surface (API endpoints, service methods) that consumers interact with.
@@ -80,6 +84,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
+<!-- akr:section id="how_it_works" required=true order=5 authorship="mixed" human_columns="business_context,failure_impact" -->
 ## How It Works
 
 ### Primary Operation: [Main Method Name]
@@ -133,6 +138,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
+<!-- akr:section id="architecture_overview" required=true order=6 authorship="mixed" human_columns="consumer_impact" -->
 ## Architecture Overview
 
 ### Full-Stack Module Architecture
@@ -193,6 +199,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
+<!-- akr:section id="business_rules" required=true order=7 authorship="mixed" human_columns="why_it_exists,since_when" -->
 ## Business Rules
 
 | Rule | Why It Exists | Since When | Where Enforced |
@@ -211,6 +218,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 ---
 
 <!-- conditional: include only if module contains a controller with [Http*] attributes or explicit external DTO contracts visible in listed module files -->
+<!-- akr:section id="api_contract" required=false order=8 authorship="ai" -->
 ## API Contract (AI Context)
 
 > 📋 **Interactive Documentation:** [API Portal - [ModuleName]](https://apim.gateway.emerson.com/...) — use for testing
@@ -277,6 +285,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 ---
 
 <!-- conditional: include only if *Validator.cs files, DTO data annotations, or explicit guard clauses exist in the listed module files -->
+<!-- akr:section id="validation_rules" required=false order=9 authorship="mixed" human_columns="business_rationale" -->
 ## Validation Rules
 
 🤖 [AI: Extract from *Validator.cs FluentValidation classes]
@@ -290,6 +299,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
+<!-- akr:section id="data_operations" required=true order=10 authorship="mixed" human_columns="business_context,trigger" -->
 ## Data Operations
 
 ### Reads From
@@ -308,6 +318,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
+<!-- akr:section id="failure_modes" required=true order=11 authorship="ai" -->
 ## Failure Modes & Exception Handling
 
 ### Common Failure Scenarios
@@ -319,6 +330,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
+<!-- akr:section id="questions_gaps" required=true order=12 authorship="human" -->
 ## Questions & Gaps
 
 ### AI-Flagged Questions
@@ -333,6 +345,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 
 <!-- conditional: include only if doc_output paths for related modules are present in modules.yaml -->
+<!-- akr:section id="related_documentation" required=false order=13 authorship="ai" -->
 ## Related Documentation
 
 **Other Modules:** Link to related module docs (confirmed paths from modules.yaml only):

@@ -165,6 +165,33 @@ def main() -> int:
         )
         all_pass = all_pass and ok
 
+    # --- SCORE_FRONT_MATTER_FIELDS safety invariant ---
+    # Verifies the constant exists in akr_inline_validate.py AND that none of its
+    # values are also in DRAFT_ONLY_FIELDS.  Score fields stripped on final commit
+    # would silently break the scoring pipeline (D19 critical invariant).
+    inline_score_fields = getattr(inline, "SCORE_FRONT_MATTER_FIELDS", None)
+    inline_draft_fields = getattr(inline, "DRAFT_ONLY_FIELDS", frozenset())
+    if inline_score_fields is None:
+        print("  ❌ SCORE_FRONT_MATTER_FIELDS not found in akr_inline_validate.py")
+        print("     Add the constant — see D19 safety notes in AKR_Tracking.md.")
+        all_pass = False
+    else:
+        collision = frozenset(inline_score_fields) & frozenset(inline_draft_fields)
+        if collision:
+            print(
+                f"  ❌ CRITICAL: SCORE_FRONT_MATTER_FIELDS ∩ DRAFT_ONLY_FIELDS = {sorted(collision)}"
+            )
+            print(
+                "     Score fields present in DRAFT_ONLY_FIELDS will be stripped on final"
+                " commit — silently breaking the scoring pipeline."
+            )
+            all_pass = False
+        else:
+            print(
+                f"  ✅ SCORE_FRONT_MATTER_FIELDS: present ({len(inline_score_fields)} values),"
+                " no overlap with DRAFT_ONLY_FIELDS"
+            )
+
     print()
     if all_pass:
         print("✅ All constants in sync. No drift detected.")

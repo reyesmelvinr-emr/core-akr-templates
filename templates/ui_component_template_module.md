@@ -17,6 +17,7 @@ compliance_mode: pilot
 
 ---
 
+<!-- akr:section id="quick_reference" required=true order=1 authorship="mixed" human_columns="accessibility,business_context" -->
 ## Quick Reference
 
 | | |
@@ -42,6 +43,7 @@ import { [PrimaryComponent] } from '@/components/[path]/[PrimaryComponent]';
 
 ---
 
+<!-- akr:section id="module_files" required=true order=2 authorship="ai" -->
 ## Module Files
 
 | File | Type | Role | Primary Responsibilities |
@@ -61,6 +63,7 @@ All components in this module are part of the same domain noun ([DomainNoun]) an
 
 ---
 
+<!-- akr:section id="purpose_context" required=true order=3 authorship="mixed" human_columns="business_context" -->
 ## Purpose & Context
 
 ### What This Module Does
@@ -104,6 +107,7 @@ All components in this module are part of the same domain noun ([DomainNoun]) an
 
 ---
 
+<!-- akr:section id="module_files_detail" required=true order=4 authorship="ai" -->
 ## Module Files - Detailed Breakdown
 
 ### Component Hierarchy
@@ -132,6 +136,7 @@ All components in this module are part of the same domain noun ([DomainNoun]) an
 
 ---
 
+<!-- akr:section id="hook_dependency" required=true order=5 authorship="ai" -->
 ## Hook Dependency Graph
 
 ### Custom Hooks in This Module
@@ -160,6 +165,7 @@ All components in this module are part of the same domain noun ([DomainNoun]) an
 
 ---
 
+<!-- akr:section id="type_definitions" required=true order=6 authorship="ai" -->
 ## Type Definitions Cross-Reference
 
 ### Module-Specific Types
@@ -193,6 +199,7 @@ type [EntityState] = 'idle' | 'loading' | 'success' | 'error';
 
 ---
 
+<!-- akr:section id="component_behavior" required=true order=7 authorship="human" -->
 ## Component Behavior
 
 ### User Interactions (Module Level)
@@ -205,6 +212,7 @@ type [EntityState] = 'idle' | 'loading' | 'success' | 'error';
 
 ---
 
+<!-- akr:section id="data_flow" required=true order=8 authorship="ai" -->
 ## Data Flow
 
 ### Props → State → Render (Module Level)
@@ -243,6 +251,7 @@ All components re-render with data
 
 ---
 
+<!-- akr:section id="visual_states" required=true order=9 authorship="human" -->
 ## Visual States & Variants
 
 ❓ _Document all visual states across module components_
@@ -272,6 +281,7 @@ Smooth transition to content state
 
 ---
 
+<!-- akr:section id="component_architecture" required=true order=10 authorship="mixed" human_columns="consumer_impact" -->
 ## Component Architecture
 
 ### Module Composition
@@ -312,6 +322,7 @@ Smooth transition to content state
 
 ---
 
+<!-- akr:section id="accessibility" required=true order=11 authorship="human" -->
 ## Accessibility
 
 ### WCAG Compliance
@@ -347,6 +358,7 @@ Smooth transition to content state
 
 ---
 
+<!-- akr:section id="testing" required=true order=12 authorship="human" -->
 ## Testing
 
 ### Test Structure
@@ -382,6 +394,7 @@ Smooth transition to content state
 
 ---
 
+<!-- akr:section id="known_issues" required=true order=13 authorship="human" -->
 ## Known Issues & Limitations
 
 ### Module Limitations
@@ -409,6 +422,7 @@ Smooth transition to content state
 
 ---
 
+<!-- akr:section id="performance_considerations" required=true order=14 authorship="human" -->
 ## Performance Considerations
 
 ### Module Performance
@@ -440,6 +454,7 @@ Smooth transition to content state
 
 ---
 
+<!-- akr:section id="questions_gaps" required=true order=15 authorship="human" -->
 ## Questions & Gaps
 
 ### Unanswered Questions
@@ -462,6 +477,7 @@ Smooth transition to content state
 
 ---
 
+<!-- akr:section id="version_history" required=true order=16 authorship="human" -->
 ## Version History
 
 | Version | Date | Author | Changes |

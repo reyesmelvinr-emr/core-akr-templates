@@ -78,6 +78,15 @@ DRAFT_ONLY_FIELDS = frozenset({
     "review-mode",
 })
 
+# Score fields written by /akr-docs score before PR.
+# CRITICAL: These fields MUST NOT be added to DRAFT_ONLY_FIELDS.
+# Adding them there would silently discard the score on every final commit.
+SCORE_FRONT_MATTER_FIELDS = frozenset({
+    "semantic-score",
+    "semantic-scored-at",
+    "semantic-score-version",
+})
+
 # ---------------------------------------------------------------------------
 # BASELINE required sections — used when no akr:section directives are found.
 # Covers documents generated before the directive pattern was introduced.
