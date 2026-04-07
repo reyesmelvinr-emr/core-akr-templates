@@ -24,7 +24,7 @@ jobs:
       release_tag: ${{ steps.release.outputs.release_tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3.6.0
 
       - name: Install matrix dependencies
         run: python -m pip install --no-cache-dir pyyaml
@@ -32,6 +32,7 @@ jobs:
       - name: Determine release tag
         id: release
         run: |
+          set -euo pipefail
           if [ "${{ github.event_name }}" = "push" ]; then
             echo "release_tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           else
@@ -41,6 +42,7 @@ jobs:
       - name: Build matrix from registered repos
         id: matrix
         run: |
+          set -euo pipefail
           python - <<'PY'
           import json, os
           from pathlib import Path
@@ -64,6 +66,8 @@ jobs:
             if '/' not in target:
               raise SystemExit('workflow_dispatch target_repo must be owner/repo')
             owner, repo = target.split('/', 1)
+            if not owner.strip() or not repo.strip():
+              raise SystemExit('workflow_dispatch target_repo must be owner/repo')
             repos = [{'owner': owner.strip(), 'repo': repo.strip()}]
 
           if not repos:
@@ -87,10 +91,11 @@ jobs:
       GH_TOKEN: ${{ secrets.AKR_DISTRIBUTION_PAT }}
     steps:
       - name: Checkout source repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3.6.0
 
       - name: Validate required secret
         run: |
+          set -euo pipefail
           if [ -z "${GH_TOKEN}" ]; then
             echo "::error::AKR_DISTRIBUTION_PAT secret is not configured."
             exit 1
@@ -98,6 +103,7 @@ jobs:
 
       - name: Validate target repository access
         run: |
+          set -euo pipefail
           target="${{ matrix.owner }}/${{ matrix.repo }}"
           if ! gh repo view "$target" --json name > /dev/null 2>&1; then
             echo "::error::Repository '$target' not accessible with provided token."
@@ -107,11 +113,13 @@ jobs:
 
       - name: Clone target repository
         run: |
+          set -euo pipefail
           git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ matrix.owner }}/${{ matrix.repo }}.git" target-repo
 
       - name: Sync skill and hook bundle only
         id: sync
         run: |
+          set -euo pipefail
           cd target-repo
           branch_name="akr-skill-update-${{ needs.prepare-matrix.outputs.release_tag }}"
           git checkout -B "$branch_name"
@@ -140,8 +148,10 @@ jobs:
              .github/skills/akr-docs/scripts/akr-generate.md
           cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/scripts/akr-resolve.md" \
              .github/skills/akr-docs/scripts/akr-resolve.md
-           cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/scripts/akr-refresh-assets.md" \
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/scripts/akr-refresh-assets.md" \
              .github/skills/akr-docs/scripts/akr-refresh-assets.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/scripts/akr-score.md" \
+             .github/skills/akr-docs/scripts/akr-score.md
 
           # Inline validator — stdlib-only Python, no external deps.
           # Distributed so the generate step can invoke it immediately after writing.
@@ -188,9 +198,10 @@ jobs:
         id: pr
         if: steps.sync.outputs.no_changes != 'true'
         run: |
+          set -euo pipefail
           cd target-repo
           existing_url=$(gh pr list \
-            --head "${{ steps.sync.outputs.branch_name }}" \
+            --head "${{ matrix.owner }}:${{ steps.sync.outputs.branch_name }}" \
             --json url --jq '.[0].url // ""')
           if [ -n "$existing_url" ]; then
             echo "pr_url=$existing_url" >> "$GITHUB_OUTPUT"
@@ -200,18 +211,19 @@ jobs:
           default_base=$(gh repo view "${{ matrix.owner }}/${{ matrix.repo }}" \
             --json defaultBranchRef --jq '.defaultBranchRef.name')
 
-          pr_body=$'## AKR Skill Distribution - ${{ needs.prepare-matrix.outputs.release_tag }}\n\n### Files Updated\n- `.github/skills/akr-docs/SKILL.md` - thin dispatcher (routes to mode scripts)\n- `.github/skills/akr-docs/SKILL-COMPAT.md` - model compatibility matrix\n- `.github/skills/akr-docs/scripts/akr-groupings.md` - ProposeGroupings mode script\n- `.github/skills/akr-docs/scripts/akr-generate.md` - GenerateDocumentation mode script\n- `.github/skills/akr-docs/scripts/akr-resolve.md` - ResolveUnknowns mode script\n- `.github/skills/akr-docs/scripts/akr-refresh-assets.md` - RefreshAssets mode script\n- `.github/skills/akr-docs/scripts/akr_inline_validate.py` - inline post-generation validator (stdlib-only)\n- `.github/skills/akr-docs/scripts/validate_documentation.py` - full canonical validator (supports agentStop hook local execution)\n- `.github/hooks/postToolUse.json` - session logging hook\n- `.github/hooks/agentStop.json` - change detection hook\n\n### NOT Updated (by design)\n- `validation/vale-rules/` - fetched at CI runtime from core-akr-templates, no local copy needed\n- `validation/.vale.ini` - fetched at CI runtime, no local copy needed\n- `.github/copilot-instructions.md` - owned by application team, never overwritten by AKR\n\n### Reviewer Checklist\n- [ ] SKILL.md version header matches release tag\n- [ ] SKILL-COMPAT.md matrix is present and current\n- [ ] All four mode scripts are present under `.github/skills/akr-docs/scripts/`\n- [ ] `akr_inline_validate.py` is present under `.github/skills/akr-docs/scripts/`\n- [ ] `validate_documentation.py` is present under `.github/skills/akr-docs/scripts/`\n- [ ] Metadata canonical-format checks are present in `akr_inline_validate.py`\n- [ ] Hook files are valid JSON\n- [ ] CODEOWNERS protects `.github/skills/akr-docs/`'
+          pr_body=$'## AKR Skill Distribution - ${{ needs.prepare-matrix.outputs.release_tag }}\n\n### Files Updated\n- `.github/skills/akr-docs/SKILL.md` - thin dispatcher (routes to mode scripts)\n- `.github/skills/akr-docs/SKILL-COMPAT.md` - model compatibility matrix\n- `.github/skills/akr-docs/scripts/akr-groupings.md` - ProposeGroupings mode script\n- `.github/skills/akr-docs/scripts/akr-generate.md` - GenerateDocumentation mode script\n- `.github/skills/akr-docs/scripts/akr-resolve.md` - ResolveUnknowns mode script\n- `.github/skills/akr-docs/scripts/akr-refresh-assets.md` - RefreshAssets mode script\n- `.github/skills/akr-docs/scripts/akr-score.md` - Score mode script\n- `.github/skills/akr-docs/scripts/akr_inline_validate.py` - inline post-generation validator (stdlib-only)\n- `.github/skills/akr-docs/scripts/validate_documentation.py` - full canonical validator (supports agentStop hook local execution)\n- `.github/hooks/postToolUse.json` - session logging hook\n- `.github/hooks/agentStop.json` - change detection hook\n\n### NOT Updated (by design)\n- `validation/vale-rules/` - fetched at CI runtime from core-akr-templates, no local copy needed\n- `validation/.vale.ini` - fetched at CI runtime, no local copy needed\n- `.github/copilot-instructions.md` - owned by application team, never overwritten by AKR\n\n### Reviewer Checklist\n- [ ] SKILL.md version header matches release tag\n- [ ] SKILL-COMPAT.md matrix is present and current\n- [ ] All five mode scripts are present under `.github/skills/akr-docs/scripts/`\n- [ ] `akr-score.md` is present under `.github/skills/akr-docs/scripts/`\n- [ ] `akr_inline_validate.py` is present under `.github/skills/akr-docs/scripts/`\n- [ ] `validate_documentation.py` is present under `.github/skills/akr-docs/scripts/`\n- [ ] Metadata canonical-format checks are present in `akr_inline_validate.py`\n- [ ] Hook files are valid JSON\n- [ ] CODEOWNERS protects `.github/skills/akr-docs/`'
 
           pr_url=$(gh pr create \
             --title "chore(akr): distribute skill bundle ${{ needs.prepare-matrix.outputs.release_tag }}" \
             --body "$pr_body" \
             --base "$default_base" \
-            --head "${{ steps.sync.outputs.branch_name }}")
+            --head "${{ matrix.owner }}:${{ steps.sync.outputs.branch_name }}")
           echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
 
       - name: Write per-repo summary
         if: always()
         run: |
+          set -euo pipefail
           echo "### ${{ matrix.owner }}/${{ matrix.repo }}" >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ steps.sync.outputs.no_changes }}" = "true" ]; then
             echo "- Status: no changes" >> "$GITHUB_STEP_SUMMARY"
@@ -225,6 +237,7 @@ jobs:
       - name: Open follow-up issue on failure
         if: failure()
         run: |
+          set -euo pipefail
           issue_title="Skill distribution failure: ${{ matrix.owner }}/${{ matrix.repo }}"
           issue_body="Distribution to ${{ matrix.owner }}/${{ matrix.repo }} failed in run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
           gh issue create \
@@ -240,9 +253,10 @@ jobs:
     steps:
       - name: Final summary
         run: |
+          set -euo pipefail
           echo "## AKR Skill Distribution" >> "$GITHUB_STEP_SUMMARY"
           echo "- Trigger: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Release Tag: ${{ needs.prepare-matrix.outputs.release_tag }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Matrix completion: ${{ needs.distribute.result }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Distributed: SKILL.md, SKILL-COMPAT.md, mode scripts (3), hooks (2)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Distributed: SKILL.md, SKILL-COMPAT.md, mode scripts (5), validators (2), hooks (2)" >> "$GITHUB_STEP_SUMMARY"
           echo "- NOT distributed: vale-rules, .vale.ini, copilot-instructions.md" >> "$GITHUB_STEP_SUMMARY"

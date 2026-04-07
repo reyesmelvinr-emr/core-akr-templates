@@ -46,6 +46,12 @@ import { ComponentName } from '@/components/[path]/ComponentName';
 
 ---
 
+## Screen Image Link
+
+- Related screen: [Screen Name](../../screenshots/[ScreenImageFile].png)
+
+---
+
 ## Purpose & Context
 
 ### What This Component Does

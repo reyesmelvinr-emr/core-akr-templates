@@ -25,7 +25,7 @@ Steps followed: 1. [step] - completed | 2. [step] - completed | ...
 
 ## Invocation Routing
 
-This skill operates in four modes. Load only the script for the requested mode.
+This skill operates in five modes. Load only the script for the requested mode.
 
 Default behavior: load the mode script from the bundled workspace copy under `.github/skills/akr-docs/scripts/`. Use a live remote mode script only when the invocation includes `--remote` (generate/resolve debugging only).
 
