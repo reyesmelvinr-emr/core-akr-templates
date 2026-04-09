@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "projectInfo": {
+    "name": "ReplaceWithRepositoryName",
+    "description": "Replace with a short repository description",
+    "layer": "API",
+    "domains": [
+      "ReplaceWithBusinessDomain"
+    ]
+  },
+  "documentation": {
+    "outputPath": "docs/",
+    "componentMappings": {
+      "src/": "docs/"
+    },
+    "templatePreferences": {
+      "service": "lean_baseline_service_template_module.md"
+    },
+    "includePatterns": [
+      "src/**/*"
+    ],
+    "excludePatterns": [
+      "**/node_modules/**",
+      "**/bin/**",
+      "**/obj/**",
+      "**/*.test.*",
+      "**/*.spec.*"
+    ],
+    "autoGenerateOnSave": false,
+    "requireReviewBeforeCommit": true
+  }
+}

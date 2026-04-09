@@ -2,3 +2,6 @@ repositories:
   - owner: reyesmelvinr-emr
     repo: training-tracker-backend
     enabled: true
+  - owner: reyesmelvinr-emr
+    repo: training-tracker-ui
+    enabled: true
