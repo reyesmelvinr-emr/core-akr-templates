@@ -43,28 +43,49 @@ Application teams are accountable for:
 
 ## Consolidation Repository Distribution Model
 
-Consolidation repositories focus on feature-level aggregation across application repositories.
+Consolidation repositories focus on business capability aggregation across application repositories.
 
 ## Distributed to Consolidation Repositories
 
-- Consolidation configuration contracts and schema alignment references.
-- Feature-level templates for consolidated business narratives and dependency views.
-- Workflow scaffolds needed for cross-repo synthesis operations.
+- Consolidation workflow package for capability lifecycle management.
+- Standardized operating patterns for impact assessment, readiness review, consolidation, baseline promotion, and test governance.
+- Capability-level content structures for business narratives, dependencies, and traceability.
+- Orchestration assets needed for cross-repository synthesis operations.
 
 ## Centrally Managed Dependencies
 
-- Feature taxonomy and standards contracts.
+- Business capability taxonomy and standards contracts.
 - Validation and governance references that align with application-lane outputs.
-- Core templates and instruction semantics used for normalized consolidation.
+- Canonical content and instruction semantics used for normalized consolidation.
 
 ## Consolidation Repository Responsibilities
 
 Consolidation owners are accountable for:
 
-- Maintaining accurate feature-to-module mappings.
+- Maintaining accurate capability-to-module mappings.
 - Producing consolidated documentation that remains traceable to source module docs.
 - Enforcing governance expectations for cross-repo outputs.
 - Preserving business readability while retaining technical traceability.
+- Running promotion and maintenance cycles when enhancement items are delivered so baseline capability views stay current.
+
+## Implemented Consolidation Promotion Flow
+
+The implemented promotion capability provides a controlled path for elevating delivered enhancements into baseline capability documentation.
+
+- Identifies enhancement entries that include delivery-tracking references.
+- Uses human confirmation to determine which referenced delivery items are closed or complete.
+- Updates baseline capability narratives with delivered behavior and rule changes.
+- Merges enhancement-driven test coverage into baseline quality conditions while preserving continuity.
+- Synchronizes enhancement status so planning and baseline views remain aligned.
+
+Current verification scope:
+
+- Delivery-state verification is human-in-the-loop.
+- Automated delivery-system verification is documented as a future extension path.
+
+Template impact:
+
+- Enhancement backlog structures include a delivery-reference field to support promotion readiness.
 
 ## Governance, Compliance, and Human-in-the-Loop Across Both Lanes
 
@@ -83,7 +104,7 @@ Consolidation owners are accountable for:
 ## Human-in-the-Loop Controls in Distribution
 
 - Application lane: technical leads and developers validate module intent and implementation fidelity.
-- Consolidation lane: product and QA-oriented reviewers validate business coherence and evidence quality.
+- Consolidation lane: product and QA-oriented reviewers validate business coherence and evidence quality, including delivery-state confirmation for promotion.
 - In both lanes, unresolved unknowns are visible, assigned, and intentionally closed.
 
 ## Comparative View
@@ -96,8 +117,8 @@ Consolidation owners are accountable for:
 
 ## Consolidation Repositories
 
-- Primary purpose: cross-repo feature and capability narratives.
-- Workflow emphasis: aggregation, traceability, business-context coherence.
+- Primary purpose: cross-repo business capability narratives.
+- Workflow emphasis: impact assessment, coverage review, consolidation, promotion, quality maintenance, and relationship mapping.
 - Control focus: governance consistency and portfolio-level maintainability.
 
 ## Why This Distribution Model Is Maintainable

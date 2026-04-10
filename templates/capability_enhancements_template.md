@@ -19,9 +19,9 @@ Track active and planned capability enhancements.
 
 ## Enhancement Backlog
 
-| Enhancement ID | Description | Business Value | Technical Considerations | Status | Target Release |
-|---|---|---|---|---|---|
-| ENH-001 | NEEDS | NEEDS | NEEDS | NEEDS | NEEDS |
+| Enhancement ID | Description | Business Value | Technical Considerations | Status | Target Release | Delivery Reference |
+|---|---|---|---|---|---|---|
+| ENH-001 | NEEDS | NEEDS | NEEDS | NEEDS | NEEDS | NEEDS |
 
 ## Dependencies and Risks
 

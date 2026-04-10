@@ -31,6 +31,7 @@ This document defines the target end state for cross-repository business documen
 | - capability-coverage-review     |
 | - capability-relationship-mapping|
 | - capability-consolidation       |
+| - capability-promote             |
 +----------------+-----------------+
                  |
                  | reads normalized metadata
@@ -196,7 +197,7 @@ To support a repository-specific skill surface, `core-akr-templates` maintains a
 Required consolidation bundle shape in `core-akr-templates`:
 
 - `.github/skills/akr-business-consolidation/SKILL.md`
-- `.github/skills/akr-business-consolidation/scripts/*` for capability modes (`capability-impact-analysis`, `capability-coverage-review`, `capability-relationship-mapping`, `capability-consolidation`, `capability-test-maintenance`, `capability-test-generation`) as the implementation is introduced
+- `.github/skills/akr-business-consolidation/scripts/*` for capability modes (`capability-impact-analysis`, `capability-coverage-review`, `capability-relationship-mapping`, `capability-consolidation`, `capability-promote`, `capability-test-maintenance`, `capability-test-generation`) as the implementation is introduced
 - Optional compatibility and governance companion artifacts when adopted (for example `SKILL-COMPAT.md`)
 
 ### Distribution workflow contract for consolidation repositories
@@ -328,6 +329,29 @@ Template usage rules:
 - `external_dependencies.md` captures cross-application interfaces and integration impacts that must be considered for change planning, regression scope, and end-to-end QA coverage.
 - Scenario and test condition IDs must remain synchronized (`SCN-*` <-> `TC-*`) across both files.
 
+### capability-promote
+
+Purpose: Promote delivered enhancements into baseline business and QA artifacts after delivery confirmation.
+
+Inputs:
+- `enhancements.md` as the enhancement delivery source.
+- `index.md` as the baseline business behavior document to update.
+- `test-conditions.md` as the baseline QA condition set to extend.
+- `enhancement-test-conditions.md` as the enhancement candidate condition source.
+
+Outputs:
+- Updated `index.md` with delivered enhancement behavior folded into baseline scenarios and rules.
+- Updated `enhancements.md` with delivery state synchronization for promoted items.
+- Updated `test-conditions.md` with promoted enhancement test coverage.
+- Updated `enhancement-test-conditions.md` with promoted rows removed or reset after merge.
+
+Execution rules:
+
+- Delivery verification is user-confirmed in the current implementation.
+- Enhancement entries should include a `Delivery Reference` value when available.
+- Promotion should merge and preserve baseline `TC-*` continuity rather than replacing the full baseline file.
+- If enhancement coverage is incomplete, add explicit QA gaps for follow-up rather than blocking baseline update.
+
 ### capability-test-maintenance
 
 Purpose: Update existing test scenarios and test conditions to reflect the latest consolidated capability baseline.
@@ -396,15 +420,19 @@ Run `capability-impact-analysis` for change-driven updates and `capability-cover
 
 Run `capability-consolidation` per capability into the business documentation repository.
 
-### Phase D: Maintain Tests
+### Phase D: Promote Delivered Enhancements
+
+Run `capability-promote` to fold delivered enhancement outcomes into `index.md`, synchronize enhancement delivery state, and merge enhancement tests into baseline `test-conditions.md`.
+
+### Phase E: Maintain Tests
 
 Run `capability-test-maintenance` to refresh existing test conditions using the latest `index.md` baseline and supporting limitation and dependency artifacts.
 
-### Phase E: Generate Enhancement Tests
+### Phase F: Generate Enhancement Tests
 
 Run `capability-test-generation` to create new enhancement-focused tests from `enhancements.md` compared against `index.md`, with limitation and dependency considerations.
 
-### Phase F: Explain
+### Phase G: Explain
 
 Run `capability-relationship-mapping` when cross-layer explanation is needed without file generation.
 
@@ -415,9 +443,10 @@ Run `capability-relationship-mapping` when cross-layer explanation is needed wit
 | A | Define | Human-led registry and onboarding setup | New application onboarding | Canonical `businessCapability` list and repository prerequisites |
 | B | Assess | `capability-impact-analysis`, `capability-coverage-review` | Source documentation change or onboarding readiness check | Impact list, coverage matrix, readiness recommendation |
 | C | Consolidate | `capability-consolidation` | Phase B ready state | Capability document set (`index.md`, test artifacts, dependencies, traceability) |
-| D | Maintain tests | `capability-test-maintenance` | Baseline capability change without new enhancement scope | Updated `test-conditions.md` aligned to baseline scenarios |
-| E | Generate enhancement tests | `capability-test-generation` | Enhancement scope defined in `enhancements.md` | Updated `enhancement-test-conditions.md` |
-| F | Explain | `capability-relationship-mapping` | On-demand architecture and impact explanation request | Cross-layer relationship summary |
+| D | Promote delivered enhancements | `capability-promote` | Enhancement delivery confirmation | Updated baseline `index.md` and merged baseline `test-conditions.md` with synchronized enhancement state |
+| E | Maintain tests | `capability-test-maintenance` | Baseline capability change without new enhancement scope | Updated `test-conditions.md` aligned to baseline scenarios |
+| F | Generate enhancement tests | `capability-test-generation` | Enhancement scope defined in `enhancements.md` | Updated `enhancement-test-conditions.md` |
+| G | Explain | `capability-relationship-mapping` | On-demand architecture and impact explanation request | Cross-layer relationship summary |
 
 ### POC readiness status (as of 2026-04-10)
 
@@ -443,7 +472,7 @@ The following gates must all pass before declaring cross-repository POC onboardi
 | Gate 3: Source repo onboarding baseline | New app repository contains required AKR files (`modules.yaml`, `.akr-config.json`, skill bundle, hooks, validation workflow, repo-owned instructions); `distribute-onboarding-bundle.yml` has been dispatched for the repository and absence-seeded files are confirmed present | Repository file audit against onboarding checklist; PR evidence from `distribute-onboarding-bundle.yml` run |
 | Gate 4: Registry and metadata readiness | Source documentation metadata values (`businessCapability`, `feature`, `layer`) are normalized and valid | Validation output showing alignment to capability registry and front matter constraints |
 | Gate 5: Consolidation baseline readiness | Consolidation repository contains business-facing instructions, full capability artifact shape, and validation coverage | File audit and validation script output |
-| Gate 6: End-to-end execution readiness | One full run succeeds for a sample capability across Assess -> Consolidate -> Test Maintenance/Generation | Traceability evidence and generated capability artifacts reviewed by PO/QA/TL |
+| Gate 6: End-to-end execution readiness | One full run succeeds for a sample capability across Assess -> Consolidate -> Promote -> Test Maintenance/Generation | Traceability evidence and generated capability artifacts reviewed by PO/QA/TL |
 
 ### Clarification on references and annexes
 

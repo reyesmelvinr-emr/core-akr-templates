@@ -2,7 +2,7 @@
 name: akr-business-consolidation
 description: >
   Consolidate backend and UI module documentation into business capability artifacts.
-  Invoke explicitly via /akr-business-consolidation [capability-impact-analysis | capability-coverage-review | capability-consolidation | capability-test-maintenance | capability-test-generation | capability-relationship-mapping] [CapabilityName].
+  Invoke explicitly via /akr-business-consolidation [capability-impact-analysis | capability-coverage-review | capability-consolidation | capability-promote | capability-test-maintenance | capability-test-generation | capability-relationship-mapping] [CapabilityName].
 disable-model-invocation: true
 compatibility:
   models:
@@ -32,6 +32,7 @@ Load only the mode script required by the command.
 | `/akr-business-consolidation capability-impact-analysis [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-impact-analysis.md` | Determine impacted capabilities from source changes |
 | `/akr-business-consolidation capability-coverage-review [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-coverage-review.md` | Evaluate source coverage and metadata quality |
 | `/akr-business-consolidation capability-consolidation [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-consolidation.md` | Generate or refresh the capability artifact set |
+| `/akr-business-consolidation capability-promote [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-promote.md` | Promote delivered enhancements into baseline capability and QA artifacts |
 | `/akr-business-consolidation capability-test-maintenance [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-test-maintenance.md` | Update baseline test conditions from current behavior |
 | `/akr-business-consolidation capability-test-generation [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-test-generation.md` | Generate enhancement-focused tests |
 | `/akr-business-consolidation capability-relationship-mapping [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-relationship-mapping.md` | Explain dependency and cross-layer relationships |
