@@ -150,8 +150,19 @@ jobs:
              .github/skills/akr-docs/scripts/akr-resolve.md
           cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/scripts/akr-refresh-assets.md" \
              .github/skills/akr-docs/scripts/akr-refresh-assets.md
+           cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/scripts/akr-cache.md" \
+             .github/skills/akr-docs/scripts/akr-cache.md
           cp "$GITHUB_WORKSPACE/.github/skills/akr-docs/scripts/akr-score.md" \
              .github/skills/akr-docs/scripts/akr-score.md
+
+          # akr-interview skill — interactive document completion via targeted Q&A.
+          # Distributed alongside akr-docs so teams can use both skills after a single
+          # distribution run without a separate workflow trigger.
+          mkdir -p .github/skills/akr-interview/scripts
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-interview/SKILL.md" \
+             .github/skills/akr-interview/SKILL.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-interview/scripts/akr-interview.md" \
+             .github/skills/akr-interview/scripts/akr-interview.md
 
           # Inline validator — stdlib-only Python, no external deps.
           # Distributed so the generate step can invoke it immediately after writing.
@@ -186,6 +197,7 @@ jobs:
             .github/skills/akr-docs/SKILL.md \
             .github/skills/akr-docs/SKILL-COMPAT.md \
             .github/skills/akr-docs/scripts/ \
+            .github/skills/akr-interview/ \
             .github/hooks/postToolUse.json \
             .github/hooks/agentStop.json
           git commit -m "chore(akr): distribute skill bundle ${{ needs.prepare-matrix.outputs.release_tag }}"
@@ -211,7 +223,7 @@ jobs:
           default_base=$(gh repo view "${{ matrix.owner }}/${{ matrix.repo }}" \
             --json defaultBranchRef --jq '.defaultBranchRef.name')
 
-          pr_body=$'## AKR Skill Distribution - ${{ needs.prepare-matrix.outputs.release_tag }}\n\n### Files Updated\n- `.github/skills/akr-docs/SKILL.md` - thin dispatcher (routes to mode scripts)\n- `.github/skills/akr-docs/SKILL-COMPAT.md` - model compatibility matrix\n- `.github/skills/akr-docs/scripts/akr-groupings.md` - ProposeGroupings mode script\n- `.github/skills/akr-docs/scripts/akr-generate.md` - GenerateDocumentation mode script\n- `.github/skills/akr-docs/scripts/akr-resolve.md` - ResolveUnknowns mode script\n- `.github/skills/akr-docs/scripts/akr-refresh-assets.md` - RefreshAssets mode script\n- `.github/skills/akr-docs/scripts/akr-score.md` - Score mode script\n- `.github/skills/akr-docs/scripts/akr_inline_validate.py` - inline post-generation validator (stdlib-only)\n- `.github/skills/akr-docs/scripts/validate_documentation.py` - full canonical validator (supports agentStop hook local execution)\n- `.github/hooks/postToolUse.json` - session logging hook\n- `.github/hooks/agentStop.json` - change detection hook\n\n### NOT Updated (by design)\n- `validation/vale-rules/` - fetched at CI runtime from core-akr-templates, no local copy needed\n- `validation/.vale.ini` - fetched at CI runtime, no local copy needed\n- `.github/copilot-instructions.md` - owned by application team, never overwritten by AKR\n\n### Reviewer Checklist\n- [ ] SKILL.md version header matches release tag\n- [ ] SKILL-COMPAT.md matrix is present and current\n- [ ] All five mode scripts are present under `.github/skills/akr-docs/scripts/`\n- [ ] `akr-score.md` is present under `.github/skills/akr-docs/scripts/`\n- [ ] `akr_inline_validate.py` is present under `.github/skills/akr-docs/scripts/`\n- [ ] `validate_documentation.py` is present under `.github/skills/akr-docs/scripts/`\n- [ ] Metadata canonical-format checks are present in `akr_inline_validate.py`\n- [ ] Hook files are valid JSON\n- [ ] CODEOWNERS protects `.github/skills/akr-docs/`'
+          pr_body=$'## AKR Skill Distribution - ${{ needs.prepare-matrix.outputs.release_tag }}\n\n### Files Updated\n- `.github/skills/akr-docs/SKILL.md` - thin dispatcher (routes to mode scripts)\n- `.github/skills/akr-docs/SKILL-COMPAT.md` - model compatibility matrix\n- `.github/skills/akr-docs/scripts/akr-groupings.md` - ProposeGroupings mode script\n- `.github/skills/akr-docs/scripts/akr-generate.md` - GenerateDocumentation mode script\n- `.github/skills/akr-docs/scripts/akr-resolve.md` - ResolveUnknowns mode script\n- `.github/skills/akr-docs/scripts/akr-refresh-assets.md` - RefreshAssets mode script\n- `.github/skills/akr-docs/scripts/akr-cache.md` - CacheStatus/UpdateCache mode script\n- `.github/skills/akr-docs/scripts/akr-score.md` - Score mode script\n- `.github/skills/akr-interview/SKILL.md` - Interview skill dispatcher\n- `.github/skills/akr-interview/scripts/akr-interview.md` - Interview mode script (interactive Q&A, callout routing, professional rephrasing)\n- `.github/skills/akr-docs/scripts/akr_inline_validate.py` - inline post-generation validator (stdlib-only)\n- `.github/skills/akr-docs/scripts/validate_documentation.py` - full canonical validator (supports agentStop hook local execution)\n- `.github/hooks/postToolUse.json` - session logging hook\n- `.github/hooks/agentStop.json` - change detection hook\n\n### NOT Updated (by design)\n- `validation/vale-rules/` - fetched at CI runtime from core-akr-templates, no local copy needed\n- `validation/.vale.ini` - fetched at CI runtime, no local copy needed\n- `.github/copilot-instructions.md` - owned by application team, never overwritten by AKR\n\n### Reviewer Checklist\n- [ ] SKILL.md version header matches release tag\n- [ ] SKILL-COMPAT.md matrix is present and current\n- [ ] All six mode scripts are present under `.github/skills/akr-docs/scripts/`\n- [ ] `akr-cache.md` is present under `.github/skills/akr-docs/scripts/`\n- [ ] `akr-score.md` is present under `.github/skills/akr-docs/scripts/`\n- [ ] `akr_inline_validate.py` is present under `.github/skills/akr-docs/scripts/`\n- [ ] `validate_documentation.py` is present under `.github/skills/akr-docs/scripts/`\n- [ ] Metadata canonical-format checks are present in `akr_inline_validate.py`\n- [ ] Hook files are valid JSON\n- [ ] CODEOWNERS protects `.github/skills/akr-docs/`\n- [ ] akr-interview `SKILL.md` is present under `.github/skills/akr-interview/`\n- [ ] `akr-interview.md` mode script is present under `.github/skills/akr-interview/scripts/`\n- [ ] CODEOWNERS protects `.github/skills/akr-interview/`'
 
           pr_url=$(gh pr create \
             --title "chore(akr): distribute skill bundle ${{ needs.prepare-matrix.outputs.release_tag }}" \
@@ -258,5 +270,5 @@ jobs:
           echo "- Trigger: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Release Tag: ${{ needs.prepare-matrix.outputs.release_tag }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Matrix completion: ${{ needs.distribute.result }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Distributed: SKILL.md, SKILL-COMPAT.md, mode scripts (5), validators (2), hooks (2)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Distributed: akr-docs (SKILL.md, SKILL-COMPAT.md, 6 mode scripts, 2 validators), akr-interview (SKILL.md, 1 mode script), hooks (2)" >> "$GITHUB_STEP_SUMMARY"
           echo "- NOT distributed: vale-rules, .vale.ini, copilot-instructions.md" >> "$GITHUB_STEP_SUMMARY"

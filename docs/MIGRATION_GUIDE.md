@@ -24,10 +24,20 @@ The previous architecture had three contradictions:
 core-akr-templates (GitHub — single source of truth)
 ├── .github/skills/akr-docs/
 │   ├── SKILL.md                  ← thin dispatcher (~400 tokens)
+│   ├── SKILL-COMPAT.md
 │   └── scripts/
 │       ├── akr-groupings.md      ← ProposeGroupings (~600 tokens)
 │       ├── akr-generate.md       ← GenerateDocumentation (~800 tokens)
-│       └── akr-resolve.md        ← ResolveUnknowns (~400 tokens)
+│       ├── akr-resolve.md        ← ResolveUnknowns (~400 tokens)
+│       ├── akr-refresh-assets.md ← RefreshAssets
+│       ├── akr-cache.md          ← CacheStatus/UpdateCache
+│       ├── akr-score.md          ← Score mode
+│       ├── akr_inline_validate.py
+│       └── validate_documentation.py
+├── .github/skills/akr-interview/
+│   ├── SKILL.md
+│   └── scripts/
+│       └── akr-interview.md
 ├── .akr/
 │   ├── vale-rules/               ← single copy of vale rules (here only)
 │   └── scripts/validate_documentation.py
@@ -40,7 +50,16 @@ application-repo (consumer)
 │   └── scripts/                  ← distributed as PATH B/C fallbacks
 │       ├── akr-groupings.md
 │       ├── akr-generate.md
-│       └── akr-resolve.md
+│       ├── akr-resolve.md
+│       ├── akr-refresh-assets.md
+│       ├── akr-cache.md
+│       ├── akr-score.md
+│       ├── akr_inline_validate.py
+│       └── validate_documentation.py
+├── .github/skills/akr-interview/
+│   ├── SKILL.md
+│   └── scripts/
+│       └── akr-interview.md
 ├── .github/hooks/                ← distributed (needed locally)
 ├── .github/copilot-instructions.md ← OWNED BY APPLICATION TEAM — never overwritten
 ├── modules.yaml                  ← application-specific manifest
@@ -119,6 +138,8 @@ Invocation:
 - /akr-docs groupings          — propose module groupings
 - /akr-docs generate [Module]  — generate documentation for approved module
 - /akr-docs resolve [file]     — resolve ❓ markers in existing draft
+- /akr-docs cache-status       — show local .akr/cache readiness
+- /akr-docs update-cache       — refresh local fallback template/charter cache
 
 Charter and template content is loaded by the skill at runtime from core-akr-templates.
 Do not paste charter content here — it will be loaded on demand to conserve tokens.
@@ -134,7 +155,8 @@ When `core-akr-templates` publishes the next skill release, the updated
 `distribute-skill.yml` will open a PR in your repo that:
 - Updates `SKILL.md` (thin dispatcher)
 - Updates `SKILL-COMPAT.md`
-- Adds the three mode scripts under `.github/skills/akr-docs/scripts/`
+- Syncs mode scripts and validators under `.github/skills/akr-docs/scripts/`
+- Adds/updates `.github/skills/akr-interview/SKILL.md` and `scripts/akr-interview.md`
 - Updates hook files
 - Does NOT touch `validation/`, `copilot-instructions.md`, or any other file
 
@@ -143,6 +165,9 @@ Review and merge that PR.
 ---
 
 ## Token Budget Comparison
+
+Note: values below are historical migration baselines from the initial thin-dispatcher rollout.
+Current script counts have expanded, but the architectural token savings pattern remains the same.
 
 | Scenario | Old token load | New token load | Saving |
 |---|---|---|---|
@@ -165,6 +190,12 @@ each) and change only when the workflow logic changes, not when charter content
 changes. Charter content (the large token consumer) is still fetched on demand
 from `core-akr-templates`. The mode scripts are stable structural artifacts;
 the charter slices are the volatile content. This is the right split.
+
+**Q: Where does the akr-interview skill fit?**
+
+A: `akr-interview` is distributed like other execution assets because it is invoked
+locally in application repositories. Governance and compatibility guidance for
+interview behavior should be reviewed together with `akr-docs` updates.
 
 **Q: What happens if core-akr-templates is unavailable when CI runs?**
 
