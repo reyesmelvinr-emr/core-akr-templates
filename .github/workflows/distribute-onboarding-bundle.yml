@@ -108,6 +108,16 @@ jobs:
             app_instructions_seeded="true"
           fi
 
+          mkdir -p .github/workflows
+          if [ -f ".github/workflows/notify-consolidation-on-doc-merge.yml" ]; then
+            echo "notify-consolidation-on-doc-merge.yml already exists - seed skipped"
+            notify_seeded="false"
+          else
+            cp "$GITHUB_WORKSPACE/source/examples/onboarding/notify-consolidation-on-doc-merge.yml.seed" \
+               .github/workflows/notify-consolidation-on-doc-merge.yml
+            notify_seeded="true"
+          fi
+
           if [ -z "$(git status --porcelain)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "branch_name=$branch_name" >> "$GITHUB_OUTPUT"
@@ -118,6 +128,7 @@ jobs:
           echo "branch_name=$branch_name" >> "$GITHUB_OUTPUT"
           echo "modules_seeded=$modules_seeded" >> "$GITHUB_OUTPUT"
           echo "akr_config_seeded=$akr_config_seeded" >> "$GITHUB_OUTPUT"
+          echo "notify_seeded=$notify_seeded" >> "$GITHUB_OUTPUT"
           echo "validation_seeded=$validation_seeded" >> "$GITHUB_OUTPUT"
           echo "app_instructions_seeded=$app_instructions_seeded" >> "$GITHUB_OUTPUT"
 
@@ -132,7 +143,9 @@ jobs:
           echo "- Source file: examples/onboarding/akr-config.json.seed" >> "$GITHUB_STEP_SUMMARY"
           echo "- Source file: examples/onboarding/app-copilot-instructions.seed.md" >> "$GITHUB_STEP_SUMMARY"
           echo "- Source file: .akr/workflows/validate-documentation.yml" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source file: examples/onboarding/notify-consolidation-on-doc-merge.yml.seed" >> "$GITHUB_STEP_SUMMARY"
           echo "- NOTE: Skills (akr-docs, akr-interview) are NOT included in the onboarding bundle. Run distribute-skill.yml after onboarding to install them." >> "$GITHUB_STEP_SUMMARY"
+          echo "- NOTE (notify workflow): Set the AKR_CONSOLIDATION_REPO Actions variable in the target repo to owner/repo of the business consolidation repository to enable automatic evidence sync on doc merges." >> "$GITHUB_STEP_SUMMARY"
           echo "- Destination file: .github/pull_request_template/documentation.md" >> "$GITHUB_STEP_SUMMARY"
           echo "- Destination file: .github/CODEOWNERS (append-mode, idempotent)" >> "$GITHUB_STEP_SUMMARY"
           echo "- Destination file: modules.yaml (only if absent)" >> "$GITHUB_STEP_SUMMARY"
@@ -159,6 +172,9 @@ jobs:
           if [ -f ".github/copilot-instructions.md" ]; then
             git add .github/copilot-instructions.md
           fi
+          if [ -f ".github/workflows/notify-consolidation-on-doc-merge.yml" ]; then
+            git add .github/workflows/notify-consolidation-on-doc-merge.yml
+          fi
           git commit -m "chore(akr): add onboarding governance bundle"
           git push --set-upstream origin "${{ steps.bundle.outputs.branch_name }}"
 
@@ -175,7 +191,7 @@ jobs:
           base_branch=$(gh repo view "${{ inputs.target_repo }}" --json defaultBranchRef --jq '.defaultBranchRef.name')
           pr_url=$(gh pr create \
             --title "chore(akr): add onboarding governance scaffolds" \
-            --body "Automated onboarding bundle from core-akr-templates.\n\nDistributed sources:\n- .github/pull_request_template/documentation.md\n- examples/onboarding/CODEOWNERS.baseline\n- examples/onboarding/modules.yaml.seed\n- examples/onboarding/akr-config.json.seed\n- .akr/workflows/validate-documentation.yml\n- examples/onboarding/app-copilot-instructions.seed.md\n\nSeed behavior:\n- modules.yaml: seeded when absent\n- .akr-config.json: seeded when absent\n- .github/workflows/validate-documentation.yml: seeded when absent\n- .github/copilot-instructions.md: seeded when absent (never overwritten)\n\nRequired follow-up:\n- [ ] Enable branch protection on default branch\n- [ ] Add required status check: AKR Documentation Validation\n- [ ] Confirm CODEOWNERS review enforcement for .github/pull_request_template/\n- [ ] Run `distribute-skill.yml` targeting this repository to install the akr-docs and akr-interview skill bundles (onboarding does not include skills — they are managed by a separate distribution lifecycle)" \
+            --body "Automated onboarding bundle from core-akr-templates.\n\nDistributed sources:\n- .github/pull_request_template/documentation.md\n- examples/onboarding/CODEOWNERS.baseline\n- examples/onboarding/modules.yaml.seed\n- examples/onboarding/akr-config.json.seed\n- .akr/workflows/validate-documentation.yml\n- examples/onboarding/app-copilot-instructions.seed.md\n- examples/onboarding/notify-consolidation-on-doc-merge.yml.seed\n\nSeed behavior:\n- modules.yaml: seeded when absent\n- .akr-config.json: seeded when absent\n- .github/workflows/validate-documentation.yml: seeded when absent\n- .github/copilot-instructions.md: seeded when absent (never overwritten)\n- .github/workflows/notify-consolidation-on-doc-merge.yml: seeded when absent\n\nRequired follow-up:\n- [ ] Enable branch protection on default branch\n- [ ] Add required status check: AKR Documentation Validation\n- [ ] Confirm CODEOWNERS review enforcement for .github/pull_request_template/\n- [ ] Run `distribute-skill.yml` targeting this repository to install the akr-docs and akr-interview skill bundles (onboarding does not include skills — they are managed by a separate distribution lifecycle)\n- [ ] Set repository Actions variable AKR_CONSOLIDATION_REPO to owner/repo of the business consolidation repository to activate automatic evidence sync on doc merges (see docs/TEAM_STARTUP_ONBOARDING_GUIDE.md)" \
             --base "$base_branch" \
             --head "${{ steps.bundle.outputs.branch_name }}")
           echo "pr_url=$pr_url" >> "$GITHUB_ENV"
@@ -207,6 +223,12 @@ jobs:
             echo "- .github/copilot-instructions.md: seeded" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- .github/copilot-instructions.md: preserved existing" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.bundle.outputs.notify_seeded }}" = "true" ]; then
+            echo "- .github/workflows/notify-consolidation-on-doc-merge.yml: seeded" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Action required: Set AKR_CONSOLIDATION_REPO Actions variable to activate evidence sync" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- .github/workflows/notify-consolidation-on-doc-merge.yml: preserved existing" >> "$GITHUB_STEP_SUMMARY"
           fi
           if [ "${{ steps.bundle.outputs.changed }}" = "false" ]; then
             echo "- Status: no file changes required" >> "$GITHUB_STEP_SUMMARY"

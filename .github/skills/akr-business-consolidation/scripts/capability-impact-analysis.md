@@ -25,3 +25,16 @@ Identify which business capabilities are affected by source documentation or cod
 ## Notes
 
 When source metadata is incomplete, mark findings with `❓` and include a concrete follow-up owner/action.
+
+## Source access
+
+Read `consolidation.mode` from `.akr-config.json` in the consolidation repository root before locating source documentation.
+
+| `consolidation.mode` | Where to read source docs |
+|---|---|
+| `local-workspace` | Read directly from the workspace folders listed in `consolidation.sourceRepos`. Each value corresponds to a folder name in the active VS Code multi-root workspace. |
+| `source-evidence` | Read from `<consolidation.sourceEvidencePath>/<repo-name>/` inside the consolidation repository. Default path: `docs/references/source-evidence/`. |
+
+If `.akr-config.json` is absent or `consolidation.mode` is not set, default to `source-evidence` and prompt the user to confirm the evidence path before proceeding.
+
+For `source-evidence` mode, use `sync-manifest.json` `commit_sha` and `triggering_pr` fields as the source change reference when constructing the impact analysis output.

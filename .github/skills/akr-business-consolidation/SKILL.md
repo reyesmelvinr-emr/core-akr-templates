@@ -71,3 +71,16 @@ Primary output location in consolidation repositories:
 - Preserve repository-owned `.github/copilot-instructions.md` files.
 - Keep outputs business-facing for PO/QA/TL audiences.
 - Mark unknowns with `❓` and inferred statements with `🤖`.
+
+## Consolidation Mode
+
+The skill reads source documentation from different locations depending on the `consolidation.mode` setting in `.akr-config.json`.
+
+| Mode | Description | Who uses it |
+|---|---|---|
+| `local-workspace` | Source docs read directly from workspace folders. Source repositories must be open in the active VS Code multi-root workspace. | Technical PO/TL with local clones of source repos |
+| `source-evidence` | Source docs read from `docs/references/source-evidence/<repo-name>/` inside the consolidation repository. Snapshot is refreshed via `sync-source-evidence.yml` workflow. | Non-technical PO with consolidation repo access only |
+
+If `consolidation.mode` is absent, default to `source-evidence`.
+
+Refer to [docs/TEAM_STARTUP_ONBOARDING_GUIDE.md](../../docs/TEAM_STARTUP_ONBOARDING_GUIDE.md) for setup instructions for each mode.

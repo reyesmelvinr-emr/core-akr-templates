@@ -17,6 +17,10 @@ This repository is designed to support:
 
 ## Start Here
 
+New to AKR? Start with the team startup guide:
+
+- [docs/TEAM_STARTUP_ONBOARDING_GUIDE.md](docs/TEAM_STARTUP_ONBOARDING_GUIDE.md) — Step-by-step setup for Technical PO/TL, Non-Technical PO, and Source Repo Developer roles. Covers both local-workspace and source-evidence consolidation modes.
+
 High-level assessment documents:
 
 - [docs/AKR_SOLUTION_FEATURES_AND_FUNCTIONALITY.md](docs/AKR_SOLUTION_FEATURES_AND_FUNCTIONALITY.md)
@@ -39,36 +43,24 @@ High-level assessment documents:
 - [planning/implementation_plans](planning/implementation_plans)
   - Program phases, gates, and execution plans
 
-## How Application Teams Use AKR
+## How Teams Use AKR
 
-1. Onboard repository scaffolds from [examples/onboarding](examples/onboarding).
-2. Install distributed skill bundles through [.github/workflows/distribute-skill.yml](.github/workflows/distribute-skill.yml).
-3. Run the akr-docs workflow:
-  - /akr-docs groupings
-  - /akr-docs generate <ModuleName>
-  - /akr-docs resolve <ModuleDocFile>
-  - /akr-docs cache-status
-  - /akr-docs update-cache
-4. Validate documentation in CI using [.akr/workflows/validate-documentation.yml](.akr/workflows/validate-documentation.yml) and [docs/VALIDATION_GUIDE.md](docs/VALIDATION_GUIDE.md).
+AKR supports two team types: source (application) teams that produce module-level documentation, and business consolidation teams that aggregate documentation into capability artifacts. Both team types have distinct skill surfaces, onboarding workflows, and configuration.
 
+Full step-by-step setup for all roles — Technical PO/TL, Non-Technical PO, and Source Repo Developer — is in [docs/TEAM_STARTUP_ONBOARDING_GUIDE.md](docs/TEAM_STARTUP_ONBOARDING_GUIDE.md).
 
-Use `cache-status` and `update-cache` to maintain repository-local fallback assets in `.akr/cache/` when remote GitHub access is unstable.
+Key distribution entry points:
+
+- Application teams: run `distribute-onboarding-bundle.yml` once per repo, then `distribute-skill.yml` to install the `akr-docs` and `akr-interview` skill bundles.
+- Consolidation teams: run `distribute-business-skill.yml` to install the `akr-business-consolidation` skill bundle and the `sync-source-evidence.yml` workflow.
 
 ## Governance, Compliance, and Human-in-the-Loop
 
-AKR treats governance and review accountability as built-in workflow behavior.
+AKR treats governance and review accountability as built-in workflow behavior. Versioned standards are maintained centrally here and distributed without duplicating policy ownership. Compliance mode supports progressive adoption from pilot to production.
 
-- Governance
-  - Versioned standards and schema contracts are maintained centrally in this repository.
-  - Distribution workflows propagate execution assets without duplicating policy ownership.
-
-- Compliance
-  - Compliance mode supports progressive adoption from pilot to production.
-  - Validation behavior and escalation paths are defined in [docs/VALIDATION_GUIDE.md](docs/VALIDATION_GUIDE.md).
-
-- Human-in-the-loop
-  - Technical leads, developers, product owners, and QA roles have explicit review responsibilities.
-  - Role mapping and closure expectations are defined in [docs/DEVELOPER_REFERENCE.md](docs/DEVELOPER_REFERENCE.md).
+- Validation rules and escalation paths: [docs/VALIDATION_GUIDE.md](docs/VALIDATION_GUIDE.md)
+- HITL role alignment and review responsibilities: [docs/DEVELOPER_REFERENCE.md](docs/DEVELOPER_REFERENCE.md)
+- Governance gates and joint PO/TL approval model: [docs/TEAM_STARTUP_ONBOARDING_GUIDE.md](docs/TEAM_STARTUP_ONBOARDING_GUIDE.md)
 
 ## Migration and Drift Prevention
 
@@ -77,10 +69,11 @@ Use [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) for the current runtime-f
 
 ## Maintainer Workflows
 
-- Skill distribution: [.github/workflows/distribute-skill.yml](.github/workflows/distribute-skill.yml)
+- Skill distribution (application repos): [.github/workflows/distribute-skill.yml](.github/workflows/distribute-skill.yml)
+- Skill distribution (consolidation repos): [.github/workflows/distribute-business-skill.yml](.github/workflows/distribute-business-skill.yml)
 - Onboarding bundle distribution: [.github/workflows/distribute-onboarding-bundle.yml](.github/workflows/distribute-onboarding-bundle.yml)
 - Registered repositories:
-  - [.github/registered-repos.yaml](.github/registered-repos.yaml)
-  - [.github/registered-business-repos.yaml](.github/registered-business-repos.yaml)
+  - [.github/registered-repos.yaml](.github/registered-repos.yaml) — application repos
+  - [.github/registered-business-repos.yaml](.github/registered-business-repos.yaml) — consolidation repos
 
 

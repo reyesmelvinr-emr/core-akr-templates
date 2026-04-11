@@ -152,6 +152,16 @@ jobs:
             instructions_action="seeded"
           fi
 
+
+          mkdir -p .github/workflows
+          if [ -f ".github/workflows/sync-source-evidence.yml" ]; then
+            sync_workflow_action="preserved"
+          else
+            cp "$GITHUB_WORKSPACE/examples/onboarding/sync-source-evidence.yml" \
+               .github/workflows/sync-source-evidence.yml
+            sync_workflow_action="seeded"
+          fi
+
           if [ -z "$(git status --porcelain)" ]; then
             echo "no_changes=true" >> "$GITHUB_OUTPUT"
             echo "branch_name=$branch_name" >> "$GITHUB_OUTPUT"
@@ -168,12 +178,16 @@ jobs:
           if [ "$instructions_action" = "seeded" ]; then
             git add .github/copilot-instructions.md
           fi
+          if [ "$sync_workflow_action" = "seeded" ]; then
+            git add .github/workflows/sync-source-evidence.yml
+          fi
           git commit -m "chore(akr): distribute business skill bundle ${{ needs.prepare-matrix.outputs.release_tag }}"
           git push --set-upstream origin "$branch_name"
 
           echo "no_changes=false" >> "$GITHUB_OUTPUT"
           echo "branch_name=$branch_name" >> "$GITHUB_OUTPUT"
           echo "instructions_action=$instructions_action" >> "$GITHUB_OUTPUT"
+          echo "sync_workflow_action=$sync_workflow_action" >> "$GITHUB_OUTPUT"
 
       - name: Create or reuse PR
         id: pr
@@ -192,7 +206,7 @@ jobs:
           default_base=$(gh repo view "${{ matrix.owner }}/${{ matrix.repo }}" \
             --json defaultBranchRef --jq '.defaultBranchRef.name')
 
-          pr_body=$'## AKR Business Skill Distribution - ${{ needs.prepare-matrix.outputs.release_tag }}\n\n### Files Updated\n- `.github/skills/akr-business-consolidation/SKILL.md`\n- `.github/skills/akr-business-consolidation/SKILL-COMPAT.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-impact-analysis.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-coverage-review.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-relationship-mapping.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-consolidation.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-test-maintenance.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-test-generation.md`\n\n### copilot-instructions handling\n- `.github/copilot-instructions.md`: ${{ steps.sync.outputs.instructions_action }}\n\n### Distribution scope\n- Included: business consolidation skill artifacts only\n- Excluded: app `akr-docs` artifacts, app hooks, and unrelated onboarding scaffolds\n\n### Reviewer Checklist\n- [ ] Skill dispatcher and all six mode scripts are present\n- [ ] Existing `.github/copilot-instructions.md` was preserved when present\n- [ ] No app-repo skill files were distributed'
+          pr_body=$'## AKR Business Skill Distribution - ${{ needs.prepare-matrix.outputs.release_tag }}\n\n### Files Updated\n- `.github/skills/akr-business-consolidation/SKILL.md`\n- `.github/skills/akr-business-consolidation/SKILL-COMPAT.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-impact-analysis.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-coverage-review.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-relationship-mapping.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-consolidation.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-test-maintenance.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-test-generation.md`\n\n### copilot-instructions handling\n- `.github/copilot-instructions.md`: ${{ steps.sync.outputs.instructions_action }}\n\n### sync-source-evidence workflow handling\n- `.github/workflows/sync-source-evidence.yml`: ${{ steps.sync.outputs.sync_workflow_action }}\n\n### Distribution scope\n- Included: business consolidation skill artifacts and sync-source-evidence workflow\n- Excluded: app `akr-docs` artifacts, app hooks, and unrelated onboarding scaffolds\n\n### Reviewer Checklist\n- [ ] Skill dispatcher and all six mode scripts are present\n- [ ] Existing `.github/copilot-instructions.md` was preserved when present\n- [ ] `sync-source-evidence.yml` is present in `.github/workflows/`\n- [ ] No app-repo skill files were distributed'
 
           pr_url=$(gh pr create \
             --title "chore(akr): distribute business skill bundle ${{ needs.prepare-matrix.outputs.release_tag }}" \
@@ -210,6 +224,7 @@ jobs:
             echo "- Release tag: ${{ needs.prepare-matrix.outputs.release_tag }}"
             echo "- No changes: ${{ steps.sync.outputs.no_changes || 'unknown' }}"
             echo "- copilot-instructions action: ${{ steps.sync.outputs.instructions_action || 'unknown' }}"
+            echo "- sync-source-evidence workflow action: ${{ steps.sync.outputs.sync_workflow_action || 'unknown' }}"
             if [ -n "${{ steps.pr.outputs.pr_url }}" ]; then
               echo "- PR: ${{ steps.pr.outputs.pr_url }}"
             fi

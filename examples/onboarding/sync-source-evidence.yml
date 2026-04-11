@@ -1,0 +1,182 @@
+name: Sync Source Evidence
+
+# AKR: This workflow is distributed to business consolidation repositories via distribute-business-skill.yml.
+# It fetches a snapshot of approved documentation files from a source (application) repository
+# and stores them under docs/references/source-evidence/<repo-name>/ in this consolidation repo.
+#
+# This enables consolidation skills to run without requiring the PO to have source repos
+# open locally in VS Code (source-evidence mode).
+#
+# Triggers:
+#   - repository_dispatch (event_type: source-docs-updated): fired automatically by source repos
+#     when documentation files are merged to their default branch (requires notify-consolidation
+#     workflow to be set up in source repos — see docs/TEAM_STARTUP_ONBOARDING_GUIDE.md).
+#   - workflow_dispatch: manual fallback for initial sync or re-sync.
+#
+# Required secret: AKR_DISTRIBUTION_PAT with read access to all registered source repos.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: "Full source repository to sync from (owner/repo)"
+        required: true
+        type: string
+      source_branch:
+        description: "Branch to sync from"
+        required: false
+        default: "master"
+        type: string
+  repository_dispatch:
+    types: [source-docs-updated]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Sync source evidence from ${{ github.event.inputs.source_repo || github.event.client_payload.source_repo }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.AKR_DISTRIBUTION_PAT }}
+    steps:
+      - name: Resolve source inputs
+        id: inputs
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "source_repo=${{ github.event.client_payload.source_repo }}" >> "$GITHUB_OUTPUT"
+            echo "source_branch=${{ github.event.client_payload.source_branch }}" >> "$GITHUB_OUTPUT"
+            echo "triggering_pr=${{ github.event.client_payload.triggering_pr }}" >> "$GITHUB_OUTPUT"
+            echo "commit_sha=${{ github.event.client_payload.commit_sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "source_repo=${{ inputs.source_repo }}" >> "$GITHUB_OUTPUT"
+            echo "source_branch=${{ inputs.source_branch }}" >> "$GITHUB_OUTPUT"
+            echo "triggering_pr=manual-dispatch-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "commit_sha=unknown-manual-dispatch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate required secret
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::error::AKR_DISTRIBUTION_PAT secret is not configured."
+            exit 1
+          fi
+
+      - name: Validate source repo input
+        run: |
+          source_repo="${{ steps.inputs.outputs.source_repo }}"
+          if [[ "$source_repo" != */* ]]; then
+            echo "::error::source_repo must use owner/repo format"
+            exit 1
+          fi
+          if ! gh repo view "$source_repo" --json name > /dev/null 2>&1; then
+            echo "::error::Repository '$source_repo' was not found or is not accessible."
+            exit 1
+          fi
+
+      - name: Checkout consolidation repository
+        uses: actions/checkout@v4
+
+      - name: Shallow-fetch source repository
+        run: |
+          source_repo="${{ steps.inputs.outputs.source_repo }}"
+          source_branch="${{ steps.inputs.outputs.source_branch }}"
+          git clone --depth=1 --branch "$source_branch" \
+            "https://x-access-token:${GH_TOKEN}@github.com/${source_repo}.git" _source_repo
+
+      - name: Copy approved evidence files
+        id: copy
+        run: |
+          source_repo="${{ steps.inputs.outputs.source_repo }}"
+          repo_name=$(echo "$source_repo" | cut -d'/' -f2)
+          evidence_dir="docs/references/source-evidence/$repo_name"
+          mkdir -p "$evidence_dir"
+
+          files_synced="[]"
+          changed=false
+
+          # Copy modules.yaml
+          if [ -f "_source_repo/modules.yaml" ]; then
+            cp _source_repo/modules.yaml "$evidence_dir/modules.yaml"
+            files_synced=$(echo "$files_synced" | jq '. + ["modules.yaml"]')
+            changed=true
+          fi
+
+          # Copy service docs (backend/API layer pattern)
+          if [ -d "_source_repo/docs/services" ]; then
+            mkdir -p "$evidence_dir/docs/services"
+            cp -r _source_repo/docs/services/. "$evidence_dir/docs/services/"
+            files_synced=$(echo "$files_synced" | jq '. + ["docs/services/**"]')
+            changed=true
+          fi
+
+          # Copy module docs (UI layer pattern)
+          if [ -d "_source_repo/docs/modules" ]; then
+            mkdir -p "$evidence_dir/docs/modules"
+            cp -r _source_repo/docs/modules/. "$evidence_dir/docs/modules/"
+            files_synced=$(echo "$files_synced" | jq '. + ["docs/modules/**"]')
+            changed=true
+          fi
+
+          # Resolve actual commit SHA when triggered by repository_dispatch
+          resolved_sha="${{ steps.inputs.outputs.commit_sha }}"
+          if [ "$resolved_sha" = "unknown-manual-dispatch" ]; then
+            resolved_sha=$(git -C _source_repo rev-parse HEAD 2>/dev/null || echo "unknown")
+          fi
+
+          # Write sync manifest
+          synced_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > "$evidence_dir/sync-manifest.json" <<EOF
+{
+  "source_repo": "$source_repo",
+  "branch": "${{ steps.inputs.outputs.source_branch }}",
+  "commit_sha": "$resolved_sha",
+  "synced_at": "$synced_at",
+  "triggering_pr": "${{ steps.inputs.outputs.triggering_pr }}",
+  "files_synced": $files_synced
+}
+EOF
+          changed=true
+
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "repo_name=$repo_name" >> "$GITHUB_OUTPUT"
+          echo "evidence_dir=$evidence_dir" >> "$GITHUB_OUTPUT"
+          echo "resolved_sha=$resolved_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and open PR
+        if: steps.copy.outputs.changed == 'true'
+        run: |
+          source_repo="${{ steps.inputs.outputs.source_repo }}"
+          repo_name="${{ steps.copy.outputs.repo_name }}"
+          branch_name="akr-sync-evidence-${repo_name}-${GITHUB_RUN_NUMBER}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch_name"
+          git add docs/references/source-evidence/
+          git commit -m "chore(akr): sync source evidence from ${source_repo}"
+          git push --set-upstream origin "$branch_name"
+
+          base_branch=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name')
+          gh pr create \
+            --title "chore(akr): refresh source evidence from ${source_repo}" \
+            --body "Automated source evidence sync from AKR.\n\n**Source repository:** ${source_repo}\n**Branch:** ${{ steps.inputs.outputs.source_branch }}\n**Commit:** ${{ steps.copy.outputs.resolved_sha }}\n**Triggering PR:** ${{ steps.inputs.outputs.triggering_pr }}\n**Evidence path:** ${{ steps.copy.outputs.evidence_dir }}/\n\nReview and merge to refresh the evidence snapshot used by consolidation skills.\n\nOnce merged, run:\n\`\`\`\n/akr-business-consolidation capability-coverage-review [CapabilityName]\n/akr-business-consolidation capability-consolidation [CapabilityName]\n\`\`\`" \
+            --base "$base_branch" \
+            --head "$branch_name"
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          {
+            echo "## Sync Source Evidence"
+            echo "- Source repo: ${{ steps.inputs.outputs.source_repo }}"
+            echo "- Branch: ${{ steps.inputs.outputs.source_branch }}"
+            echo "- Triggering PR: ${{ steps.inputs.outputs.triggering_pr }}"
+            echo "- Evidence path: ${{ steps.copy.outputs.evidence_dir }}"
+            if [ "${{ steps.copy.outputs.changed }}" = "true" ]; then
+              echo "- Status: PR opened with refreshed evidence"
+            else
+              echo "- Status: no changes detected"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "business-consolidation-repo",
+      "path": "."
+    },
+    {
+      "name": "REPLACE_WITH_BACKEND_REPO_NAME",
+      "path": "REPLACE_WITH_LOCAL_CLONE_PATH_FOR_BACKEND_REPO"
+    },
+    {
+      "name": "REPLACE_WITH_UI_REPO_NAME",
+      "path": "REPLACE_WITH_LOCAL_CLONE_PATH_FOR_UI_REPO"
+    }
+  ],
+  "settings": {}
+}

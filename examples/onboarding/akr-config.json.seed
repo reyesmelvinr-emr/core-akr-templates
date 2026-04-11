@@ -28,5 +28,10 @@
     ],
     "autoGenerateOnSave": false,
     "requireReviewBeforeCommit": true
+  },
+  "consolidation": {
+    "mode": "source-evidence",
+    "sourceRepos": [],
+    "sourceEvidencePath": "docs/references/source-evidence"
   }
 }
