@@ -53,8 +53,8 @@ Identify the template path from the project_type:
 
 | project_type | Template path in core-akr-templates |
 |---|---|
-| `api-backend` / `microservice` / `general` | `templates/lean_baseline_service_template_module.md` |
-| `ui-component` | `templates/ui_component_template_module.md` |
+| `api-backend` / `microservice` / `general` | `.akr/templates/lean_baseline_service_template_module.md` |
+| `ui-component` | `.akr/templates/ui_component_template_module.md` |
 
 **Fetch the full template file; parse and carry forward only the `akr:` directive
 blocks. Discard the template prose body.** Parse and carry forward:
@@ -63,7 +63,7 @@ blocks. Discard the template prose body.** Parse and carry forward:
 - **Condition definitions:** token → detection description mapping
 
 **Before fetching, check cache:**
-1. Compute cache key: `{owner}/{repo}@{branch}/{template_path}` (e.g. `reyesmelvinr-emr/core-akr-templates@master/templates/lean_baseline_service_template_module.md`)
+1. Compute cache key: `{owner}/{repo}@{branch}/{template_path}` (e.g. `reyesmelvinr-emr/core-akr-templates@master/.akr/templates/lean_baseline_service_template_module.md`)
 2. Cache file: `.akr/cache/{encoded_cache_key}.md`
 3. If cache file exists: read template from cache, skip `@github` fetch, set `template-cache: hit`.
 4. If cache file does not exist: fetch via `@github get file`, write content to cache file, set `template-cache: miss`.

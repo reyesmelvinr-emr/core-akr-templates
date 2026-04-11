@@ -26,7 +26,7 @@ Callers
 Usage
 -----
   # Output JSON (default — feed to model or tooling)
-  python parse_template_directives.py templates/lean_baseline_service_template_module.md
+    python parse_template_directives.py .akr/templates/lean_baseline_service_template_module.md
 
   # Human-readable summary (debugging)
   python parse_template_directives.py <template> --output text
@@ -706,11 +706,11 @@ def _build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
-            "  python parse_template_directives.py templates/lean_baseline_service_template_module.md\n"
+            "  python parse_template_directives.py .akr/templates/lean_baseline_service_template_module.md\n"
             "  python parse_template_directives.py <template> --output text\n"
             "  python parse_template_directives.py <template> --validate\n"
             "  python parse_template_directives.py <template> --pretty\n"
-            "  python parse_template_directives.py --all templates/\n"
+            "  python parse_template_directives.py --all .akr/templates/\n"
             "  python parse_template_directives.py <template> --compact\n"
         ),
     )

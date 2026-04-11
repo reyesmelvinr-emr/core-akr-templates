@@ -39,8 +39,8 @@ Derive target assets from `project_types_in_scope`.
 
 Template targets:
 
-- `api-backend`, `microservice`, `general` -> `templates/lean_baseline_service_template_module.md`
-- `ui-component` -> `templates/ui_component_template_module.md`
+- `api-backend`, `microservice`, `general` -> `.akr/templates/lean_baseline_service_template_module.md`
+- `ui-component` -> `.akr/templates/ui_component_template_module.md`
 
 Charter targets:
 

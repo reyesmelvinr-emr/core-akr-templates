@@ -49,8 +49,8 @@ Determine expected targets using existing module scope logic:
 
 Expected template keys:
 
-- `templates/lean_baseline_service_template_module.md`
-- `templates/ui_component_template_module.md`
+- `.akr/templates/lean_baseline_service_template_module.md`
+- `.akr/templates/ui_component_template_module.md`
 
 Expected charter keys:
 

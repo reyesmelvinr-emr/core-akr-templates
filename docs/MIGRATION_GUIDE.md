@@ -213,8 +213,9 @@ local cache at `~/.akr/templates/copilot-instructions/` via PATH C.
 
 **Q: My team has custom Vale rules. Where do they go?**
 
-A: Add them to `validation/vale-rules/AKR/` in your application repo. The CI
-workflow fetches the base rules from `core-akr-templates` but runs Vale from the
-project directory, so your custom rules will be picked up if you configure a
-local `.vale.ini` that extends the fetched base config. Document this in your
-team's `OUR_STANDARDS.md`.
+A: Keep AKR-owned rules in `core-akr-templates/.akr/vale-rules/` only. If an
+application repo needs team-specific custom rules, place them in a separate
+repo-owned path such as `.akr/vale-rules/custom/` and extend the fetched base
+config from a local `.vale.ini`. Do not recreate `validation/vale-rules/` or
+`validation/.vale.ini` as AKR-managed duplicates. Document any repo-owned Vale
+extensions in your team's `OUR_STANDARDS.md`.

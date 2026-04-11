@@ -32,7 +32,7 @@ Completeness = (Completed Sections / Total Sections) * 100
 - Keep unresolved `?` sections visible until resolved or explicitly deferred.
 
 4. Use centralized Vale policy.
-- Validate against `validation/.vale.ini` when running local checks.
+- Validate against `.akr/.vale.ini` when running local checks.
 
 ## Required Invocation Pattern
 
@@ -116,9 +116,9 @@ Output:
 
 | project_type | Template | Notes |
 |---|---|---|
-| api-backend | templates/lean_baseline_service_template_module.md | Controller + service + repository + DTO scope |
-| ui-component | templates/ui_component_template_module.md | Page + components + hooks + types |
-| microservice | templates/lean_baseline_service_template_module.md | Service-to-service boundaries |
+| api-backend | .akr/templates/lean_baseline_service_template_module.md | Controller + service + repository + DTO scope |
+| ui-component | .akr/templates/ui_component_template_module.md | Page + components + hooks + types |
+| microservice | .akr/templates/lean_baseline_service_template_module.md | Service-to-service boundaries |
 | general | .akr/templates/lean_baseline_service_template.md | Fallback for non-module legacy docs |
 | table | .akr/templates/table_doc_template.md | Database object docs |
 | view | .akr/templates/table_doc_template.md | Database object docs |

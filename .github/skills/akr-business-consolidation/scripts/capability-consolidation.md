@@ -19,7 +19,7 @@ Write all files for `docs/business-capabilities/<CapabilityName>/`:
 
 ## Template contract
 
-Use canonical templates from `core-akr-templates/templates/`:
+Use canonical templates from `core-akr-templates/.akr/templates/`:
 
 - `business_capability_template.md`
 - `capability_testing_template.md`

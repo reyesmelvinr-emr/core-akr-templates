@@ -19,7 +19,7 @@ The plan prioritizes deterministic onboarding, explicit ownership boundaries, an
 - A separate first-touch onboarding workflow exists at `.github/workflows/distribute-onboarding-bundle.yml` and must be run once per new app repository to seed `modules.yaml`, CODEOWNERS governance block, and PR documentation template. This workflow is distinct from the recurring skill distribution and is not referenced in the current planning artifacts.
 - App target registry is incomplete (`.github/registered-repos.yaml` currently includes backend only).
 - Consolidation skill family is not yet implemented in `core-akr-templates`.
-- Only two of eight canonical consolidation templates currently exist in `core-akr-templates/templates/` (`business_capability_template.md` and `capability_testing_template.md`). The remaining six are referenced in both planning documents as canonical but are not yet authored.
+- Only two of eight canonical consolidation templates currently exist in `core-akr-templates/.akr/templates/` (`business_capability_template.md` and `capability_testing_template.md`). The remaining six are referenced in both planning documents as canonical but are not yet authored.
 - Backend baseline is missing `.akr-config.json`; UI and business repositories already include `.akr-config.json`. No `.akr-config.json.seed` file exists in `examples/onboarding/`, meaning new repositories have no automated starting point for this required file.
 - Business repository currently has partial capability artifact shape and no `.github/copilot-instructions.md`.
 
@@ -40,21 +40,21 @@ Deliverables:
 
 Canonical consolidation templates (also required as part of this workstream):
 
-Six of eight canonical templates are currently absent from `core-akr-templates/templates/`. These must be authored before consolidation skills can produce accurate output. Required additions:
+Six of eight canonical templates are currently absent from `core-akr-templates/.akr/templates/`. These must be authored before consolidation skills can produce accurate output. Required additions:
 
-- `templates/capability_enhancement_testing_template.md`
-- `templates/capability_enhancements_template.md`
-- `templates/capability_limitations_template.md`
-- `templates/capability_internal_dependencies_template.md`
-- `templates/capability_external_dependencies_template.md`
-- `templates/traceability-template.md`
+- `.akr/templates/capability_enhancement_testing_template.md`
+- `.akr/templates/capability_enhancements_template.md`
+- `.akr/templates/capability_limitations_template.md`
+- `.akr/templates/capability_internal_dependencies_template.md`
+- `.akr/templates/capability_external_dependencies_template.md`
+- `.akr/templates/traceability-template.md`
 
 Acceptance criteria:
 
 - Dispatcher and mode scripts are present in `core-akr-templates`.
 - Invocation contracts map 1:1 to target-state phases.
 - Scripts enforce metadata checks for `businessCapability`, `feature`, and `layer`.
-- All eight canonical consolidation templates are present in `core-akr-templates/templates/`.
+- All eight canonical consolidation templates are present in `core-akr-templates/.akr/templates/`.
 
 ### A2. Implement consolidation distribution workflow
 

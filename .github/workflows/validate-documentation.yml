@@ -105,7 +105,7 @@ jobs:
           if [ -f "$SYNC_TEST" ] && [ -f "$INLINE_VALIDATOR" ]; then
             # Override paths for this repo's layout
             INLINE_VALIDATOR_PATH="$(pwd)/$INLINE_VALIDATOR" \
-            FULL_VALIDATOR_PATH="$(pwd)/.akr/templates/.akr/scripts/validate_documentation.py" \
+            FULL_VALIDATOR_PATH="$HOME/.akr/templates/.akr/scripts/validate_documentation.py" \
             python "$SYNC_TEST" || {
               echo "::error::Shared constants are out of sync between inline and full validators."
               echo "::error::See CONSTANTS_VERSION in akr_inline_validate.py for the sync protocol."
@@ -178,7 +178,7 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           PARSER=~/.akr/templates/.akr/scripts/parse_template_directives.py
-          TEMPLATE_DIR=~/.akr/templates/templates
+          TEMPLATE_DIR=~/.akr/templates/.akr/templates
 
           if [ -f "$PARSER" ] && [ -d "$TEMPLATE_DIR" ]; then
             python "$PARSER" --all "$TEMPLATE_DIR" --compact > directive-registry.json 2>/dev/null || true

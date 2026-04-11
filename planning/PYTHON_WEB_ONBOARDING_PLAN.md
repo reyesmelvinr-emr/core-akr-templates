@@ -88,7 +88,21 @@ Enable Python web applications — monorepo or multi-repo — to complete AKR on
 ## Implementation Plan
 
 ## Phase 1: MVP Onboarding Compatibility
-Goal: Unblock Python web monorepo onboarding now with no breaking changes.
+Goal: Unblock Python web monorepo and multi-repo onboarding now with no breaking changes.
+
+### 0. Make ProposeGroupings Python-safe (MVP blocker)
+#### Files
+- .github/skills/akr-docs/scripts/akr-groupings.md
+- .github/skills/akr-docs/SKILL.md (or equivalent dispatcher guidance)
+
+#### Changes
+1. Replace C#-specific grouping cues with language-neutral grouping cues for entry points, orchestration, data access, validation contracts, and domain entities.
+2. Add Python-compatible examples in grouping guidance (for example views.py, urls.py, forms.py, serializers.py, schemas.py, helpers.py) while retaining .NET examples.
+3. Clarify fallback behavior: files that cannot be classified are placed in unassigned with explicit review notes, not silently omitted.
+4. Keep current .NET behavior intact by making this additive guidance, not a removal of existing .NET grouping patterns.
+
+#### Result
+ProposeGroupings remains useful for .NET while producing practical first-pass groupings for Python web repositories.
 
 ### 1. Update onboarding and quick-start documentation
 #### Files
@@ -105,7 +119,7 @@ Pilot teams can follow onboarding steps without translating .NET-only examples m
 ### 2. Add Python-compatible AKR config examples (monorepo)
 #### Files
 - examples/.akr-config-api.json
-- .akr/examples/akr-config-monorepo.json
+- examples/akr-config-monorepo.json
 
 #### Changes
 1. Add Python include patterns and Python package path mappings.
@@ -125,7 +139,19 @@ Teams can seed AKR config quickly for Python monorepo package layouts.
 3. The `crossRepository.relatedRepositories` block is identical in structure to the existing .NET example; only the `layer: API` repo description and include patterns change.
 
 #### Result
-Multi-repo Python teams have a direct reference config showing how to link their API backend to a separate UI and/or database repo.
+Multi-repo Python teams have a direct reference config showing how to link their API backend to a separate UI repository, with database links treated as optional.
+
+### 2c. Add Python API config example for no-database projects
+#### Files
+- New file: examples/.akr-config-python-api-no-db.json
+
+#### Changes
+1. Provide a Python API example with no dedicated database repository in crossRepository.
+2. Show stateless/external-persistence API patterns without forcing a Database layer entry.
+3. Keep format identical to existing config examples so teams can copy and adapt quickly.
+
+#### Result
+Python teams without a dedicated database repository have a first-class onboarding example that matches their architecture.
 
 ### 3. Add Python module manifest examples
 #### Files
@@ -155,13 +181,14 @@ ProposeGroupings and GenerateDocumentation have canonical Python examples for bo
    - Repository -> DAO/Repository/Integration Adapter
    - DTO -> Schema/Form/Serializer
 3. Clarify that role names should reflect framework reality, not forced naming.
+4. State explicitly that Controller-Service-Repository is one valid pattern, not a mandatory baseline for Python projects.
 
 #### Result
 Generated docs become accurate for Python architectures while preserving standard section structure.
 
 ### 5. Expand terminology acceptance for linting
 #### Files
-- validation/vale-rules/AKR/accept.txt
+- .akr/vale-rules/AKR/accept.txt
 
 #### Changes
 1. Add Python framework and architecture vocabulary (for example Django, FastAPI, Flask, Pydantic, SQLAlchemy, Form, Schema, Handler).
@@ -239,13 +266,15 @@ Future work is explicit; MVP rollout is not blocked.
 |---|---|---|---|---|
 | High | README.md | Update | Both | Remove .NET-only onboarding impression; add Python monorepo and multi-repo paths/examples |
 | High | examples/.akr-config-api.json | Update | Monorepo | Add Python API include/component mapping examples |
-| High | .akr/examples/akr-config-monorepo.json | Update | Monorepo | Add Python monorepo path mappings |
+| High | examples/akr-config-monorepo.json | Update | Monorepo | Add Python monorepo path mappings |
 | High | examples/.akr-config-python-api.json | New | Multi-repo | Python backend repo config with crossRepository linking to UI repo |
+| High | examples/.akr-config-python-api-no-db.json | New | Multi-repo | Python backend config for stateless or external-persistence projects with no dedicated database repo |
 | High | examples/modules.trainingtracker.api.yaml | Keep existing | .NET reference | Preserve .NET reference while adding Python companions |
 | High | examples/modules.python-web-monorepo.yaml | New | Monorepo | Canonical Python all-layers module grouping example |
 | High | examples/modules.python-web-api.yaml | New | Multi-repo | Canonical Python backend-only module grouping example |
+| High | .github/skills/akr-docs/scripts/akr-groupings.md | Update | Both | Ensure ProposeGroupings guidance works for Python file patterns without breaking .NET patterns |
 | High | copilot-instructions/backend-service.instructions.md | Update | Both | Framework-neutral role taxonomy guidance |
-| High | validation/vale-rules/AKR/accept.txt | Update | Both | Allow Python vocabulary in generated docs |
+| High | .akr/vale-rules/AKR/accept.txt | Update | Both | Allow Python vocabulary in generated docs |
 | Medium | .akr/schemas/modules-schema.json | Update | Both | Optional language/framework hints |
 | Medium | .akr/schemas/akr-config-schema.json | Update | Both | Better Python/monorepo and multi-repo examples and defaults |
 | Medium | examples/workflows/validate-documentation.yml | Verify/update | Both | Ensure Python file pattern and docs coverage |
@@ -270,14 +299,32 @@ Use existing project_type values where possible to avoid schema churn.
    - If SQL or Alembic/Django migration assets are included in-repo
    - In multi-repo: applies to the dedicated database repo
 
+## Supporting Python Web Scenarios Without Dedicated Database
+
+### Common No-DB Cases
+1. Stateless APIs that delegate storage to external platforms.
+2. Integration services that transform and route data only.
+3. Compute-focused services with no persistent state.
+
+### Configuration Guidance
+1. Keep `database_objects: []` in modules.yaml when there are no in-repo database objects.
+2. Omit the Database entry in crossRepository when no dedicated database repository exists.
+3. Document persistence strategy in module docs when storage is external (for example API provider, message bus, blob/object storage).
+
+### Documentation Expectations for No-DB Projects
+1. Architecture Overview should show external persistence or stateless behavior clearly.
+2. Data Operations can describe read/write calls to external systems instead of in-repo table access.
+3. Validation should pass without requiring database object docs when `database_objects` is empty.
+
 ## Layout-to-AKR Config Mapping
 
 | Layout | Repository | AKR Config Example | modules.yaml Example |
 |---|---|---|---|
 | Monorepo | Single repo: all layers | .akr-config-monorepo.json (update with Python paths) | modules.python-web-monorepo.yaml |
 | Multi-repo API backend | Python backend repo only | .akr-config-python-api.json (new) | modules.python-web-api.yaml |
+| Multi-repo API backend (no dedicated DB repo) | Python backend repo only | .akr-config-python-api-no-db.json (new) | modules.python-web-api.yaml (with database_objects empty when applicable) |
 | Multi-repo UI | JS/TS frontend repo | Existing .akr-config-ui.json (no change needed) | Existing JS/TS examples |
-| Multi-repo Database | Migration/SQL repo | Existing .akr-config-database.json (no change needed) | Existing database examples |
+| Multi-repo Database (optional) | Migration/SQL repo | Existing .akr-config-database.json (no change needed) | Existing database examples |
 
 ## Example Mapping for a Django-Style Module
 
@@ -320,28 +367,40 @@ Mitigation: Document clearly in the multi-repo config example and README note th
 ### Risk 6: Teams confuse monorepo Django template UI with a JavaScript UI repo
 Mitigation: The layout mapping table in the taxonomy section explicitly distinguishes Django-rendered templates (Python, same repo) from JavaScript/TypeScript frontend repos (separate repo, existing UI config applies).
 
+### Risk 7: ProposeGroupings remains .NET-centric in practice
+Mitigation: Make language-neutral grouping guidance a Phase 1 deliverable and validate against Python sample repositories before rollout.
+
+### Risk 8: Teams assume a database repository is always required
+Mitigation: Add explicit no-database examples and acceptance checks showing database_objects can be empty and Database crossRepository links are optional.
+
 ## Validation and Acceptance Criteria
 
 ### Technical Acceptance
 1. Existing .NET examples continue validating with current schema.
 2. Both new Python module manifest examples validate against modules schema.
 3. The new multi-repo Python API config validates against the AKR config schema.
-4. Sample workflow catches Python source and docs changes.
-5. Vale passes against generated Python module docs with no avoidable terminology failures.
+4. The new no-database Python API config validates against the AKR config schema.
+5. ProposeGroupings produces actionable, non-empty Python module groupings for representative Django/FastAPI repositories.
+6. Sample workflow catches Python source and docs changes.
+7. Vale passes against generated Python module docs with no avoidable terminology failures.
+8. Validation passes for no-database Python projects with `database_objects: []`.
 
 ### Usability Acceptance
 1. A Python web monorepo can complete onboarding using docs/examples without custom hidden instructions.
 2. A Python web multi-repo team can configure cross-repository linking using the new Python API config example.
-3. Generated docs use framework-accurate role names in both layout scenarios.
-4. Operations Map and Data Operations sections remain complete and readable.
-5. The layout mapping table unambiguously guides teams to the correct config and manifest example.
+3. A Python web team with no dedicated database repository can complete onboarding without inventing placeholder DB artifacts.
+4. Generated docs use framework-accurate role names in both layout scenarios.
+5. Operations Map and Data Operations sections remain complete and readable.
+6. The layout mapping table unambiguously guides teams to the correct config and manifest example.
 
 ## Rollout Strategy
 
 ### Release 1 (MVP)
 - README updates (monorepo and multi-repo paths)
+- ProposeGroupings language-neutral guidance updates (retain .NET support)
 - Python monorepo config examples
 - Python multi-repo API config example (new .akr-config-python-api.json)
+- Python multi-repo API no-database config example (new .akr-config-python-api-no-db.json)
 - Python module manifest examples (monorepo and multi-repo API)
 - Backend role mapping guidance
 - Vale accepted vocabulary updates
@@ -358,13 +417,15 @@ Mitigation: The layout mapping table in the taxonomy section explicitly distingu
 
 ### PR 1: Python MVP Onboarding Assets
 - README.md
+- .github/skills/akr-docs/scripts/akr-groupings.md
 - examples/.akr-config-api.json
-- .akr/examples/akr-config-monorepo.json
+- examples/akr-config-monorepo.json
 - examples/.akr-config-python-api.json (new: multi-repo Python backend config)
+- examples/.akr-config-python-api-no-db.json (new: multi-repo Python backend config without dedicated DB repo)
 - examples/modules.python-web-monorepo.yaml (new: monorepo manifest example)
 - examples/modules.python-web-api.yaml (new: multi-repo API manifest example)
 - copilot-instructions/backend-service.instructions.md
-- validation/vale-rules/AKR/accept.txt
+- .akr/vale-rules/AKR/accept.txt
 
 ### PR 2: Schema and Workflow Alignment
 - .akr/schemas/modules-schema.json
@@ -379,10 +440,11 @@ Mitigation: The layout mapping table in the taxonomy section explicitly distingu
 ## Definition of Done
 1. Python web monorepo onboarding path is documented and reproducible.
 2. Python web multi-repo onboarding path (API backend layer) is documented and reproducible.
-3. Both new Python module manifest examples are published and schema-valid.
-4. The new multi-repo Python API config is published and schema-valid.
-5. .NET onboarding behavior remains unchanged.
-6. AKR maintainers have a staged roadmap for deeper Python automation.
+3. Python web no-database onboarding path is documented and reproducible.
+4. Both new Python module manifest examples are published and schema-valid.
+5. The new multi-repo Python API configs (with and without dedicated DB repo) are published and schema-valid.
+6. .NET onboarding behavior remains unchanged.
+7. AKR maintainers have a staged roadmap for deeper Python automation.
 
 ## Appendix A: Minimal Onboarding Checklist for Python Teams
 
@@ -397,10 +459,11 @@ Mitigation: The layout mapping table in the taxonomy section explicitly distingu
 1. Add AKR templates and skill assets to each repository separately using existing onboarding process.
 2. For the API backend repo: start from `examples/.akr-config-python-api.json` and update `crossRepository` URLs.
 3. For the UI repo: use existing `examples/.akr-config-ui.json` (JavaScript/TypeScript UI is already supported); no change needed.
-4. For the database repo: use existing `examples/.akr-config-database.json`; no change needed.
-5. Create `modules.yaml` per repository. The API backend uses `examples/modules.python-web-api.yaml` as reference.
-6. Run documentation generation per repository independently.
-7. Verify cross-repo linking by confirming related repo references are reachable and documented.
+4. If there is no dedicated database repo, use `examples/.akr-config-python-api-no-db.json` as the starting point.
+5. If there is a dedicated database repo, use existing `examples/.akr-config-database.json`; no change needed.
+6. Create `modules.yaml` per repository. The API backend uses `examples/modules.python-web-api.yaml` as reference.
+7. Run documentation generation per repository independently.
+8. Verify cross-repo linking by confirming related repo references are reachable and documented.
 
 ## Appendix B: Notes for Future Enhancements
 1. Add deterministic extraction support for Python classes/functions/decorators.

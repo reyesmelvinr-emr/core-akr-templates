@@ -6,7 +6,7 @@
     {
       "id": "service-comprehensive",
       "name": "Comprehensive Service Documentation",
-      "file": "templates/comprehensive_service_template.md",
+      "file": ".akr/templates/comprehensive_service_template.md",
       "version": "1.0.0",
       "description": "Comprehensive documentation template for complex, critical backend services requiring extensive detail (15-20 minutes)",
       "applicable_to": [
@@ -43,7 +43,7 @@
     {
       "id": "service-standard",
       "name": "Standard Service Documentation",
-      "file": "templates/standard_service_template.md",
+      "file": ".akr/templates/standard_service_template.md",
       "version": "1.0.0",
       "description": "Standard documentation template for typical backend services (10-15 minutes)",
       "applicable_to": [
@@ -74,7 +74,7 @@
     {
       "id": "service-lean",
       "name": "Lean Baseline Service Documentation",
-      "file": "templates/lean_baseline_service_template.md",
+      "file": ".akr/templates/lean_baseline_service_template.md",
       "version": "1.0.0",
       "description": "Lean documentation template for simple services and utilities (5-10 minutes)",
       "applicable_to": [
@@ -102,7 +102,7 @@
     {
       "id": "service-minimal",
       "name": "Minimal Service Documentation",
-      "file": "templates/minimal_service_template.md",
+      "file": ".akr/templates/minimal_service_template.md",
       "version": "1.0.0",
       "description": "Minimal documentation template for very simple services (3-5 minutes)",
       "applicable_to": [
@@ -129,7 +129,7 @@
     {
       "id": "ui-component",
       "name": "UI Component Documentation",
-      "file": "templates/ui_component_template.md",
+      "file": ".akr/templates/ui_component_template.md",
       "version": "1.0.0",
       "description": "Documentation template for React/Angular UI components (8-12 minutes)",
       "applicable_to": [
@@ -161,7 +161,7 @@
     {
       "id": "table-doc",
       "name": "Database Table Documentation",
-      "file": "templates/table_doc_template.md",
+      "file": ".akr/templates/table_doc_template.md",
       "version": "1.0.0",
       "description": "Documentation template for database tables and schemas (6-10 minutes)",
       "applicable_to": [
@@ -192,7 +192,7 @@
     {
       "id": "embedded-database",
       "name": "Embedded Database Documentation",
-      "file": "templates/embedded_database_template.md",
+      "file": ".akr/templates/embedded_database_template.md",
       "version": "1.0.0",
       "description": "Documentation template for embedded databases and local storage (6-10 minutes)",
       "applicable_to": [
@@ -223,7 +223,7 @@
     {
       "id": "legacy-inventory",
       "name": "Legacy System Inventory Documentation",
-      "file": "templates/legacy_inventory_template.md",
+      "file": ".akr/templates/legacy_inventory_template.md",
       "version": "1.0.0",
       "description": "Documentation template for legacy system inventory and assessment (10-15 minutes)",
       "applicable_to": [
@@ -256,28 +256,28 @@
     {
       "id": "akr-charter",
       "name": "AKR Charter - General",
-      "file": "charters/AKR_CHARTER.md",
+      "file": ".akr/charters/AKR_CHARTER.md",
       "version": "1.0.0",
       "description": "General AKR documentation standards and guidelines"
     },
     {
       "id": "akr-charter-backend",
       "name": "AKR Charter - Backend",
-      "file": "charters/AKR_CHARTER_BACKEND.md",
+      "file": ".akr/charters/AKR_CHARTER_BACKEND.md",
       "version": "1.0.0",
       "description": "AKR documentation standards for backend services"
     },
     {
       "id": "akr-charter-ui",
       "name": "AKR Charter - UI",
-      "file": "charters/AKR_CHARTER_UI.md",
+      "file": ".akr/charters/AKR_CHARTER_UI.md",
       "version": "1.0.0",
       "description": "AKR documentation standards for UI components"
     },
     {
       "id": "akr-charter-db",
       "name": "AKR Charter - Database",
-      "file": "charters/AKR_CHARTER_DB.md",
+      "file": ".akr/charters/AKR_CHARTER_DB.md",
       "version": "1.0.0",
       "description": "AKR documentation standards for database objects"
     }

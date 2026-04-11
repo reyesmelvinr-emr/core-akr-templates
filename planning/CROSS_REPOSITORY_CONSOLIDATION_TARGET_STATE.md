@@ -310,13 +310,13 @@ Outputs:
 Purpose: Generate or refresh a business capability document in the business documentation repository.
 
 Outputs:
-- `index.md` rendered from `core-akr-templates/templates/business_capability_template.md`
-- `test-conditions.md` rendered from `core-akr-templates/templates/capability_testing_template.md`
-- `enhancements.md` rendered from `core-akr-templates/templates/capability_enhancements_template.md`
-- `limitations.md` rendered from `core-akr-templates/templates/capability_limitations_template.md`
-- `internal_dependencies.md` rendered from `core-akr-templates/templates/capability_internal_dependencies_template.md`
-- `external_dependencies.md` rendered from `core-akr-templates/templates/capability_external_dependencies_template.md`
-- `traceability.md` rendered from `core-akr-templates/templates/traceability-template.md`
+- `index.md` rendered from `core-akr-templates/.akr/templates/business_capability_template.md`
+- `test-conditions.md` rendered from `core-akr-templates/.akr/templates/capability_testing_template.md`
+- `enhancements.md` rendered from `core-akr-templates/.akr/templates/capability_enhancements_template.md`
+- `limitations.md` rendered from `core-akr-templates/.akr/templates/capability_limitations_template.md`
+- `internal_dependencies.md` rendered from `core-akr-templates/.akr/templates/capability_internal_dependencies_template.md`
+- `external_dependencies.md` rendered from `core-akr-templates/.akr/templates/capability_external_dependencies_template.md`
+- `traceability.md` rendered from `core-akr-templates/.akr/templates/traceability-template.md`
 - Source-to-section traceability entries and confidence markers
 
 Template usage rules:
@@ -467,7 +467,7 @@ The following gates must all pass before declaring cross-repository POC onboardi
 
 | Gate | Exit criteria | Validation evidence |
 |---|---|---|
-| Gate 1: Core skill readiness | Both skill families exist in `core-akr-templates` (`akr-docs` and `akr-business-consolidation`) with versioned invocation contracts; all eight canonical consolidation templates are present in `core-akr-templates/templates/` | Presence of skill files and scripts under `.github/skills/`; presence of all eight template files under `templates/` |
+| Gate 1: Core skill readiness | Both skill families exist in `core-akr-templates` (`akr-docs` and `akr-business-consolidation`) with versioned invocation contracts; all eight canonical consolidation templates are present in `core-akr-templates/.akr/templates/` | Presence of skill files and scripts under `.github/skills/`; presence of all eight template files under `.akr/templates/` |
 | Gate 2: Distribution readiness | App distribution and consolidation distribution workflows both exist and use separate target registries | Workflow files present; registry files present; workflow dry-run or dispatch evidence |
 | Gate 3: Source repo onboarding baseline | New app repository contains required AKR files (`modules.yaml`, `.akr-config.json`, skill bundle, hooks, validation workflow, repo-owned instructions); `distribute-onboarding-bundle.yml` has been dispatched for the repository and absence-seeded files are confirmed present | Repository file audit against onboarding checklist; PR evidence from `distribute-onboarding-bundle.yml` run |
 | Gate 4: Registry and metadata readiness | Source documentation metadata values (`businessCapability`, `feature`, `layer`) are normalized and valid | Validation output showing alignment to capability registry and front matter constraints |
