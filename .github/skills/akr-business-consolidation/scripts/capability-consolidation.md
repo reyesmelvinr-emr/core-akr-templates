@@ -2,33 +2,34 @@
 
 ## Purpose
 
-Generate or refresh the complete capability artifact set in a consolidation repository.
+Generate or refresh the complete capability artifact set in a consolidation repository based on capability lifecycle status.
 
 ## Required output set
 
-Write all files for `docs/business-capabilities/<CapabilityName>/`:
+Write status-dependent files for `docs/business-capabilities/<status>/<CapabilityName>/`:
 
-- `index.md`
-- `test-conditions.md`
-- `enhancement-test-conditions.md`
-- `enhancements.md`
-- `limitations.md`
-- `internal_dependencies.md`
-- `external_dependencies.md`
-- `traceability.md`
+**Active capabilities (9 files):**
+- `index.md`, `test-conditions.md`, `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
+
+**New capabilities (6 files):**
+- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md` (excludes enhancement-test-conditions, enhancements, backlog)
+
+**Archived capabilities (5 files):**
+- `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md` (read-mostly historical context; excludes test and enhancement artifacts)
 
 ## Template contract
 
 Use canonical templates from `core-akr-templates/.akr/templates/`:
 
-- `business_capability_template.md`
-- `capability_testing_template.md`
-- `capability_enhancement_testing_template.md`
-- `capability_enhancements_template.md`
-- `capability_limitations_template.md`
-- `capability_internal_dependencies_template.md`
-- `capability_external_dependencies_template.md`
-- `traceability-template.md`
+- `business_capability_template.md` (all statuses)
+- `capability_testing_template.md` (active, new only)
+- `capability_enhancement_testing_template.md` (active only)
+- `capability_enhancements_template.md` (active only)
+- `capability_backlog_template.md` (active only)
+- `capability_limitations_template.md` (all statuses)
+- `capability_internal_dependencies_template.md` (all statuses)
+- `capability_external_dependencies_template.md` (all statuses)
+- `traceability-template.md` (all statuses)
 
 ## Required checks
 

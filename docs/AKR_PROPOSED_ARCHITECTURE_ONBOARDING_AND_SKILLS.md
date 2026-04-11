@@ -85,20 +85,37 @@ The following structure reflects the target business-capability layout used by t
         copilot-instructions.md
     docs/
         business-capabilities/
-            <CapabilityName>/
-                index.md
-                test-conditions.md
-                enhancement-test-conditions.md
-                enhancements.md
-                limitations.md
-                internal_dependencies.md
-                external_dependencies.md
-                traceability.md
+            active/
+                <CapabilityName>/
+                    index.md
+                    test-conditions.md
+                    enhancement-test-conditions.md
+                    enhancements.md
+                    backlog.md
+                    limitations.md
+                    internal_dependencies.md
+                    external_dependencies.md
+                    traceability.md
+            archived/
+                <CapabilityName>/
+                    index.md
+                    limitations.md
+                    internal_dependencies.md
+                    external_dependencies.md
+                    traceability.md
+            new/
+                <CapabilityName>/
+                    index.md
+                    test-conditions.md
+                    limitations.md
+                    internal_dependencies.md
+                    external_dependencies.md
+                    traceability.md
 ```
 
 Notes:
 
-- Capability folders are the primary consolidation output boundary.
+- Capability folders are organized by lifecycle status (active, archived, new) within `docs/business-capabilities/`.
 - `copilot-instructions.md` is preserved if already present and only seeded when missing.
 
 ## 4. New Folders Created in Application Repositories During Onboarding

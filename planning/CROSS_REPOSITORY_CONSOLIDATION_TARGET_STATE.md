@@ -160,16 +160,35 @@ Minimum prerequisites before first consolidation write:
       high-level-flow.png
   docs/
     business-capabilities/
-      <CapabilityName>/
-        index.md
-        test-conditions.md
-        enhancement-test-conditions.md
-        enhancements.md
-        limitations.md
-        internal_dependencies.md
-        external_dependencies.md
-        traceability.md
-        diagrams/
+      active/
+        <CapabilityName>/
+          index.md
+          test-conditions.md
+          enhancement-test-conditions.md
+          enhancements.md
+          backlog.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
+      archived/
+        <CapabilityName>/
+          index.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
+      new/
+        <CapabilityName>/
+          index.md
+          test-conditions.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
     references/
       glossary.md
       source-repo-map.md
@@ -246,12 +265,17 @@ To avoid implementation ambiguity, ownership is explicitly split:
 - Consolidation repositories own business-facing capability outputs and local editorial governance decisions.
 - Existing local `.github/copilot-instructions.md` files in target repositories remain repository-owned artifacts.
 
-Within each capability folder:
+### Capability Lifecycle Status Organization
 
-- `index.md` is the primary output of `capability-consolidation`.
-- `test-conditions.md` captures QA-oriented acceptance and edge-case conditions.
-- `enhancement-test-conditions.md` captures enhancement-driven test scenarios and change-cycle test additions separate from baseline coverage.
-- `enhancements.md` records ongoing capability enhancements, including Product Owner business requirements, Technical Lead technical requirements, and optional Azure DevOps work-item references.
+Capabilities are organized by lifecycle status within the consolidation repository: **active** (current production-used), **archived** (codebases retained but no longer business-used), and **new** (under construction, not yet production). This organizational structure complements `businessCapability` as the canonical semantic key for cross-repository grouping; lifecycle status is a consolidation-repository navigation and governance partition only.
+
+Within each capability folder (regardless of status):
+
+- `index.md` is the primary output of `capability-consolidation`. For new capabilities, it may include related Azure DevOps work-item links.
+- `test-conditions.md` (active and new only) captures QA-oriented acceptance and edge-case conditions.
+- `enhancement-test-conditions.md` (active only) captures enhancement-driven test scenarios and change-cycle test additions separate from baseline coverage.
+- `enhancements.md` (active only) records in-development and delivery-tracked enhancements, including Product Owner business requirements, Technical Lead technical requirements, and Azure DevOps work-item references.
+- `backlog.md` (active only) holds planned enhancements that have not yet entered the work queue or development phase.
 - `limitations.md` records known business or technical limitations for the capability and any established application-team workarounds.
 - `limitations.md` may reference rule IDs from `index.md` when the limitation is directly tied to a documented rule for traceability.
 - `internal_dependencies.md` records dependency and impact relationships to other capabilities, processes, or functions within the current application that must be considered when changes are made to the current capability.
@@ -262,16 +286,17 @@ Within each capability folder:
 
 ### Canonical template sources
 
-The canonical consolidation templates are stored in `core-akr-templates/templates` and used by consolidation skills when producing capability artifacts:
+The canonical consolidation templates are stored in `core-akr-templates/.akr/templates/` and used by consolidation skills when producing capability artifacts:
 
-- `business_capability_template.md` -> pattern for `docs/business-capabilities/<Capability>/index.md`
-- `capability_testing_template.md` -> pattern for `docs/business-capabilities/<Capability>/test-conditions.md`
-- `capability_enhancement_testing_template.md` -> pattern for `docs/business-capabilities/<Capability>/enhancement-test-conditions.md`
-- `capability_enhancements_template.md` -> pattern for `docs/business-capabilities/<Capability>/enhancements.md`
-- `capability_limitations_template.md` -> pattern for `docs/business-capabilities/<Capability>/limitations.md`
-- `capability_internal_dependencies_template.md` -> pattern for `docs/business-capabilities/<Capability>/internal_dependencies.md`
-- `capability_external_dependencies_template.md` -> pattern for `docs/business-capabilities/<Capability>/external_dependencies.md`
-- `traceability-template.md` -> pattern for `docs/business-capabilities/<Capability>/traceability.md`
+- `business_capability_template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/index.md`
+- `capability_testing_template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/test-conditions.md` (active and new only)
+- `capability_enhancement_testing_template.md` -> pattern for `docs/business-capabilities/active/<Capability>/enhancement-test-conditions.md` (active only)
+- `capability_enhancements_template.md` -> pattern for `docs/business-capabilities/active/<Capability>/enhancements.md` (active only)
+- `capability_backlog_template.md` -> pattern for `docs/business-capabilities/active/<Capability>/backlog.md` (active only)
+- `capability_limitations_template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/limitations.md`
+- `capability_internal_dependencies_template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/internal_dependencies.md`
+- `capability_external_dependencies_template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/external_dependencies.md`
+- `traceability-template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/traceability.md`
 
 For environments that still reference the legacy naming, `capabilitytTesting_template.md` is maintained as an alias pointing to the same testing template contract.
 
@@ -309,21 +334,35 @@ Outputs:
 
 Purpose: Generate or refresh a business capability document in the business documentation repository.
 
-Outputs:
-- `index.md` rendered from `core-akr-templates/.akr/templates/business_capability_template.md`
-- `test-conditions.md` rendered from `core-akr-templates/.akr/templates/capability_testing_template.md`
-- `enhancements.md` rendered from `core-akr-templates/.akr/templates/capability_enhancements_template.md`
-- `limitations.md` rendered from `core-akr-templates/.akr/templates/capability_limitations_template.md`
-- `internal_dependencies.md` rendered from `core-akr-templates/.akr/templates/capability_internal_dependencies_template.md`
-- `external_dependencies.md` rendered from `core-akr-templates/.akr/templates/capability_external_dependencies_template.md`
-- `traceability.md` rendered from `core-akr-templates/.akr/templates/traceability-template.md`
+Conditional outputs depend on the target capability status:
+
+**Active capabilities:**
+- `index.md`, `test-conditions.md`, `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
+
+**New capabilities:**
+- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md` (excludes enhancements, enhancement-test-conditions, backlog)
+
+**Archived capabilities (read-mostly):**
+- `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md` (preserves historical baseline and impact context; does not generate new test or enhancement artifacts)
+
+Template rendering sources by file (status-aware):
+- `business_capability_template.md` -> `index.md` (all statuses)
+- `capability_testing_template.md` -> `test-conditions.md` (active, new only)
+- `capability_enhancement_testing_template.md` -> `enhancement-test-conditions.md` (active only)
+- `capability_enhancements_template.md` -> `enhancements.md` (active only)
+- `capability_backlog_template.md` -> `backlog.md` (active only)
+- `capability_limitations_template.md` -> `limitations.md` (all statuses)
+- `capability_internal_dependencies_template.md` -> `internal_dependencies.md` (all statuses)
+- `capability_external_dependencies_template.md` -> `external_dependencies.md` (all statuses)
+- `traceability-template.md` -> `traceability.md` (all statuses)
 - Source-to-section traceability entries and confidence markers
 
 Template usage rules:
 
 - `index.md` is the primary source of truth for scenario IDs and scenario descriptions.
 - `test-conditions.md` must reference scenario IDs defined in `index.md` and provide detailed QA steps.
-- `enhancements.md` tracks active and planned enhancement work for the capability and may include links to delivery-system records such as Azure DevOps Boards.
+- `enhancements.md` (active only) tracks in-development and delivery-tracked enhancements and includes links to delivery-system records such as Azure DevOps Boards. Entries include enhancement ID, description, business value, technical considerations, status, target release, and delivery reference.
+- `backlog.md` (active only) holds planned enhancements earmarked for future work but not yet queued for development. Entries include enhancement ID, description, business value, technical considerations, and may include Azure DevOps work-item links.
 - `limitations.md` captures operationally relevant capability limitations and associated workarounds, and may cite rule IDs from `index.md` for traceability.
 - `internal_dependencies.md` captures downstream and adjacent in-application capability impacts that must be considered for design review, change planning, and QA scenario expansion.
 - `external_dependencies.md` captures cross-application interfaces and integration impacts that must be considered for change planning, regression scope, and end-to-end QA coverage.
@@ -438,15 +477,21 @@ Run `capability-relationship-mapping` when cross-layer explanation is needed wit
 
 ### Phase-to-skill execution map
 
-| Phase | Workflow name | Skill(s) | Primary trigger | Primary outputs |
-|---|---|---|---|---|
-| A | Define | Human-led registry and onboarding setup | New application onboarding | Canonical `businessCapability` list and repository prerequisites |
-| B | Assess | `capability-impact-analysis`, `capability-coverage-review` | Source documentation change or onboarding readiness check | Impact list, coverage matrix, readiness recommendation |
-| C | Consolidate | `capability-consolidation` | Phase B ready state | Capability document set (`index.md`, test artifacts, dependencies, traceability) |
-| D | Promote delivered enhancements | `capability-promote` | Enhancement delivery confirmation | Updated baseline `index.md` and merged baseline `test-conditions.md` with synchronized enhancement state |
-| E | Maintain tests | `capability-test-maintenance` | Baseline capability change without new enhancement scope | Updated `test-conditions.md` aligned to baseline scenarios |
-| F | Generate enhancement tests | `capability-test-generation` | Enhancement scope defined in `enhancements.md` | Updated `enhancement-test-conditions.md` |
-| G | Explain | `capability-relationship-mapping` | On-demand architecture and impact explanation request | Cross-layer relationship summary |
+| Phase | Workflow name | Skill(s) | Primary trigger | Primary outputs | Status applicability |
+|---|---|---|---|---|---|
+| A | Define | Human-led registry and onboarding setup | New application onboarding | Canonical `businessCapability` list and repository prerequisites | All |
+| B | Assess | `capability-impact-analysis`, `capability-coverage-review` | Source documentation change or onboarding readiness check | Impact list, coverage matrix, readiness recommendation | All |
+| C | Consolidate | `capability-consolidation` | Phase B ready state | Active: all 9 files; New: 6 files (excludes enhancements, enhancement-test-conditions, backlog); Archived: 5 files (read-mostly historical context) | All |
+| D | Promote delivered enhancements | `capability-promote` | Enhancement delivery confirmation | Updated baseline `index.md` and merged baseline `test-conditions.md` with synchronized enhancement state | Active only |
+| E | Maintain tests | `capability-test-maintenance` | Baseline capability change without new enhancement scope | Updated `test-conditions.md` aligned to baseline scenarios | Active only |
+| F | Generate enhancement tests | `capability-test-generation` | Enhancement scope defined in `enhancements.md` | Updated `enhancement-test-conditions.md` | Active only |
+| G | Explain | `capability-relationship-mapping` | On-demand architecture and impact explanation request | Cross-layer relationship summary | All |
+
+### Status-aware workflow constraints
+
+- **Active** capabilities support the full Phase A–G workflow to manage production capability baseline, active enhancements, test coverage, and cross-layer relationships.
+- **New** capabilities support Phases A–B (define/assess), Phase C with reduced artifact set (no enhancement or backlog files), Phase G for exploratory relationship mapping, but not Phases D–F until status changes to active.
+- **Archived** capabilities support Phases A–B (reference only), Phase C with read-mostly output, and Phase G for legacy impact analysis, but not phases D–F (no new enhancement planning or test generation)
 
 ### POC readiness status (as of 2026-04-10)
 
@@ -467,11 +512,11 @@ The following gates must all pass before declaring cross-repository POC onboardi
 
 | Gate | Exit criteria | Validation evidence |
 |---|---|---|
-| Gate 1: Core skill readiness | Both skill families exist in `core-akr-templates` (`akr-docs` and `akr-business-consolidation`) with versioned invocation contracts; all eight canonical consolidation templates are present in `core-akr-templates/.akr/templates/` | Presence of skill files and scripts under `.github/skills/`; presence of all eight template files under `.akr/templates/` |
+| Gate 1: Core skill readiness | Both skill families exist in `core-akr-templates` (`akr-docs` and `akr-business-consolidation`) with versioned invocation contracts; all nine canonical consolidation templates are present in `core-akr-templates/.akr/templates/` (including new `capability_backlog_template.md`); skill dispatcher enforces status-aware output path generation | Presence of skill files and scripts under `.github/skills/`; presence of all nine template files under `.akr/templates/` with documented lifecycle-aware generation contract |
 | Gate 2: Distribution readiness | App distribution and consolidation distribution workflows both exist and use separate target registries | Workflow files present; registry files present; workflow dry-run or dispatch evidence |
 | Gate 3: Source repo onboarding baseline | New app repository contains required AKR files (`modules.yaml`, `.akr-config.json`, skill bundle, hooks, validation workflow, repo-owned instructions); `distribute-onboarding-bundle.yml` has been dispatched for the repository and absence-seeded files are confirmed present | Repository file audit against onboarding checklist; PR evidence from `distribute-onboarding-bundle.yml` run |
 | Gate 4: Registry and metadata readiness | Source documentation metadata values (`businessCapability`, `feature`, `layer`) are normalized and valid | Validation output showing alignment to capability registry and front matter constraints |
-| Gate 5: Consolidation baseline readiness | Consolidation repository contains business-facing instructions, full capability artifact shape, and validation coverage | File audit and validation script output |
+| Gate 5: Consolidation baseline readiness | Consolidation repository contains business-facing instructions, status-organized capability folders (`docs/business-capabilities/active/`, `archived/`, `new/` with appropriate artifact sets per status), and status-aware validation coverage | File audit of folder hierarchy and capability artifact sets by status; validation script output confirming status-aware completeness checks |
 | Gate 6: End-to-end execution readiness | One full run succeeds for a sample capability across Assess -> Consolidate -> Promote -> Test Maintenance/Generation | Traceability evidence and generated capability artifacts reviewed by PO/QA/TL |
 
 ### Clarification on references and annexes

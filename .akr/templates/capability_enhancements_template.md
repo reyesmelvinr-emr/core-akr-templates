@@ -15,9 +15,11 @@ compliance_mode: pilot
 
 ## Overview
 
-Track active and planned capability enhancements.
+Track in-development and delivery-tracked capability enhancements.
 
-## Enhancement Backlog
+Note: Planned enhancements not yet in the development queue belong in `backlog.md`, not this file.
+
+## Enhancement Activity
 
 | Enhancement ID | Description | Business Value | Technical Considerations | Status | Target Release | Delivery Reference |
 |---|---|---|---|---|---|---|

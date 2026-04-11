@@ -8,7 +8,7 @@ Scope: Getting a team fully operational with AKR consolidation workflows from da
 
 ## 1. Who This Guide Is For
 
-AKR onboards a team, not just one person. Source repo developers, Technical Leads, and Product Owners each have setup work that starts on the same day. The consolidation workflow depends on source documentation being in place first, which means the developer setup track and the PO/TL consolidation track run in parallel and coordinate — they do not execute in strict serial order.
+Source repo developers, Technical Leads, and Product Owners each have setup work that starts on the same day. The consolidation workflow depends on source documentation being in place first, which means the developer setup track and the PO/TL consolidation track run in parallel and coordinate — they do not execute in strict serial order.
 
 This guide covers all three roles. Each has distinct responsibilities and setup steps.
 
@@ -397,22 +397,18 @@ This is a step-by-step sequence for the very first capability run, regardless of
 
 ### Gate 3 — Capability completeness
 
-**Condition:** All eight required files are present for each capability folder.
+**Condition:** Each capability folder contains all required files for its lifecycle status.
 
-- `index.md`
-- `test-conditions.md`
-- `enhancement-test-conditions.md`
-- `enhancements.md`
-- `limitations.md`
-- `internal_dependencies.md`
-- `external_dependencies.md`
-- `traceability.md`
+**Active capabilities** require all nine files:
+- `index.md`, `test-conditions.md`, `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
 
-### Gate 4 — Joint approval
+**New capabilities** require six files (no enhancement/backlog artifacts):
+- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
 
-**Condition:** PR includes sign-off from both Product Owner (business correctness) and Technical Lead (cross-layer consistency).
+**Archived capabilities** require five files (read-mostly historical baseline):
+- `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
 
-This is enforced via `CODEOWNERS` review requirements on `docs/business-capabilities/`.
+**Block:** Consolidation writes are blocked when any status-specific requirement is missing. The validation script reports completeness by status and designates missing files as errors or (for archived/new) as warnings if non-critical section headers are absent.
 
 ---
 

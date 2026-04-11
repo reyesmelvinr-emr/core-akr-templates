@@ -54,16 +54,35 @@ Registry source of truth:
 
 ## Output Contract
 
-Primary output location in consolidation repositories:
+Primary output location in consolidation repositories (status-aware paths):
 
-- `docs/business-capabilities/<CapabilityName>/index.md`
-- `docs/business-capabilities/<CapabilityName>/test-conditions.md`
-- `docs/business-capabilities/<CapabilityName>/enhancement-test-conditions.md`
-- `docs/business-capabilities/<CapabilityName>/enhancements.md`
-- `docs/business-capabilities/<CapabilityName>/limitations.md`
-- `docs/business-capabilities/<CapabilityName>/internal_dependencies.md`
-- `docs/business-capabilities/<CapabilityName>/external_dependencies.md`
-- `docs/business-capabilities/<CapabilityName>/traceability.md`
+**Active capabilities:**
+- `docs/business-capabilities/active/<CapabilityName>/index.md`
+- `docs/business-capabilities/active/<CapabilityName>/test-conditions.md`
+- `docs/business-capabilities/active/<CapabilityName>/enhancement-test-conditions.md`
+- `docs/business-capabilities/active/<CapabilityName>/enhancements.md`
+- `docs/business-capabilities/active/<CapabilityName>/backlog.md`
+- `docs/business-capabilities/active/<CapabilityName>/limitations.md`
+- `docs/business-capabilities/active/<CapabilityName>/internal_dependencies.md`
+- `docs/business-capabilities/active/<CapabilityName>/external_dependencies.md`
+- `docs/business-capabilities/active/<CapabilityName>/traceability.md`
+
+**New capabilities:**
+- `docs/business-capabilities/new/<CapabilityName>/index.md`
+- `docs/business-capabilities/new/<CapabilityName>/test-conditions.md`
+- `docs/business-capabilities/new/<CapabilityName>/limitations.md`
+- `docs/business-capabilities/new/<CapabilityName>/internal_dependencies.md`
+- `docs/business-capabilities/new/<CapabilityName>/external_dependencies.md`
+- `docs/business-capabilities/new/<CapabilityName>/traceability.md`
+(excludes enhancements, enhancement-test-conditions, backlog)
+
+**Archived capabilities:**
+- `docs/business-capabilities/archived/<CapabilityName>/index.md`
+- `docs/business-capabilities/archived/<CapabilityName>/limitations.md`
+- `docs/business-capabilities/archived/<CapabilityName>/internal_dependencies.md`
+- `docs/business-capabilities/archived/<CapabilityName>/external_dependencies.md`
+- `docs/business-capabilities/archived/<CapabilityName>/traceability.md`
+(read-mostly historical; excludes test/enhancement artifacts)
 
 ## Determinism Rules
 

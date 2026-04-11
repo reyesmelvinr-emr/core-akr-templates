@@ -2,11 +2,15 @@
 
 ## Purpose
 
-Generate enhancement-focused test scenarios and conditions while preserving baseline behavior coverage.
+Generate enhancement-focused test scenarios and conditions for active capabilities while preserving baseline behavior coverage.
+
+## Status applicability
+
+**Active capabilities only.** This skill is not applicable to new or archived capabilities, which do not support active enhancement planning or test generation workflows.
 
 ## Inputs
 
-- `enhancements.md`
+- `enhancements.md` (active capabilities only)
 - `index.md`
 - `limitations.md`
 - `internal_dependencies.md`

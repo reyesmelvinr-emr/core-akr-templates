@@ -150,29 +150,51 @@ training_tracker_business/
     diagrams/
   docs/
     business-capabilities/
-      CourseManagement/
-        index.md
-        test-conditions.md
-        traceability.md
-        diagrams/
-      EnrollmentManagement/
-        index.md
-        test-conditions.md
-        traceability.md
-        diagrams/
-      UserManagement/
-        index.md
-        test-conditions.md
-        traceability.md
-        diagrams/
+      active/
+        CourseManagement/
+          index.md
+          test-conditions.md
+          enhancement-test-conditions.md
+          enhancements.md
+          backlog.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
+        EnrollmentManagement/
+          index.md
+          test-conditions.md
+          enhancement-test-conditions.md
+          enhancements.md
+          backlog.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
+      new/
+        UserManagement/
+          index.md
+          test-conditions.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
     references/
       glossary.md
       source-repo-map.md
       capability-registry-sync.md
   templates/
-    capability-rollup-template.md
-    business-rules-template.md
-    qa-test-conditions-template.md
+    business_capability_template.md
+    capability_testing_template.md
+    capability_enhancement_testing_template.md
+    capability_enhancements_template.md
+    capability_backlog_template.md
+    capability_limitations_template.md
+    capability_internal_dependencies_template.md
+    capability_external_dependencies_template.md
     traceability-template.md
   validation/
     run-validation.ps1
@@ -204,24 +226,38 @@ training_tracker_business/
       business-process-map.png
   docs/
     business-capabilities/
-      CourseManagement/
-        index.md
-        business-rules.md
-        test-conditions.md
-        traceability.md
-        diagrams/
-      EnrollmentManagement/
-        index.md
-        business-rules.md
-        test-conditions.md
-        traceability.md
-        diagrams/
-      UserManagement/
-        index.md
-        business-rules.md
-        test-conditions.md
-        traceability.md
-        diagrams/
+      active/
+        CourseManagement/
+          index.md
+          test-conditions.md
+          enhancement-test-conditions.md
+          enhancements.md
+          backlog.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
+        EnrollmentManagement/
+          index.md
+          test-conditions.md
+          enhancement-test-conditions.md
+          enhancements.md
+          backlog.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
+      new/
+        UserManagement/
+          index.md
+          test-conditions.md
+          limitations.md
+          internal_dependencies.md
+          external_dependencies.md
+          traceability.md
+          diagrams/
     references/
       glossary.md
       source-repo-map.md
@@ -268,7 +304,7 @@ Onboarding into core-akr-templates should include:
 5. Publish capability rollup template.
 6. Confirm Product Owner and Technical Lead review path.
 7. Complete capability registry normalization for initial capability set.
-8. Run first pilot consolidation for CourseManagement into `docs/business-capabilities/CourseManagement/index.md`.
+8. Run first pilot consolidation for CourseManagement into `docs/business-capabilities/active/CourseManagement/index.md` (active status has full artifact set).
 9. Conduct PO and TL review on pilot output and supporting traceability/test conditions artifacts.
 10. Refine template and workflow from pilot findings.
 11. Roll out EnrollmentManagement and UserManagement consolidation.

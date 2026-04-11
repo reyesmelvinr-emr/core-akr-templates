@@ -6,10 +6,11 @@ Promote delivered enhancement outcomes into baseline capability and QA artifacts
 
 ## Inputs
 
-- `enhancements.md`
-- `index.md`
-- `test-conditions.md`
-- `enhancement-test-conditions.md`
+- `backlog.md` (source for items moving into development queue)
+- `enhancements.md` (source for in-development items with delivery status)
+- `index.md` (baseline business behavior document to update)
+- `test-conditions.md` (baseline QA condition set to extend)
+- `enhancement-test-conditions.md` (enhancement candidate condition source)
 
 ## Required metadata checks
 
@@ -28,7 +29,8 @@ Promote delivered enhancement outcomes into baseline capability and QA artifacts
 ## Execution steps
 
 1. Read enhancement delivery candidates
-   - Read `enhancements.md`.
+   - **From backlog (optional):** Read `backlog.md` to identify planned items ready to move into the active enhancement queue. Ask user to confirm which backlog entries should transition to `enhancements.md` for development.
+   - **From enhancements:** Read `enhancements.md`.
    - Collect `Enhancement ID`, `Description`, `Status`, and `Delivery Reference` values.
    - Select rows with non-empty `Delivery Reference` as promotion candidates.
 
@@ -39,13 +41,13 @@ Promote delivered enhancement outcomes into baseline capability and QA artifacts
 3. Promote to baseline business behavior
    - Update `index.md` with delivered behavior, scenario updates, and business-rule updates.
    - Keep existing baseline scenarios and rules unless explicitly replaced by confirmed delivery outcomes.
-   - Mark inferred updates with `?` when source certainty is partial.
+   - Mark inferred updates with `🤖` when source certainty is partial.
 
 4. Promote enhancement tests to baseline tests
    - Compare delivered scenario coverage in `enhancement-test-conditions.md`.
    - Merge covered enhancement conditions into `test-conditions.md` using next available `TC-*` IDs while preserving existing IDs.
    - If coverage is partial, add explicit gap placeholders in `test-conditions.md` for QA follow-up.
-   - Remove promoted rows from `enhancement-test-conditions.md` after merge or reset to a minimal backlog shape.
+   - Remove promoted rows from `enhancement-test-conditions.md` after merge.
 
 5. Synchronize enhancement state
    - Update promoted rows in `enhancements.md` to delivered state.
@@ -55,6 +57,7 @@ Promote delivered enhancement outcomes into baseline capability and QA artifacts
    - List promoted enhancement IDs.
    - List updated files and key ID mappings (`ETC-*` to `TC-*`).
    - List skipped items and unresolved QA gaps.
+   - If backlog-to-enhancement transitions were made, include transition summary.
 
 ## Outputs
 

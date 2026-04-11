@@ -217,3 +217,190 @@ repo-owned path such as `.akr/vale-rules/custom/` and extend the fetched base
 config from a local `.vale.ini`. Do not recreate `validation/vale-rules/` or
 `validation/.vale.ini` as AKR-managed duplicates. Document any repo-owned Vale
 extensions in your team's `OUR_STANDARDS.md`.
+
+---
+
+## Migration for Consolidation Repositories: Capability Lifecycle Folder Structure
+
+As of April 2026, consolidation repositories now organize capabilities by lifecycle status (active/archived/new) instead of using a flat `docs/business-capabilities/` folder. This section guides consolidation repository owners through the migration.
+
+### What Changed
+
+**Before:**
+```
+docs/business-capabilities/
+  CourseManagement/
+    index.md
+    test-conditions.md
+    enhancement-test-conditions.md
+    enhancements.md
+    limitations.md
+    ...
+  EnrollmentManagement/
+    index.md
+    ...
+```
+
+**After:**
+```
+docs/business-capabilities/
+  active/
+    CourseManagement/
+      index.md
+      test-conditions.md
+      enhancement-test-conditions.md
+      enhancements.md
+      backlog.md (new)
+      limitations.md
+      ...
+    EnrollmentManagement/
+      ...
+  new/
+    UserManagement/
+      index.md      (may include work-item links)
+      test-conditions.md
+      limitations.md
+      (excludes enhancement/backlog files)
+      ...
+  archived/
+    LegacyFeature/
+      index.md
+      limitations.md
+      (read-mostly baselines; no new enhancement/test artifacts)
+      ...
+```
+
+### Migration Steps for Consolidation Repositories
+
+#### Step 1: Assign capability status
+
+Work with the Product Owner to assign each capability a status:
+
+- **active**: Used in production; supports active enhancement planning and test updates.
+- **new**: Under construction; not yet in production; minimal artifact set.
+- **archived**: No longer in use; codebases retained for legacy/audit purposes; historical baseline only.
+
+Document the status assignments in your consolidation repository README or governance docs.
+
+#### Step 2: Create status folders
+
+```bash
+cd docs/business-capabilities/
+mkdir -p active archived new
+```
+
+#### Step 3: Migrate existing capabilities to status folders
+
+For each capability folder:
+
+```bash
+# Example: migrate CourseManagement (active)
+mv CourseManagement active/
+
+# Example: migrate LegacyFeature (archived)
+# First, remove enhancement/test artifacts not applicable to archived capabilities
+rm archived/LegacyFeature/enhancement-test-conditions.md
+rm archived/LegacyFeature/enhancements.md
+# Then move
+mv LegacyFeature archived/
+
+# Example: migrate UserManagement (new capability, minimal artifact set)
+# Remove files not applicable to new capabilities
+rm new/UserManagement/enhancement-test-conditions.md
+rm new/UserManagement/enhancements.md
+mv UserManagement new/
+```
+
+#### Step 4: Normalize artifact sets by status
+
+**For each active capability**, ensure all 9 files are present:
+- `index.md`, `test-conditions.md`, `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md` (new — create if missing), `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
+
+If `backlog.md` is missing, initialize it from `capability_backlog_template.md` in `core-akr-templates/.akr/templates/`.
+
+**For each new capability**, retain only 6 files:
+- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
+- Remove `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md` if present.
+
+**For each archived capability**, retain only 5 files:
+- `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
+- Remove all others.
+
+#### Step 5: Update templates
+
+Ensure canonical templates in `.akr/templates/` include the new `capability_backlog_template.md`:
+- `business_capability_template.md`
+- `capability_testing_template.md`
+- `capability_enhancement_testing_template.md`
+- `capability_enhancements_template.md`
+- `capability_backlog_template.md` (new)
+- `capability_limitations_template.md`
+- `capability_internal_dependencies_template.md`
+- `capability_external_dependencies_template.md`
+- `traceability-template.md`
+
+#### Step 6: Update CODEOWNERS
+
+If your `.github/CODEOWNERS` file has rules for `docs/business-capabilities/`, update them to the new paths:
+
+**Before:**
+```
+/docs/business-capabilities/ @ProductOwner @TechnicalLead
+```
+
+**After:**
+```
+/docs/business-capabilities/active/ @ProductOwner @TechnicalLead
+/docs/business-capabilities/new/ @ProductOwner @TechnicalLead
+/docs/business-capabilities/archived/ @ProductOwner
+```
+
+You may want stricter review requirements for active capabilities and lighter review for new/archived.
+
+#### Step 7: Test and validate
+
+Run your consolidation repository's validation scripts to confirm status-aware completeness:
+
+```bash
+# Example: your validation script should now enforce status-aware completeness
+python validation/scripts/validate_business_docs.py --status-aware
+```
+
+Validation should confirm:
+- Active capabilities have all 9 files.
+- New capabilities have exactly 6 files (no enhancement artifacts).
+- Archived capabilities have exactly 5 files (no active artifacts).
+- No ".md" files exist at the `business-capabilities/` level (all organized by status).
+
+#### Step 8: Commit and announce
+
+Once migration is complete:
+
+```bash
+git add -A docs/business-capabilities/
+git commit -m "chore: reorganize capabilities by lifecycle status (active/archived/new)"
+git push origin <your-branch>
+```
+
+Create a PR and include migration summary:
+- Count of capabilities by status.
+- Any removed files and rationale (e.g., "removed enhancement-test-conditions.md from new capabilities per status-aware contract").
+- Validation output showing status-aware completeness checks passed.
+
+### Migration FAQ
+
+**Q: What if I have a capability that's partially active (e.g., some features active, others being developed)?**
+
+A: Assign it `active` status if the majority of its business value is in production and actively managed. If it's primarily under construction, treat it as `new`. The Product Owner and Technical Lead should decide together based on the current production usage and planned timeline.
+
+**Q: What happens to old enhancement items in my enhancements.md?**
+
+A: For active capabilities, keep them and update their status. For new capabilities being migrated, move them to `backlog.md` if they're planned future work, or delete if they're obsolete. Archive retired items in a separate historical document if audit trail is needed.
+
+**Q: Can I merge active and new capabilities later?**
+
+A: Yes. When a new capability reaches production, change its status to active, add back the enhancement/backlog/test artifacts, and move the folder from `new/` to `active/`. Announce the transition in your consolidation repository release notes.
+
+**Q: Do I need to re-run capability-consolidation after migration?**
+
+A: Not immediately, unless artifact paths have changed. Once your status-aware capability-consolidation skill is deployed from `core-akr-templates`, running it will automatically place outputs in status-aware paths. At that point, subsequent consolidation runs will use the new paths natively.

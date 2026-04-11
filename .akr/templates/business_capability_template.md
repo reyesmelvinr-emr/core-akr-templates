@@ -14,6 +14,8 @@ generated_at: {{YYYY-MM-DD}}
 
 # {{BusinessCapabilityPascalCase}}
 
+**Note for new capabilities:** This document may include related Azure DevOps work-item links describing the planned or in-flight implementation scope.
+
 ## Capability Summary
 
 {{BusinessCapabilityPascalCase}} governs how the organization manages {{BusinessDomainOutcome}} across the application.
