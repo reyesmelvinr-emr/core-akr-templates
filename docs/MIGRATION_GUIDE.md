@@ -1,14 +1,19 @@
 # AKR Optimization Migration Guide
 
+> Current-state note: AKR no longer uses git submodules in consuming repositories.
+> This guide keeps only the minimum legacy context needed to retire older repos
+> while documenting the current runtime-fetch and workspace-distributed model.
+
 ## What Changed and Why
 
 ### Problem Solved
 
 The previous architecture had three contradictions:
 
-1. **Submodules pinned stale content** — git submodules at `.akr/templates/` froze
-   `core-akr-templates` at a past commit, requiring manual `git submodule update`
-   to get updates.
+1. **Pinned local standards copies created drift** — older repos kept
+  `.akr/templates/` as a locally managed standards source, freezing
+  `core-akr-templates` at a past commit and requiring manual refresh work to
+  stay current.
 
 2. **`distribute-skill.yml` spread local copies** — vale rules and `.vale.ini`
    were copied into every application repo on every release, creating drift risk
@@ -30,7 +35,6 @@ core-akr-templates (GitHub — single source of truth)
 │       ├── akr-generate.md       ← GenerateDocumentation (~800 tokens)
 │       ├── akr-resolve.md        ← ResolveUnknowns (~400 tokens)
 │       ├── akr-refresh-assets.md ← RefreshAssets
-│       ├── akr-cache.md          ← CacheStatus/UpdateCache
 │       ├── akr-score.md          ← Score mode
 │       ├── akr_inline_validate.py
 │       └── validate_documentation.py
@@ -47,12 +51,11 @@ application-repo (consumer)
 ├── .github/skills/akr-docs/
 │   ├── SKILL.md                  ← distributed (needed by Copilot locally)
 │   ├── SKILL-COMPAT.md           ← distributed
-│   └── scripts/                  ← distributed as PATH B/C fallbacks
+│   └── scripts/                  ← distributed as workspace-local execution assets
 │       ├── akr-groupings.md
 │       ├── akr-generate.md
 │       ├── akr-resolve.md
 │       ├── akr-refresh-assets.md
-│       ├── akr-cache.md
 │       ├── akr-score.md
 │       ├── akr_inline_validate.py
 │       └── validate_documentation.py
@@ -73,18 +76,7 @@ them at runtime via `git clone --depth 1`.**
 
 ## Migration Steps for Each Application Repository
 
-### Step 1: Remove the git submodule
-
-```bash
-# In the application repository
-git submodule deinit -f .akr/templates
-git rm -f .akr/templates
-rm -rf .git/modules/.akr/templates
-git add .gitmodules
-git commit -m "chore: remove core-akr-templates submodule (replaced by runtime fetch)"
-```
-
-### Step 2: Delete locally distributed vale rules
+### Step 1: Delete locally distributed vale rules
 
 ```bash
 # Remove the local copies that were distributed by the old workflow
@@ -94,7 +86,7 @@ git add -A validation/
 git commit -m "chore: remove locally distributed vale rules (now fetched at CI runtime)"
 ```
 
-### Step 3: Update your CI validation workflow
+### Step 2: Update your CI validation workflow
 
 Replace the existing `.github/workflows/validate-documentation.yml` with the
 version from this migration package. The key change is:
@@ -122,7 +114,7 @@ version from this migration package. The key change is:
     VALE_CONFIG=~/.akr/templates/.akr/.vale.ini  # ← always points to single canonical copy
 ```
 
-### Step 4: Update your copilot-instructions.md
+### Step 3: Update your copilot-instructions.md
 
 The AKR section in your application's `.github/copilot-instructions.md` should
 be reduced to a thin pointer. Do not replace your team's existing coding conventions.
@@ -138,18 +130,16 @@ Invocation:
 - /akr-docs groupings          — propose module groupings
 - /akr-docs generate [Module]  — generate documentation for approved module
 - /akr-docs resolve [file]     — resolve ❓ markers in existing draft
-- /akr-docs cache-status       — show local .akr/cache readiness
-- /akr-docs update-cache       — refresh local fallback template/charter cache
 
 Charter and template content is loaded by the skill at runtime from core-akr-templates.
 Do not paste charter content here — it will be loaded on demand to conserve tokens.
 
 Fallback paths (when @github MCP is unavailable):
 - Mode scripts: .github/skills/akr-docs/scripts/
-- Charter files: load from ~/.akr/templates/copilot-instructions/ if local cache exists
+- Cached assets: .akr/cache/
 ```
 
-### Step 5: Merge the updated skill distribution PR
+### Step 4: Merge the updated skill distribution PR
 
 When `core-akr-templates` publishes the next skill release, the updated
 `distribute-skill.yml` will open a PR in your repo that:
@@ -183,7 +173,7 @@ full SKILL.md including SSG pass definitions they never use.
 
 ## Frequently Asked Questions
 
-**Q: The mode scripts are distributed as PATH B/C fallbacks — doesn't that re-create the local copy problem?**
+**Q: The mode scripts are distributed as PATH B fallbacks — doesn't that re-create the local copy problem?**
 
 A: Partially, yes — but only for the script files, which are small (~600–800 tokens
 each) and change only when the workflow logic changes, not when charter content
@@ -208,8 +198,16 @@ git clone --branch v1.1.0 --depth 1 https://github.com/org/core-akr-templates ~/
 **Q: Can I still use the akr-docs skill in Visual Studio (not VS Code)?**
 
 A: Yes. Visual Studio uses PATH B — it reads from `.github/skills/akr-docs/scripts/`
-which is distributed. The mode scripts reference charter paths that resolve to the
-local cache at `~/.akr/templates/copilot-instructions/` via PATH C.
+which is distributed. When cached template or charter assets are available, the
+mode scripts use the workspace `.akr/cache/` directory; otherwise they require
+live GitHub access for remote fetches.
+
+**Q: What if I still have a repo that was onboarded during the old submodule era?**
+
+A: Retire the legacy `.akr/templates/` checkout as part of that repo's migration PR,
+then move the repo to the current model documented here. That cleanup is a
+one-time migration task for older consuming repositories, not part of the active
+AKR architecture.
 
 **Q: My team has custom Vale rules. Where do they go?**
 

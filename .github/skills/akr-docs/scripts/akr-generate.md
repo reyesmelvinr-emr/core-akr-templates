@@ -36,7 +36,13 @@ Record `stage_timers.preflight_seconds = now_utc - generation_started_at` after 
 - If module not found → stop. Tell the user to run `/akr-docs groupings` first.
 - If `feature` value matches the all-zero placeholder (e.g. `FN00000_US000`) → do not copy it. Write `feature: ❓ NEEDS real work-item tag` in the output front matter instead.
 
-Infer `project_type` from the module file list:
+Infer `project_type` from the module file list.
+
+Normalize module file entries first (backward compatible):
+- Legacy entry: `"src/Foo.cs"` → treat as `{ path: "src/Foo.cs", tier: "primary" }`
+- New entry: `{ path: "src/Foo.cs", tier: "primary|supporting" }`
+
+For documentation decisions, use only files where `tier=primary`.
 
 | Signal | project_type |
 |---|---|
@@ -107,7 +113,12 @@ Compress into a forward payload summary (~400 tokens). Carry only:
 
 Record `stage_source_extraction_start = now_utc` before reading any source file.
 
-Read only files listed under `files:` for this module in `modules.yaml`.
+Read module `files:` from `modules.yaml` using backward-compatible parsing:
+- If entry is string, treat as `path` with implicit `tier=primary`.
+- If entry is object, read `path` and `tier`.
+
+Then read only files where `tier=primary` for documentation generation.
+Supporting files remain in `modules.yaml` for coding-assistance context and must not be used as primary documentation evidence.
 
 Build a structured facts payload — no raw file content forward:
 

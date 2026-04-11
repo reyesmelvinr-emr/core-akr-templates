@@ -72,9 +72,8 @@ AKR treats governance and review accountability as built-in workflow behavior.
 
 ## Migration and Drift Prevention
 
-Legacy onboarding patterns that relied on pinned submodules and distributed local rule copies have been superseded.
 
-Use [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) for the current runtime-fetch and thin-dispatcher model that reduces drift and token overhead.
+Use [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) for the current runtime-fetch and workspace-distributed execution model. CI runners fetch canonical assets at runtime, while application repositories receive only the distributed skill and hook bundle needed for local execution.
 
 ## Maintainer Workflows
 

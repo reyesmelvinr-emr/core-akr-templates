@@ -35,6 +35,7 @@ PROJECT_LAYER_ENUM = {"UI", "API", "Database", "Integration", "Infrastructure", 
 PROJECT_TYPE_ENUM = {"api-backend", "ui-component", "microservice", "general"}
 MODULE_STATUS_ENUM = {"draft", "review", "approved", "in-progress", "deprecated"}
 DB_TYPE_ENUM = {"table", "view", "procedure", "function", "schema"}
+FILE_TIER_ENUM = {"primary", "supporting"}
 DRAFT_ONLY_FRONT_MATTER_FIELDS = {"preview-generated-at", "review-mode"}
 
 # Score fields written by /akr-docs score — must NEVER be in DRAFT_ONLY_FRONT_MATTER_FIELDS.
@@ -220,6 +221,63 @@ def _collect_declared_artifact_warnings(manifest: Dict[str, Any], workspace_root
     return issues
 
 
+def _validate_module_file_entry(entry: Any, module_idx: int, file_idx: int) -> List[ValidationIssue]:
+    issues: List[ValidationIssue] = []
+
+    # Backward compatibility: allow legacy string entries (path only).
+    if isinstance(entry, str):
+        if not entry.strip():
+            issues.append(
+                ValidationIssue(
+                    "error",
+                    f"modules[{module_idx}].files[{file_idx}] must not be empty",
+                    "modules-schema",
+                )
+            )
+        return issues
+
+    # New format: object entry with explicit path+tier.
+    if not isinstance(entry, dict):
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"modules[{module_idx}].files[{file_idx}] must be a string path or object",
+                "modules-schema",
+            )
+        )
+        return issues
+
+    path_value = entry.get("path")
+    if not isinstance(path_value, str) or not path_value.strip():
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"modules[{module_idx}].files[{file_idx}].path is required",
+                "modules-schema",
+            )
+        )
+
+    tier_value = entry.get("tier")
+    if tier_value is None:
+        issues.append(
+            ValidationIssue(
+                "warning",
+                f"modules[{module_idx}].files[{file_idx}].tier missing; defaulting to primary for backward compatibility",
+                "modules-schema",
+            )
+        )
+    elif tier_value not in FILE_TIER_ENUM:
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"modules[{module_idx}].files[{file_idx}].tier must be one of: primary, supporting",
+                "modules-schema",
+            )
+        )
+
+    return issues
+
+
 def _validate_manifest_schema(manifest: Dict[str, Any]) -> List[ValidationIssue]:
     issues: List[ValidationIssue] = []
 
@@ -309,6 +367,9 @@ def _validate_manifest_schema(manifest: Dict[str, Any]) -> List[ValidationIssue]
                     "modules-schema",
                 )
             )
+        if isinstance(files, list):
+            for file_idx, entry in enumerate(files):
+                issues.extend(_validate_module_file_entry(entry, idx, file_idx))
 
         doc_output = module.get("doc_output")
         if not isinstance(doc_output, str) or not doc_output.startswith("docs/") or not doc_output.endswith(".md"):
