@@ -177,6 +177,8 @@ Once set, any merge to the default branch that touches `docs/services/**`, `docs
 
 > **POC note:** The `notify-consolidation-on-doc-merge.yml` workflow is seeded automatically for POC convenience. If your team prefers opt-in control, you may disable the workflow in your source repo's Actions tab, or delete the file and use the manual `workflow_dispatch` path in the consolidation repo instead. Either mode is supported.
 
+> **Python Web Applications:** Python projects (Django, FastAPI, Flask) follow the identical onboarding and consolidation workflow as .NET projects. The only difference is the `.akr-config.json` template you copy during source repo setup. Python API backends should start with `examples/akr-config-python-api.json` (instead of `examples/akr-config-webapp1-api.json`). All subsequent consolidation steps, governance gates, and metadata requirements are identical. See [copilot-instructions/backend-service.instructions.md — Python Role Mapping](../copilot-instructions/backend-service.instructions.md#python-role-mapping-framework-aware-guidance) for framework-to-AKR role equivalents.
+
 ---
 
 ## 7. Path A — Technical PO/TL: Local Workspace Mode

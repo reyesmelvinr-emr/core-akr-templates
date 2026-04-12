@@ -36,6 +36,7 @@ Angular
 Vue
 Django
 FastAPI
+Flask
 Spring Boot
 \.NET
 Blazor
@@ -48,6 +49,9 @@ Redis
 Elasticsearch
 DynamoDB
 CosmosDB
+SQLAlchemy
+Alembic
+Pydantic
 
 # Architecture terms
 microservice
@@ -79,10 +83,15 @@ HTML
 CSS
 
 # Service patterns
-async
-await
-middleware
+ascorator
 dependency injection
+IoC
+DTOs?
+ViewModels?
+Handler
+Serializer
+Schema
+Forminjection
 IoC
 DTOs?
 ViewModels?

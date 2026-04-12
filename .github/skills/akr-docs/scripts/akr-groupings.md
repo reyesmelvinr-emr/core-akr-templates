@@ -59,13 +59,21 @@ Tier rules:
 
 2. Scan source files. Apply these assignment rules in order:
 
-   **Backend pattern** — group into one module when files share the same domain noun:
+   **Backend pattern (C#/.NET)** — group into one module when files share the same domain noun:
    - `{Noun}Controller.cs` → Controller role (`tier=primary`)
    - `I{Noun}Service.cs` + `{Noun}Service.cs` → Service interface + implementation (`tier=primary`)
    - `I{Noun}Repository.cs` + `Ef{Noun}Repository.cs` or `InMemory{Noun}Repository.cs` → Repository pair (`tier=primary`)
    - `{Noun}Entity.cs` or `{Noun}.cs` in Entities/ → Domain entity (`tier=primary`)
    - `{Noun}Dtos.cs` or `{Noun}Requests.cs` → Contracts (`tier=primary`)
    - Base classes, plumbing extensions, and generic helpers with no domain behavior → Shared supporting files (`tier=supporting`)
+
+   **Backend pattern (Python/Django/FastAPI)** — group when files contribute to the same business capability:
+   - Route entry points: `urls.py` (URL routing), `views.py` (view handlers/route functions) → View Handler (`tier=primary`)
+   - Business logic: `services.py`, `helpers.py` (orchestration, domain algorithms) → Service (`tier=primary`)
+   - Data validation: `forms.py` (Django), `schemas.py` (Pydantic/FastAPI), serializers → Validator (`tier=primary`)
+   - ORM models: `models.py` (Django) → Domain Entity (`tier=primary`)
+   - Repository/data access layer: custom query methods, `repositories.py` → Repository (`tier=primary`)
+   - Shared utilities, decorators, and infrastructure → Shared supporting files (`tier=supporting`)
 
    **UI pattern** — group when files operate on the same domain noun:
    - `{Noun}Page.tsx` or `{Noun}View.tsx` → Page/container (`tier=primary`)
@@ -91,7 +99,7 @@ Tier rules:
   - Even when excluded from SUMMARY_V2, keep both primary and supporting file entries in `modules.yaml`.
 
 4. **Silently omit** (do not add to unassigned):
-   - Config files (`appsettings*.json`, `*.csproj`, `Program.cs`) with the following exception:
+   - Config files (`.NET`: `appsettings*.json`, `*.csproj`, `Program.cs`; Python: `settings.py`, `wsgi.py`, `asgi.py`, `manage.py`, `pyproject.toml`, `requirements.txt`) with the following exception:
 
      Include `Program.cs` in a `Runtime` or `Platform` module if it meets ANY of these
      criteria (evaluated in order — stop at first match):
@@ -108,7 +116,7 @@ Tier rules:
      other shared infrastructure files (middleware, `DbContext`, global exception handler).
      If it does not qualify, omit it silently.
    - Test files (`*.test.*`, `*.spec.*`, `*Tests.cs`)
-   - Dev tooling (`.editorconfig`, `Dockerfile`, `*.yml` workflows)
+   - Dev tooling (`.editorconfig`, `Dockerfile`, `*.yml` workflows, `conftest.py`)
    - Local documentation (`RUN_LOCAL.md`, `README.md`)
 
 5. **Add to unassigned with reason:**

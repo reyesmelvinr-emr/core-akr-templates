@@ -1,0 +1,73 @@
+project:
+  name: ShipmentTracking_API
+  layer: API
+  standards_version: v1.1.0
+  minimum_standards_version: v1.0.0
+  compliance_mode: pilot
+
+modules:
+  - name: ShipmentSearch
+    grouping_status: draft
+    doc_output: docs/modules/ShipmentSearch_doc.md
+    files:
+      - path: app/shipments/urls.py
+        tier: primary
+      - path: app/shipments/views.py
+        tier: primary
+      - path: app/shipments/services.py
+        tier: primary
+      - path: app/shipments/forms.py
+        tier: primary
+      - path: app/shipments/models.py
+        tier: primary
+      - path: app/shipments/helpers.py
+        tier: supporting
+      - path: app/shipments/__init__.py
+        tier: supporting
+
+  - name: ShipmentUpdate
+    grouping_status: draft
+    doc_output: docs/modules/ShipmentUpdate_doc.md
+    files:
+      - path: app/shipments/views.py
+        tier: primary
+      - path: app/shipments/serializers.py
+        tier: primary
+      - path: app/shipments/models.py
+        tier: primary
+      - path: app/shipments/services.py
+        tier: primary
+      - path: app/shipments/validators.py
+        tier: supporting
+      - path: app/shipments/event_handlers.py
+        tier: supporting
+
+  - name: ShippingIntegration
+    grouping_status: draft
+    doc_output: docs/modules/ShippingIntegration_doc.md
+    files:
+      - path: app/integrations/shipping_client.py
+        tier: primary
+      - path: app/integrations/address_resolver.py
+        tier: primary
+      - path: app/integrations/exceptions.py
+        tier: supporting
+      - path: app/integrations/retry_policy.py
+        tier: supporting
+
+database_objects:
+  - name: shipment
+    type: table
+    purpose: Core shipment records with tracking status
+  - name: shipment_event
+    type: table
+    purpose: Audit trail of shipment state changes
+  - name: carrier_mapping
+    type: table
+    purpose: Integration mappings to external carrier systems
+
+unassigned:
+  - path: app/common/decorators.py
+    reason: Generic utility decorator library; shared across modules, not specific to a domain
+  - path: app/middleware/logging.py
+    reason: Infrastructure middleware; candidate for a dedicated Infrastructure module or general platform layer

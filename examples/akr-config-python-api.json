@@ -1,0 +1,87 @@
+{
+  "version": "2.0",
+  "project": {
+    "name": "PythonWebAPI",
+    "type": "backend",
+    "description": "Python web API backend (Django, FastAPI, or Flask) with cross-repository UI linking",
+    "layer": "API"
+  },
+  "templates": {
+    "repository": "https://github.com/reyesmelvinr-emr/core-akr-templates.git",
+    "branch": "master",
+    "local_path": "~/.akr/templates"
+  },
+  "documentation": {
+    "output_path": "docs/",
+    "include_patterns": [
+      "app/**/*.py",
+      "{projectname}/**/*.py",
+      "src/**/*.py"
+    ],
+    "exclude_patterns": [
+      "**/test*.py",
+      "**/*_test.py",
+      "**/conftest.py",
+      "**/migrations/**",
+      "**/static/**",
+      "**/templates/**",
+      "manage.py",
+      "settings.py",
+      "wsgi.py",
+      "asgi.py"
+    ],
+    "default_template": "lean_baseline_service_template_module.md"
+  },
+  "component_mappings": [
+    {
+      "source_pattern": "app/views.py",
+      "role": "view_handler",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/services.py",
+      "role": "service",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/forms.py",
+      "role": "validator",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/models.py",
+      "role": "domain_entity",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    }
+  ],
+  "crossRepository": [
+    {
+      "type": "UI",
+      "layer": "UI",
+      "repository_url": "https://github.com/organization/python-web-ui.git",
+      "repository_name": "python-web-ui",
+      "branch": "main",
+      "description": "JavaScript/TypeScript React UI frontend for this API backend"
+    }
+  ],
+  "team": {
+    "name": "Backend Team",
+    "roles": {
+      "tech-lead": ["lead@organization.com"],
+      "developer": ["developer1@organization.com", "developer2@organization.com"],
+      "product-owner": ["po@organization.com"],
+      "qa": ["qa@organization.com"]
+    }
+  },
+  "validation": {
+    "required_sections": true,
+    "transparency_markers": true,
+    "completeness_threshold": 75,
+    "vale_linting": true,
+    "compliance_mode": "pilot"
+  }
+}

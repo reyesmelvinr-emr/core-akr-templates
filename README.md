@@ -81,6 +81,18 @@ Run the core workflow, then:
 - Use the `sync-source-evidence.yml` workflow to pull and aggregate source module documentation into capability artifacts.
 - For advanced governance questions, consult [docs/AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md](docs/AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md).
 
+## Python Web Applications
+
+AKR supports Python web frameworks (Django, FastAPI, Flask) in both monorepo and multi-repo configurations. Python applications follow the same module documentation standards as .NET backends, but with framework-aware role mappings.
+
+For Python web applications:
+- **Monorepo layout**: All application layers (API, UI, database) in a single repository. Use `examples/akr-config-monorepo.json` as a starting point and update include patterns to match your Python package structure (`app/**/*.py`, `{projectname}/**/*.py`).
+- **Multi-repo layout (API backend)**: Python backend repository separate from UI and database repos. Use `examples/akr-config-python-api.json` as a template and configure `crossRepository` linking to your UI repository.
+
+See [examples/modules.python-web-api.yaml](examples/modules.python-web-api.yaml) for a complete Python module grouping example. The `backend-service.instructions.md` includes a Python role mapping table that shows equivalent framework roles (views.py → View Handler, models.py → Domain Entity, etc.).
+
+Key principle for Python: Skip documenting what the framework defines ("views.py is a view handler") and instead capture business rules, validation gates, and integration context. The Business Rules and Data Operations tables remain mandatory for all backends.
+
 ## Governance, Compliance, and Human-in-the-Loop
 
 AKR treats governance and review accountability as built-in workflow behavior. Versioned standards are maintained centrally here and distributed without duplicating policy ownership. Compliance mode supports progressive adoption from pilot to production.

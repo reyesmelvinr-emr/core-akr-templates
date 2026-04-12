@@ -70,6 +70,33 @@ Validation expectation:
 - No module file may be omitted.
 - Shared files outside module should be listed as dependencies, not module files.
 
+## Python Role Mapping (Framework-Aware Guidance)
+For Python web applications (Django, FastAPI, Flask), map framework roles to the standard AKR role vocabulary:
+
+| Python Framework Role | Equivalent AKR Role | Example Files |
+|---|---|---|
+| View/Route Handler | Controller | `views.py`, `handlers.py` (Django/FastAPI) |
+| Service/Business Logic | Service | `services.py`, `business.py` |
+| Form/Schema Validation | Validator | `forms.py` (Django), `schemas.py` (Pydantic/FastAPI) |
+| API Serializer/DTO | DTO, Mapper | `serializers.py` (DRF), Pydantic `BaseModel` |
+| Database Model | Domain Entity | `models.py` (Django ORM) |
+| Data Access/ORM Repository | Repository | Custom query layers, `repositories.py` |
+
+## AI-Optimization Guidance for Python Documentation
+For well-known framework filenames that express structural intent directly in their names (e.g., `views.py`, `models.py`, `urls.py`), **skip generic role descriptions** that Copilot can already infer from source. Instead, capture business-unique content:
+
+- **Do not** write: *"views.py — Role: View Handler — Handles HTTP requests and returns responses."*
+- **Do** write: *"views.py — Role: Customer Search Entry Point — Enforces Plant Code scoping per BR-SHIPMENT-003 and applies role-based access control for lookup operations."*
+
+Focus generated documentation on:
+1. Business rule enforcement and workflow context
+2. External system integrations and API contracts
+3. Data access patterns and side effects
+4. Validation gates and failure modes
+5. Historical design decisions and constraints
+
+The Business Rules and Data Operations tables are the highest-value sections for Copilot-assisted queries of Python applications—ensure they capture business intent, not framework mechanics.
+
 ## Operations Map Rules
 ## API Operations Rules
 Cover the HTTP/service public contract boundary — controller action methods and service public methods only.
