@@ -1,12 +1,18 @@
 # AKR Backend Service Condensed Instructions
 
-Version: 1.0
+Version: 2.0
 Extends: .akr/charters/AKR_CHARTER.md
 Source charter: .akr/charters/AKR_CHARTER_BACKEND.md
 Audience: Agent Skill GenerateDocumentation for api-backend modules
 
 ## Scope
 Apply these rules when generating module documentation for backend service modules. Focus on service-layer behavior, orchestration, and business rules. Do not treat controller-only details as the primary documentation target.
+
+## Content Density Principles
+- **Tables over prose**: Prefer structured tables for dense relational info — AI scans tables via semantic chunking; prose requires linear reading.
+- **WHY-first**: Sections must lead with business context, not mirror code structure.
+- **Code-mirror = omit**: Do not document what reading the source file already answers directly. Copilot reads source files; the doc adds value by capturing intent, constraints, and context that code does not express.
+- **Target density**: Generated docs should be approximately half the length of current baseline output, achieved by removing code-mirror content — not by compressing human-authored context.
 
 ## Required Front Matter
 Every module document must begin with YAML front matter containing all fields below:
@@ -65,30 +71,34 @@ Validation expectation:
 - Shared files outside module should be listed as dependencies, not module files.
 
 ## Operations Map Rules
-Provide complete operation coverage across all module files.
+## API Operations Rules
+Cover the HTTP/service public contract boundary — controller action methods and service public methods only.
 Include:
 - Operation/method name
+- Layer (Controller or Service)
 - Owning file/class
-- Input contract
-- Output contract
-- Side effects
-- Called dependencies
+- Input parameters and types
+- Return type
+- Business purpose
+
+Do NOT include:
+- Repository-layer method rows — implementation details readable from source
+- Private/internal helper methods
 
 Coverage rules:
-- Include public and internal operations relevant to behavior.
-- Include async and background operations.
-- Include validation and guard paths where they alter flow.
-- Avoid partial maps that only list endpoint methods.
+- Include all controller action methods (HTTP entry points)
+- Include all service public methods (the testable contract boundary)
+- Include validation guard paths that alter the flow (e.g., returns 409 or 404 early)
 
 ## Architecture Overview Rules
-Provide a text-based full-stack flow for the module:
-- Entry points (controllers/handlers/jobs)
-- Service orchestration
-- Data access/repositories
-- External systems/events
-- Persistence targets
+## Integration Context Rules
+Document module dependencies and callers. Do NOT generate a layered ASCII diagram — the Controller→Service→Repository→DB stack is standard and readable from source.
 
-Do not use Mermaid. Use concise text/ASCII flow only.
+Include:
+- **Dependencies table**: Dependency | Purpose | Failure Mode | Critical?
+- **Consumers table**: what calls this module and for what purpose
+
+If no external interface dependencies or callers are visible in module source files, omit this section entirely (do not guess from module name).
 
 ## Business Rules Requirements
 Business Rules section is mandatory. Use a table with these columns:
@@ -104,20 +114,26 @@ Rule guidance:
 - If date is unknown, set Since When to ❓ with context.
 
 ## Data Operations Requirements
-Document all reads and writes caused by module behavior.
-Include:
-- Data source/target
-- Read/Write action
-- Triggering operation
-- Conditions/filters
-- Transactional or consistency notes
+## Data Operations Requirements
+Document all reads and writes caused by module behavior using a 3-column table: Database Object | Purpose | Business Context.
+Do NOT include a Performance Notes column — query patterns, indexes, and transaction scope are readable from repository source and database docs.
 
 Coverage rules:
 - Include indirect writes (events, audit rows, cache invalidations) when present.
 - Include side effects (emails, notifications, queue messages).
+- If no indirect writes exist, state: "No email, event, or queue side effects in this module."
 
 ## Questions And Gaps Rules
-Create explicit unresolved-items list:
+## Failure Modes Rules
+Document only business-significant and module-handled failure scenarios (maximum 2–3 rows).
+
+Do NOT include:
+- Standard framework exceptions that propagate unchanged to global middleware (e.g., `DbUpdateException` → `ExceptionHandlingMiddleware`)
+- Generic HTTP infrastructure exceptions
+
+Include only exceptions the module explicitly catches and handles with domain-specific responses (e.g., `InvalidOperationException` → HTTP 409 Conflict).
+
+## Questions And Gaps Rules
 - Unknown business rule intent
 - Missing lifecycle dates
 - Ambiguous ownership or dependency behavior
@@ -147,9 +163,10 @@ Generated documentation must be readable by a non-implementing reviewer.
 ## Quality Thresholds
 Minimum quality checks before completion:
 - All required sections present.
-- 100 percent module file coverage.
-- Operations Map and Data Operations are complete and non-truncated.
+- 100 percent module file coverage in Module Files table.
+- API Operations covers all controller action methods and service public methods.
 - Business Rules table contains Why It Exists and Since When columns.
+- Data Operations covers all business-significant reads and writes (3 columns: Database Object, Purpose, Business Context).
 - Marker usage is explicit for all unknowns.
 
 ## Exclusions
@@ -157,6 +174,9 @@ Do not add these as primary content in module docs:
 - Change History sections (Git is the source of truth).
 - Long speculative roadmap details.
 - Database object deep schema detail (link DB docs instead).
+- Validation Rules sections — DataAnnotations and FluentValidation constraints are visible in source DTOs and validators; document non-obvious constraint business rationale in the Business Rules "Why It Exists" column instead.
+- Full-stack ASCII layered architecture diagrams — use Integration Context tables only.
+- Repository-layer method rows in API Operations — repository signatures are implementation details.
 
 ## Reference
 Full charter for detailed rationale and examples:

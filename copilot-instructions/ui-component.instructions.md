@@ -1,12 +1,18 @@
 # AKR UI Component Condensed Instructions
 
-Version: 1.0
+Version: 2.0
 Extends: .akr/charters/AKR_CHARTER.md
 Source charter: .akr/charters/AKR_CHARTER_UI.md
 Audience: Agent Skill GenerateDocumentation for ui-component modules
 
 ## Scope
-Apply these rules when generating documentation for UI modules, including pages, reusable components, hooks, and UI utilities. Emphasize component contracts, state behavior, accessibility, and interaction flow.
+Apply these rules when generating documentation for UI modules, including pages, reusable components, hooks, and UI utilities. Emphasize business context, confirmed gaps, interaction contracts, and accessibility issues. Do not mirror TypeScript source.
+
+## Content Density Principles
+- **Tables over prose**: Prefer structured tables for dense relational info — AI scans tables via semantic chunking; prose requires linear reading.
+- **WHY-first**: Sections must lead with business context and interaction intent, not mirror component prop interfaces.
+- **Code-mirror = omit**: TypeScript interfaces, hook dependency arrays, and ASCII data flow trees are first-class source artifacts. Do not reproduce them in documentation. Copilot reads source files directly.
+- **Target density**: Generated docs should be approximately half the length of current baseline output, achieved by removing code-mirror content — not by compressing human-authored context.
 
 ## Required Front Matter
 Every UI module document must start with YAML front matter:
@@ -57,15 +63,15 @@ Document all files listed in the module:
 Do not omit files from modules.yaml.
 
 ## Props And Contract Rules
-Document component interfaces clearly:
-- Props names, types, required/optional status, defaults
-- Callback contracts (onX handlers)
-- Render prop behavior if present
-- Type dependencies/interfaces for shared types
+## Component Hierarchy Rules
+Document the structural composition of the module as a text/ASCII tree showing:
+- Page or container root
+- Child component tree with types (Container/Presentational)
+- Hook attachment points at the root level
 
-Include guardrails:
-- Boolean naming clarity (isX, hasX, canX)
-- Event naming clarity (onClick/onSubmit style)
+Do NOT generate per-component prop tables, exported function breakdowns, or TypeScript interface reproductions. Props interfaces are first-class source artifacts readable in .tsx files.
+
+Exception: if a prop has a non-obvious behavioral implication that cannot be inferred from its name and type, note it in Questions & Gaps.
 
 ## State And Variant Rules
 Document state behavior and visual variants:
@@ -86,32 +92,32 @@ Provide text hierarchy of composition and ownership:
 Do not use Mermaid. Use concise text/ASCII notation.
 
 ## Hook Dependency Graph Rules
-For custom hooks and hook-heavy components, include:
-- Hook list
-- Dependency source (state, props, context, external)
-- Side effect behavior
-- Re-render sensitivity or memoization notes
+## Hook Dependency Rules
+Provide a summary table of custom hooks in the module: Hook | File | Purpose (one sentence) | Used By.
 
-Keep graph textual and concise.
+Do NOT generate hook call chain diagrams, ASCII dependency trees, or re-render sensitivity / memoization tables. These are derivable from source code imports and hook dependency arrays.
 
 ## Accessibility Requirements
-Include accessibility-critical details:
-- Semantic structure/roles
-- ARIA attributes when relevant
-- Keyboard navigation expectations
-- Focus management behavior
-- Screen-reader visibility notes
+## Accessibility Requirements
+Document confirmed accessibility status and gaps only.
 
-If no explicit a11y evidence exists, mark gaps with ❓.
+Include:
+- **WCAG Level**: AA/AAA, or ❓ if not yet audited
+- **Known Gaps table**: Gap | Missing Implementation | Impact | Needs — one row per confirmed missing implementation (e.g., missing `role="dialog"`, no focus trap, no aria-label)
+
+Do NOT generate:
+- Inferred keyboard navigation tables with per-key entries (Tab, Shift+Tab, Enter, Space, Escape) — these are standard browser behavior for native elements
+- AI-synthesized screen reader announcement lists — these require actual testing, not inspection
+
+If source shows no a11y gaps: state "No confirmed a11y gaps identified from source — NEEDS team audit for full WCAG validation."
 
 ## Data And Side Effects Rules
-Document UI-triggered reads/writes and effects:
-- API calls and trigger events
-- Cache/state-store updates
-- Notifications/toasts/navigation side effects
-- Error handling path
+## Data And Side Effects Rules
+Document UI-triggered API calls as a table: Action/Trigger | HTTP Method + Endpoint | Side Effect.
 
-Coverage must include all primary user actions represented by the module.
+Do NOT generate ASCII data flow diagrams (Props→State→Render or Module Mount→Hook→API). These are code-traceable. The table format provides search-friendly, AI-scannable lookup.
+
+Coverage must include all primary user actions: mount fetches, form submissions, and explicit CRUD triggers.
 
 ## Questions And Gaps Rules
 Capture unresolved areas:
@@ -123,6 +129,13 @@ Capture unresolved areas:
 Each unresolved item must include ❓ plus a concrete follow-up prompt.
 
 ## Section-Scoped Generation Rules
+## Visual States Rules
+Document module-level visual states in a table: State | Description | Visual Appearance | Interaction.
+Cover all render branches: loading, success, error, empty, and any modal/form variants. Use ❓ for unconfirmed appearance details.
+
+Do NOT generate ASCII loading flow diagrams. The States table captures the same information in a format AI can scan directly.
+
+## Section-Scoped Generation Rules
 Apply pass-based section generation discipline:
 - Load only relevant charter slice for each section.
 - Carry forward validated facts, not full raw context.
@@ -132,16 +145,25 @@ Apply pass-based section generation discipline:
 ## Quality Thresholds
 Before completion:
 - Required sections present and coherent.
-- Full module file coverage achieved.
-- Props/state/variants documented with explicit contracts.
-- Accessibility section included with concrete observations or marked gaps.
-- No silent unknowns (must be marked).
+- Full module file coverage in Module Files table.
+- Component hierarchy diagram present in Module Files Detail.
+- Component Behavior table covers all primary user actions.
+- Data flow documented as API Calls table.
+- Accessibility section present with WCAG level and any evidenced implementation gaps.
+- No silent unknowns — all gaps explicitly marked.
 
 ## Exclusions
 Do not include:
-- Change History sections.
+- Change History sections (Git is source of truth).
 - Verbose style-token dumps with no behavioral value.
 - Backend/service internals beyond dependency references.
+- Per-component prop tables and TypeScript interface reproductions — props are readable from source .tsx files.
+- Hook call chain ASCII diagrams and re-render sensitivity tables — derivable from source imports and hook dependency arrays.
+- Type Definitions sections — TypeScript interfaces are first-class source artifacts; type contract gaps belong in Questions & Gaps.
+- Component Architecture sections — composition and dependency details are captured by Module Files and Component Behavior.
+- Performance Considerations sections — performance metrics require measurement, not inferred placeholders.
+- Version History sections (Git is source of truth).
+- Inferred keyboard navigation tables and AI-synthesized screen reader announcement lists — accessibility must be evidenced or confirmed as a gap, not synthesized.
 
 ## Reference
 Full charter for rationale and examples:

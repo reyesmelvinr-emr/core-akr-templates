@@ -98,11 +98,23 @@ Goal: Unblock Python web monorepo and multi-repo onboarding now with no breaking
 #### Changes
 1. Replace C#-specific grouping cues with language-neutral grouping cues for entry points, orchestration, data access, validation contracts, and domain entities.
 2. Add Python-compatible examples in grouping guidance (for example views.py, urls.py, forms.py, serializers.py, schemas.py, helpers.py) while retaining .NET examples.
-3. Clarify fallback behavior: files that cannot be classified are placed in unassigned with explicit review notes, not silently omitted.
-4. Keep current .NET behavior intact by making this additive guidance, not a removal of existing .NET grouping patterns.
+3. **Implement optional content-scan detection for generic Python filenames:**
+   - For files with generic names (views.py, forms.py, helpers.py, serializers.py, schemas.py, urls.py, models.py), perform a shallow import/class pattern scan before falling back to manual review.
+   - **Detection patterns (regex on file content, no AST parsing):**
+     - `views.py`: detect imports from `django.views`, `django.http`, `rest_framework.views`, or decorators like `@api_view`, `@require_http_methods` → classify as "View Handler" (entry point)
+     - `forms.py`: detect `from django import forms` or `from django.forms import`, class inheritance from `forms.Form`, `forms.ModelForm` → classify as "Validation Form"
+     - `serializers.py`: detect `from rest_framework import serializers`, class inheritance from `serializers.Serializer`, `serializers.ModelSerializer` → classify as "Serializer/DTO Contract"
+     - `models.py`: detect `from django.db import models`, class inheritance from `models.Model` → classify as "Domain Entity"
+     - `urls.py`: detect `from django.urls import`, `urlpatterns`, `path()`, `include()` → classify as "Route Mapping"
+     - `helpers.py` / `utils.py` / `services.py`: if no domain noun in directory/surrounding files, check for function or class definitions with business logic naming (e.g., `process_`, `calculate_`, `validate_`) → classify as "Service/Helper" (supporting or primary depending on business scope)
+   - If multiple patterns match or pattern is weak, flag the file with a confidence level and add it to `unassigned` with reason "Generic filename; content scan suggests [role], requires manual review" rather than silently omitting.
+   - Output the inferred role as optional guidance in comments, allowing reviewer to accept or override.
+4. Clarify fallback behavior: files that cannot be classified are placed in unassigned with explicit review notes, not silently omitted.
+5. Keep current .NET behavior intact by making this additive guidance, not a removal of existing .NET grouping patterns.
+6. **Performance:** Content scan is performed only for generic filenames; named files (e.g., OrderForm.py, CustomerService.py) continue to use fast domain-noun matching without scanning.
 
 #### Result
-ProposeGroupings remains useful for .NET while producing practical first-pass groupings for Python web repositories.
+ProposeGroupings remains useful for .NET while producing practical first-pass groupings for Python web repositories. Python generic filenames (views.py, forms.py, etc.) are automatically identified with suggested roles, reducing manual grouping effort in Django/FastAPI/Flask projects while maintaining backward compatibility with C# naming.
 
 ### 1. Update onboarding and quick-start documentation
 #### Files
@@ -368,9 +380,12 @@ Mitigation: Document clearly in the multi-repo config example and README note th
 Mitigation: The layout mapping table in the taxonomy section explicitly distinguishes Django-rendered templates (Python, same repo) from JavaScript/TypeScript frontend repos (separate repo, existing UI config applies).
 
 ### Risk 7: ProposeGroupings remains .NET-centric in practice
-Mitigation: Make language-neutral grouping guidance a Phase 1 deliverable and validate against Python sample repositories before rollout.
+Mitigation: Make language-neutral grouping guidance a Phase 1 deliverable and validate against Python sample repositories before rollout. Implement content-scan fallback for generic Python filenames to reduce manual grouping effort.
 
-### Risk 8: Teams assume a database repository is always required
+### Risk 8: Content-scan detection produces false positives or misses (e.g., commented imports, framework imports in helper files)
+Mitigation: Classify all medium-confidence and ambiguous matches to `unassigned` with suggested role and reason code, never silently assign. Require automated test validation against representative Python repositories before rollout. Document false-positive patterns in release notes.
+
+### Risk 9: Teams assume a database repository is always required
 Mitigation: Add explicit no-database examples and acceptance checks showing database_objects can be empty and Database crossRepository links are optional.
 
 ## Validation and Acceptance Criteria
@@ -381,9 +396,17 @@ Mitigation: Add explicit no-database examples and acceptance checks showing data
 3. The new multi-repo Python API config validates against the AKR config schema.
 4. The new no-database Python API config validates against the AKR config schema.
 5. ProposeGroupings produces actionable, non-empty Python module groupings for representative Django/FastAPI repositories.
-6. Sample workflow catches Python source and docs changes.
-7. Vale passes against generated Python module docs with no avoidable terminology failures.
-8. Validation passes for no-database Python projects with `database_objects: []`.
+6. **Content-scan detection for generic Python filenames correctly identifies roles:**
+   - `views.py` files with Django/DRF imports are tagged as View Handler.
+   - `forms.py` files with Django form class inheritance are tagged as Validation Form.
+   - `serializers.py` files with DRF serializer inheritance are tagged as DTO/Contract.
+   - `models.py` files with Django model inheritance are tagged as Domain Entity.
+   - `urls.py` files with `urlpatterns` and `path()` calls are tagged as Route Mapping.
+   - `helpers.py`, `services.py`, `utils.py` files with business logic function/class names are suggested as Service/Helper with note for manual review.
+   - Ambiguous matches are added to `unassigned` with confidence level and suggested role, not silently omitted.
+7. Sample workflow catches Python source and docs changes.
+8. Vale passes against generated Python module docs with no avoidable terminology failures.
+9. Validation passes for no-database Python projects with `database_objects: []`.
 
 ### Usability Acceptance
 1. A Python web monorepo can complete onboarding using docs/examples without custom hidden instructions.
@@ -446,7 +469,59 @@ Mitigation: Add explicit no-database examples and acceptance checks showing data
 6. .NET onboarding behavior remains unchanged.
 7. AKR maintainers have a staged roadmap for deeper Python automation.
 
-## Appendix A: Minimal Onboarding Checklist for Python Teams
+## Appendix A: Content-Scan Implementation Guide for ProposeGroupings
+
+### Rationale
+Python web frameworks (Django, FastAPI, Flask) use **generic functional filenames** (views.py, forms.py, helpers.py) rather than domain-noun-based naming (OrderForm.py, OrderService.py). The current grouping algorithm depends on domain nouns, making generic filenames difficult to classify for Python projects. A shallow content scan on generic filenames provides role inference without requiring full AST parsing, bridging the gap until Phase 3 deterministic extraction is available.
+
+### Shallow-Scan Approach (No AST Required)
+The implementation uses **line-by-line regex matching** on file content, no syntax tree construction. Performance is acceptable because:
+- Scan runs only for generic filenames, not all files
+- Pattern matching stops at first confident match
+- Typical Python module files are < 500 lines
+- Regex compilation can be cached at script load time
+
+### Pattern Matching Logic (in evaluation order)
+
+| Filename | Pattern | Confidence | Inferred Role |
+|---|---|---|---|
+| views.py | `from django.views\|from rest_framework.views\|@api_view\|@require_http` | High | View Handler (entry point) |
+| forms.py | `from django.forms\|from django import forms\|class.*forms\.(ModelForm\|Form)` | High | Validation Form |
+| serializers.py | `from rest_framework.serializers\|class.*serializers\.Serializer\|class.*serializers\.ModelSerializer` | High | DTO/Serializer Contract |
+| models.py | `from django.db import models\|from sqlalchemy.orm import\|class.*models\.Model` | High | Domain Entity |
+| urls.py | `from django.urls import\|urlpatterns\s*=\|path\(\|include\(` | High | Route Mapping |
+| helpers.py, utils.py, services.py | `^def (process_\|calculate_\|validate_\|transform_\|get_\|create_)\|^class \w+(Service\|Helper\|Handler\|Processor)` | Medium | Service/Helper/Integration (requires manual review if no domain context) |
+
+### Confidence Levels
+- **High:** Clear framework-specific imports or decorators; add directly to module with role as primary or supporting based on grouping context
+- **Medium:** Generic business logic patterns; add to module but flag for reviewer confirmation; can be placed in `unassigned` with suggested role
+- **Low/Ambiguous:** Multiple conflicting patterns or no confident match; add to `unassigned` with reason "Generic filename, content scan inconclusive; manual classification required"
+
+### Output Format in `unassigned`
+For files not confidently grouped:
+```yaml
+unassigned:
+  - path: app/helpers.py
+    reason: "Generic filename; content scan suggests Service/Helper (contains process_*, calculate_* functions), requires manual domain noun review"
+  - path: app/legacy_utils.py
+    reason: "Generic filename; no clear role indicators found, requires manual review"
+```
+
+For files with high confidence, add directly to module with appropriate tier marking. Include a comment in the generated `modules.yaml` indicating content-scan detection was used.
+
+### Fallback and Safeguards
+1. If file is unreadable or too large (> 10,000 lines), skip scan and add to `unassigned` with reason "Oversized or unreadable, manual review required"
+2. If encoding is not UTF-8, attempt UTF-8 with error handling, or skip scan
+3. If pattern matching generates false positives (e.g., commented-out imports), require manual review for medium-confidence matches
+4. Always prefer explicit domain-noun-based grouping (OrderForm.py) over content scan; scan is fallback only for generic filenames
+
+### Testing Strategy
+1. Test content scan against representative Django and FastAPI repositories
+2. Compare auto-detected roles against manually-verified role mappings
+3. Measure false-positive and false-negative rates for each pattern
+4. Document any patterns requiring refinement or manual override in CHANGELOG
+
+## Appendix B: Minimal Onboarding Checklist for Python Teams
 
 ### Monorepo
 1. Add AKR templates and skill assets using existing onboarding process.
@@ -465,7 +540,7 @@ Mitigation: Add explicit no-database examples and acceptance checks showing data
 7. Run documentation generation per repository independently.
 8. Verify cross-repo linking by confirming related repo references are reachable and documented.
 
-## Appendix B: Notes for Future Enhancements
+## Appendix C: Notes for Future Enhancements
 1. Add deterministic extraction support for Python classes/functions/decorators.
 2. Add framework profiles for Django/FastAPI/Flask.
 3. Add optional role normalization checks during validation to improve consistency across projects.

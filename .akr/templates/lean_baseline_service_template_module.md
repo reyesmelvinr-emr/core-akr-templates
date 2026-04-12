@@ -48,39 +48,24 @@ compliance_mode: pilot
 <!-- akr:section id="purpose_scope" required=true order=3 authorship="mixed" human_columns="business_purpose,scope_boundaries" -->
 ## Purpose and Scope
 
-### Purpose
-
-**Technical:**  
-🤖 [AI: Technical description of what this module does]
-
-**Business:**  
-❓ [HUMAN: Business purpose - what problem does this module solve? Why did we build it?]
+### Business Purpose
+❓ [HUMAN: Business purpose — what problem does this module solve? Why did we build it? What business outcome does it enable?]
 
 ### Not Responsible For
 
-🤖 [AI: What this module explicitly does NOT do]  
-❓ [HUMAN: Clarify scope boundaries - what's handled elsewhere?]
+🤖 [AI: What this module explicitly does NOT do — list other modules/systems that handle out-of-scope concerns]
 
 ---
 
-<!-- akr:section id="operations_map" required=true order=4 authorship="ai" -->
-## Operations Map
+<!-- akr:section id="api_operations" required=true order=4 authorship="ai" -->
+## API Operations
 
-This section covers ALL operations across ALL files in the module. Operations are grouped by public surface (API endpoints, service methods) that consumers interact with.
+Controller action methods and service public methods — the HTTP/service public contract boundary. Repository-layer methods are implementation details; read the source directly.
 
-### Public Operations
-
-| Operation | File | Parameters | Returns | Business Purpose |
-|-----------|------|------------|---------|-----------------|
-| 🤖 `[MethodName]` | 🤖 `[FileName].cs` | 🤖 [parameter list] | 🤖 [return type] | 🤖 [business purpose] |
-| 🤖 `[MethodName]` | 🤖 `[FileName].cs` | 🤖 [parameter list] | 🤖 [return type] | 🤖 [business purpose] |
-
-### Internal Operations (for module completeness)
-
-| Operation | File | Purpose | Called By |
-|-----------|------|---------|-----------|
-| 🤖 `[PrivateMethod]` | 🤖 `[FileName].cs` | 🤖 [purpose] | 🤖 [which public operation calls it] |
-| 🤖 `[PrivateMethod]` | 🤖 `[FileName].cs` | 🤖 [purpose] | 🤖 [which public operation calls it] |
+| Operation | Layer | File | Parameters | Returns | Business Purpose |
+|-----------|-------|------|------------|---------|-----------------|
+| 🤖 `[ActionMethod]` | Controller | 🤖 `[Controller].cs` | 🤖 [HTTP params + body type] | 🤖 [ActionResult type] | 🤖 [what this endpoint does] |
+| 🤖 `[ServiceMethod]` | Service | 🤖 `[Service].cs` | 🤖 [parameter list] | 🤖 [return type] | 🤖 [business purpose] |
 
 ---
 
@@ -111,7 +96,6 @@ This section covers ALL operations across ALL files in the module. Operations ar
 └──────────────────────────────────────────────────────────────┘
                           ↓
 ┌──────────────────────────────────────────────────────────────┐
-│ Step 2: [Action] - [FileName].cs                            │
 │  What  → 🤖 [AI: Technical action taken]                     │
 │  Why   → ❓ [HUMAN: Business reason for this step]           │
 │  Error → 🤖 [AI: What errors can occur]                      │
@@ -138,64 +122,22 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 ---
 
-<!-- akr:section id="architecture_overview" required=true order=6 authorship="mixed" human_columns="consumer_impact" -->
-## Architecture Overview
+<!-- akr:section id="integration_context" required=true order=6 authorship="mixed" human_columns="critical,consumer_impact" -->
+## Integration Context
 
-### Full-Stack Module Architecture
-
-```
-┌─────────────────────────────────────┐
-│ API Layer - Entry Point             │
-│ [Controller Name]                   │
-│ └─ Receives HTTP requests           │
-│ └─ Validates input parameters       │
-└─────────────────────────────────────┘
-         ↓
-┌─────────────────────────────────────┐
-│ Service Layer - Business Logic      │
-│ [ServiceInterface]                  │
-│ ├─ Defines contract                 │
-│ └─ [ServiceImplementation]          │
-│    └─ Enforces business rules       │
-│    └─ Orchestrates operations       │
-│    └─ Handles error scenarios       │
-└─────────────────────────────────────┘
-         ↓
-┌─────────────────────────────────────┐
-│ Repository Layer - Data Abstraction │
-│ [RepositoryInterface]               │
-│ ├─ Defines data contract            │
-│ └─ [EfRepositoryImplementation]     │
-│    └─ Queries database              │
-│    └─ Maps ORM entities to DTOs     │
-│    └─ Handles database errors       │
-└─────────────────────────────────────┘
-         ↓
-┌─────────────────────────────────────┐
-│ Data Layer - Persistence            │
-│ [DatabaseTable]                     │
-│ └─ Stores entity data               │
-│ └─ Enforces constraints             │
-└─────────────────────────────────────┘
-```
-
-### Module Composition
-
-🤖 [AI: Explanation of how the files in this module work together]
-
-<!-- conditional: if no external dependencies visible in listed module files, omit this heading and table entirely -->
+<!-- conditional: omit Dependencies heading if no external interface dependencies are visible in listed module files -->
 ### Dependencies (What This Module Needs)
 
 | Dependency | Purpose | Failure Mode | Critical? |
-|------------|---------|--------------|----------|
-| 🤖 `I[DependencyName]` | 🤖 [AI: What it's used for] | 🤖 [AI: What exception occurs] | ❓ [HUMAN: Blocking? Can module degrade gracefully?] |
+|------------|---------|--------------|-----------|
+| 🤖 `I[DependencyName]` | 🤖 [AI: What it's used for] | 🤖 [AI: What exception or null result occurs] | ❓ [HUMAN: Blocking? Can module degrade gracefully?] |
 
 <!-- conditional: if no actual callers are visible in listed module files, omit this heading and table entirely — do not guess from module name -->
 ### Consumers (Who Uses This Module)
 
 | Consumer | Use Case | Impact of Failure |
 |----------|----------|-------------------|
-| 🤖 [Controller/Service name] | 🤖 [AI: How they use it] | ❓ [HUMAN: User-facing? Background?] |
+| 🤖 [Caller name — only if visible in source] | 🤖 [How they use it] | ❓ [HUMAN: User-facing? Background? Blocking?] |
 
 ---
 
@@ -218,123 +160,63 @@ This section covers ALL operations across ALL files in the module. Operations ar
 ---
 
 <!-- conditional: include only if module contains a controller with [Http*] attributes or explicit external DTO contracts visible in listed module files -->
-<!-- akr:section id="api_contract" required=false order=8 authorship="ai" -->
+<!-- akr:section id="api_contract" required=false order=8 condition="controller_with_http_attributes" authorship="ai" -->
 ## API Contract (AI Context)
 
-> 📋 **Interactive Documentation:** [API Portal - [ModuleName]](https://apim.gateway.emerson.com/...) — use for testing
-> 
-> **Purpose:** This section provides AI assistants (Copilot) with API context for this module.
+> 📋 **Interactive Documentation:** `[swagger-url]` (local: `https://localhost:5001/swagger`) — use for testing and request/response examples.
 > **Sync Status:** Last verified on ❓ [HUMAN: Date]
 
 ### Endpoints
-
-🤖 [AI: Extract from ApiRoutes.cs and controller [Http*] attributes - module-specific endpoints only]
-
 | Method | Route | Purpose | Auth |
 |--------|-------|---------|------|
-| 🤖 `GET` | 🤖 `/v1/[resource]` | 🤖 Get all | 🤖 Yes |
-| 🤖 `GET` | 🤖 `/v1/[resource]/{id}` | 🤖 Get by ID | 🤖 Yes |
-| 🤖 `POST` | 🤖 `/v1/[resource]` | 🤖 Create | 🤖 Yes |
-| 🤖 `PUT` | 🤖 `/v1/[resource]/{id}` | 🤖 Update | 🤖 Yes |
-| 🤖 `DELETE` | 🤖 `/v1/[resource]/{id}` | 🤖 Delete | 🤖 Yes |
-
-### Request Example
-
-🤖 [AI: Populate field values from DTO property types and constraints only — use the actual type (string, int, Guid, bool) and any explicit constraints (max length, range) visible in the DTO file. Do not invent domain-specific values.]
-
-```json
-{
-  "propertyName": "🤖 [AI: value from DTO property type/constraint — no invented domain values]",
-  "propertyId": "🤖 [AI: value from DTO property type/constraint]",
-  "isActive": true
-}
-```
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| 🤖 `propertyName` | 🤖 `string` | 🤖 Yes | 🤖 [AI: Business purpose of field] |
-| 🤖 `propertyId` | 🤖 `int` | 🤖 Yes | 🤖 [AI: Business purpose of field] |
-| 🤖 `isActive` | 🤖 `bool` | 🤖 No | 🤖 [AI: Default behavior and purpose] |
-
-### Success Response Example (200)
-
-🤖 [AI: Generate from response DTO]
-
-```json
-{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "propertyName": "value",
-  "createdDate": "2024-01-01T00:00:00Z"
-}
-```
-
-### Error Response Example
-
-🤖 [AI: Extract from error model classes]
-
-```json
-{
-  "statusCode": 400,
-  "message": "Validation failed.",
-  "validationErrors": [
-    { "fieldName": "propertyName", "message": "Required" }
-  ]
-}
-```
+| 🤖 `GET` | 🤖 `[route]` | 🤖 [List/paginated retrieval] | ❓ |
+| 🤖 `GET` | 🤖 `[route]/{id}` | 🤖 [Single record retrieval] | ❓ |
+| 🤖 `POST` | 🤖 `[route]` | 🤖 [Create] | ❓ |
+| 🤖 `PUT` | 🤖 `[route]/{id}` | 🤖 [Update] | ❓ |
+| 🤖 `DELETE` | 🤖 `[route]/{id}` | 🤖 [Delete] | ❓ |
 
 ---
 
-<!-- conditional: include only if *Validator.cs files, DTO data annotations, or explicit guard clauses exist in the listed module files -->
-<!-- akr:section id="validation_rules" required=false order=9 authorship="mixed" human_columns="business_rationale" -->
-## Validation Rules
-
-🤖 [AI: Extract from *Validator.cs FluentValidation classes]
-
-| Property | Rule | Error Message |
-|----------|------|---------------|
-| 🤖 `[Property]` | 🤖 `NotEmpty()` | 🤖 "[Property] is required" |
-| 🤖 `[Property]` | 🤖 `MaximumLength(N)` | 🤖 "Cannot exceed N characters" |
-
-❓ [HUMAN: Add business rationale for non-obvious validation rules]
-
----
-
-<!-- akr:section id="data_operations" required=true order=10 authorship="mixed" human_columns="business_context,trigger" -->
+<!-- akr:section id="data_operations" required=true order=9 authorship="mixed" human_columns="business_context" -->
 ## Data Operations
 
 ### Reads From
 
-| Database Object | Purpose | Business Context | Performance Notes |
-|-----------------|---------|------------------|-------------------|
-| 🤖 `schema.TableName` | 🤖 [What data retrieved, which columns] | ❓ [HUMAN: Why needed? Business rule context] | 🤖 [AI: Query pattern, indexes, optimization hints] |
+| Database Object | Purpose | Business Context |
+|-----------------|---------|------------------|
+| 🤖 `schema.TableName` | 🤖 [What data is retrieved and why] | ❓ [HUMAN: Why needed? Business rule context] |
 
 ---
 
 ### Writes To
 
-| Database Object | Purpose | Business Context | Performance Notes |
-|-----------------|---------|------------------|-------------------|
-| 🤖 `schema.TableName` | 🤖 [Which columns modified by this module] | ❓ [HUMAN: What business event triggers this?] | 🤖 [AI: Transaction scope] ❓ [HUMAN: High volume? Indexing needs?] |
+| Database Object | Purpose | Business Context |
+|-----------------|---------|------------------|
+| 🤖 `schema.TableName` | 🤖 [What is written and under what condition] | ❓ [HUMAN: What business event triggers this?] |
+
+### Side Effects
+🤖 [State any email, event, notification, or queue side effects; or: "No email, event, or queue side effects in this module."]
 
 ---
 
-<!-- akr:section id="failure_modes" required=true order=11 authorship="ai" -->
+<!-- akr:section id="failure_modes" required=true order=10 authorship="ai" -->
 ## Failure Modes & Exception Handling
 
-### Common Failure Scenarios
+Document only exceptions this module explicitly catches and handles with domain-specific responses. Standard framework exceptions that propagate unchanged to global middleware (e.g., `DbUpdateException` → `ExceptionHandlingMiddleware`) do not belong here.
 
-| Exception Type | Trigger | Operation | Impact | Mitigation |
+### Module-Handled Failures
+
+| Exception Type | Trigger | Operation | HTTP Response | Business Impact |
 |---|---|---|---|---|
-| 🤖 `InvalidOperationException` | 🤖 [What causes it] | 🤖 [Which operation fails] | 🤖 [Business consequence] | 🤖 [How module handles it] |
-| 🤖 `DbUpdateException` | 🤖 [DB constraint violated] | 🤖 [Which write operation fails] | 🤖 [Data not persisted] | 🤖 [Retry? Rollback? User message?] |
+| 🤖 `[ExceptionType]` | 🤖 [What causes it] | 🤖 [Which operation catches it] | 🤖 [HTTP status + body] | 🤖 [Business consequence to caller] |
 
 ---
 
 <!-- akr:section id="questions_gaps" required=true order=12 authorship="human" -->
+<!-- akr:section id="questions_gaps" required=true order=11 authorship="human" -->
 ## Questions & Gaps
 
 ### AI-Flagged Questions
-
 🤖 [AI will identify unclear logic, magic numbers, assumptions]
 
 ### Human-Flagged Questions
@@ -345,7 +227,7 @@ This section covers ALL operations across ALL files in the module. Operations ar
 
 
 <!-- conditional: include only if doc_output paths for related modules are present in modules.yaml -->
-<!-- akr:section id="related_documentation" required=false order=13 authorship="ai" -->
+<!-- akr:section id="related_documentation" required=false order=12 authorship="ai" -->
 ## Related Documentation
 
 **Other Modules:** Link to related module docs (confirmed paths from modules.yaml only):

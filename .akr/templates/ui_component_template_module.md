@@ -38,8 +38,6 @@ import { [PrimaryComponent] } from '@/components/[path]/[PrimaryComponent]';
   onAction={handleAction}
 >
   Content
-</[PrimaryComponent]>
-```
 
 ---
 
@@ -108,7 +106,7 @@ All components in this module are part of the same domain noun ([DomainNoun]) an
 ---
 
 <!-- akr:section id="module_files_detail" required=true order=4 authorship="ai" -->
-## Module Files - Detailed Breakdown
+## Module Files Detail
 
 ### Component Hierarchy
 
@@ -122,84 +120,25 @@ All components in this module are part of the same domain noun ([DomainNoun]) an
 └── [UtilityComponent] (Presentational)
 ```
 
-### [ComponentName].tsx — [Type: Page / Container / Presentational]
+Hooks attached at page/container level:
+- `use[HookName]({ [key params] })` — [one-line purpose]
 
-**Responsibility**: 🤖 [What this component accomplishes in the module]  
-**Dependencies**: 🤖 [Child components it renders, hooks it uses]  
-**Consumers**: 🤖 [What components/pages import this]  
-
-**Key Props**:
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| 🤖 `[propName]` | 🤖 `type` | 🤖 Yes/No | 🤖 [purpose] |
-| 🤖 `[propName]` | 🤖 `type` | 🤖 Yes/No | 🤖 [purpose] |
+> Props and component interfaces are in source .tsx files. For non-obvious behavioral implications (prop values that gate conditional rendering, enum-validated constants), note them in Questions & Gaps.
 
 ---
 
 <!-- akr:section id="hook_dependency" required=true order=5 authorship="ai" -->
-## Hook Dependency Graph
+## Hook Dependency
 
 ### Custom Hooks in This Module
 
 | Hook | File | Purpose | Used By |
 |------|------|---------|---------|
-| 🤖 `use[HookName]` | 🤖 `hooks/use[Hook].ts` | 🤖 [Data fetching/State management] | 🤖 [Which components call it] |
-| 🤖 `use[HookName]` | 🤖 `hooks/use[Hook].ts` | 🤖 [Purpose] | 🤖 [Which components call it] |
-
-### Hook Call Chain
-
-```
-[PageComponent]
-├─ use[Hook1]()
-│  └─ Manages state: [stateKey1], [stateKey2]
-│  └─ Calls API: [endpoint]
-│
-├─ use[Hook2]()
-│  └─ Depends on: [stateKey1] from use[Hook1]()
-│  └─ Derives: [derivedValue]
-│
-└─ [ChildComponent]
-   └─ use[ChildHook]()
-      └─ Depends on: [prop from parent]
-```
+| 🤖 `use[HookName]` | 🤖 `hooks/use[Hook].ts` | 🤖 [Data fetching / state management — one sentence] | 🤖 [Which components call it] |
 
 ---
 
-<!-- akr:section id="type_definitions" required=true order=6 authorship="ai" -->
-## Type Definitions Cross-Reference
-
-### Module-Specific Types
-
-**File**: `[path]/types.ts`
-
-| Type | Purpose | Used By |
-|------|---------|---------|
-| 🤖 `[TypeName]` | 🤖 [Data structure for this module] | 🤖 [Which components/hooks use it] |
-| 🤖 `[InterfaceName]` | 🤖 [Props interface for component] | 🤖 [Which component] |
-| 🤖 `[EnumName]` | 🤖 [Enumeration of values] | 🤖 [Which components/hooks use it] |
-
-### Type Relationships
-
-```typescript
-🤖 // Example type relationships
-interface [EntityData] {
-  id: string;
-  name: string;
-  [relatedFields]
-}
-
-interface [EntityProps] extends React.HTMLAttributes<HTMLDivElement> {
-  data: [EntityData];
-  onAction: (id: string) => void;
-  variant: 'default' | 'compact';
-}
-
-type [EntityState] = 'idle' | 'loading' | 'success' | 'error';
-```
-
----
-
-<!-- akr:section id="component_behavior" required=true order=7 authorship="human" -->
+<!-- akr:section id="component_behavior" required=true order=6 authorship="human" -->
 ## Component Behavior
 
 ### User Interactions (Module Level)
@@ -212,281 +151,91 @@ type [EntityState] = 'idle' | 'loading' | 'success' | 'error';
 
 ---
 
-<!-- akr:section id="data_flow" required=true order=8 authorship="ai" -->
+<!-- akr:section id="data_flow" required=true order=7 authorship="ai" -->
 ## Data Flow
 
-### Props → State → Render (Module Level)
+### API Calls
 
-```
-Parent Component
-    ↓
-[PrimaryComponent] receives props
-    ↓
-use[Hook]() manages module state
-    ↓
-Child components receive props from parent
-    ↓
-All components re-render
-    ↓
-Updated UI across entire module
-```
-
-### API Data Flow
-
-```
-Module Mount
-    ↓
-use[DataHook]() triggers
-    ↓
-API call to [endpoint]
-    ↓
-Response received
-    ↓
-State updated in hook
-    ↓
-Props updated in components
-    ↓
-All components re-render with data
-```
+| Action / Trigger | HTTP Method + Endpoint | Side Effect |
+|------------------|------------------------|-------------|
+| 🤖 [Module mount / initial load] | 🤖 `GET [endpoint]` | 🤖 [State updated, table/list rendered] |
+| 🤖 [User action — e.g., create form submit] | 🤖 `POST [endpoint]` | 🤖 [Resource created, list refetched] |
+| 🤖 [User action — e.g., edit form submit] | 🤖 `PUT [endpoint]/{id}` | 🤖 [Resource updated, list refetched] |
+| 🤖 [User action — e.g., delete] | 🤖 `DELETE [endpoint]/{id}` | 🤖 [Resource removed, list refetched] |
 
 ---
 
-<!-- akr:section id="visual_states" required=true order=9 authorship="human" -->
-## Visual States & Variants
+<!-- akr:section id="visual_states" required=true order=8 authorship="human" -->
+## Visual States
 
-❓ _Document all visual states across module components_
-
-### Module Loading State
-
-```
-Initial Load
-    ↓
-[PrimaryComponent] shows skeleton/placeholder
-    ↓
-Child components display loading indicators
-    ↓
-Data arrives
-    ↓
-Smooth transition to content state
-```
-
-### Module States
+### States
 
 | State | Description | Visual Appearance | Interaction |
 |-------|-------------|-------------------|-------------|
-| **Loading** | ❓ Data fetching in progress | ❓ Skeleton screens, spinners | ❓ Not interactive |
+| **Loading** | ❓ Data fetching in progress | ❓ [Loading text or skeleton — where shown] | ❓ [Interactive / not interactive] |
 | **Success** | ❓ Data loaded and rendered | ❓ Full content displayed | ❓ All interactive elements active |
-| **Error** | ❓ API or validation error | ❓ Error message, retry button | ❓ User can retry or navigate away |
-| **Empty** | ❓ Valid response with no data | ❓ Empty state message, CTA | ❓ User can take action or navigate |
+| **Error** | ❓ API or validation error | ❓ [Error message/banner location] | ❓ [Retry available? Navigation?] |
+| **Empty** | ❓ Valid response with no data | ❓ [Empty state message and CTA] | ❓ [Available actions] |
+| ❓ **[Modal/Form variant]** | ❓ [When shown] | ❓ [Overlay / inline] | ❓ [Controls active] |
 
 ---
 
-<!-- akr:section id="component_architecture" required=true order=10 authorship="mixed" human_columns="consumer_impact" -->
-## Component Architecture
-
-### Module Composition
-
-🤖 [AI: Explanation of how the components in this module work together]
-
-**Component Interaction Pattern:**
-- [PrimaryComponent] receives data props and user input
-- Calls use[Hook]() to manage state and fetch data
-- Passes props to child components
-- Child components emit events back to parent
-- Parent updates state, triggering re-renders
-
-### Dependencies
-
-🤖 _Auto-detect from imports:_
-
-**External dependencies**:
-- 🤖 Package 1 (purpose)
-- 🤖 Package 2 (purpose)
-
-**Internal dependencies (child components)**:
-- 🤖 `ChildComponent1` - Used for [purpose]
-- 🤖 `ChildComponent2` - Used for [purpose]
-
-**APIs and services**:
-- 🤖 `apiService.[endpoint]` - Used for [purpose]
-- 🤖 `[GlobalHook]` - Used for [purpose]
-
----
-
-### Module Consumers
-
-**This module is used in**:
-- 🤖 `[PageName]` - [Context]
-- 🤖 `[PageName]` - [Context]
-- 🤖 `[ComponentName]` - [Context]
-
----
-
-<!-- akr:section id="accessibility" required=true order=11 authorship="human" -->
+<!-- akr:section id="accessibility" required=true order=9 authorship="human" -->
 ## Accessibility
 
-### WCAG Compliance
+- **WCAG Level**: ❓ AA / AAA — NEEDS team confirmation
+- **Keyboard navigable**: ❓ [Partial / Full — native `<button>` and `<input>` elements navigable by default]
+- **Screen reader tested**: ❓ Not confirmed
 
-❓ _Document accessibility level:_
+### Known Accessibility Gaps
 
-- ❓ **WCAG Level**: AA / AAA
-- ❓ **Keyboard navigable**: Yes / No
-- ❓ **Screen reader compatible**: Yes / No / Partial
-- ❓ **Color contrast**: Meets 4.5:1 minimum for all components
-- ❓ **Focus indicators**: Visible throughout module
-
-### Module Keyboard Navigation
-
-| Key | Action |
-|-----|--------|
-| ❓ `Tab` | Move focus through module components |
-| ❓ `Shift+Tab` | Move focus to previous element |
-| ❓ `Enter` | Activate focused button/link |
-| ❓ `Space` | Toggle checkbox/radio |
-| ❓ `Arrow Up/Down` | Navigate within lists |
-| ❓ `Escape` | Close modals/dropdowns in module |
-
-### Screen Reader Behavior
-
-**Module announces**:
-```
-❓ "[PageTitle], heading level 1"
-❓ "[Description], paragraph"
-❓ "[ComponentName], button, [state]"
-❓ "[ListName], list with [N] items, current item [X]"
-```
+| Gap | Missing Implementation | Impact | Needs |
+|-----|------------------------|--------|-------|
+| ❓ [e.g., Modal has no `role="dialog"`] | ❓ [`role="dialog"`, `aria-modal`, `aria-labelledby`] | ❓ [Screen readers won't identify as dialog] | Implementation |
+| ❓ [e.g., No focus trap in modal] | ❓ [Focus trap on open; return focus to trigger on close] | ❓ [WCAG 2.1 §3.2.5] | Implementation |
+| ❓ [e.g., Native `confirm()` for delete] | ❓ [Accessible modal or in-page confirmation] | ❓ [Disruptive to screen reader flow] | Design decision |
 
 ---
 
-<!-- akr:section id="testing" required=true order=12 authorship="human" -->
+<!-- akr:section id="testing" required=false order=10 condition="test_files_exist_in_module" authorship="human" -->
 ## Testing
 
-### Test Structure
+> If no test file exists for this module, note: `NEEDS: [ModuleName].test.tsx — no page-level tests exist.`
 
-```css
-[ModuleName].test.tsx
-├─ Render tests
-│  ├─ Renders with required props
-│  ├─ Renders children correctly
-│  └─ Handles loading state
-├─ Interaction tests
-│  ├─ User clicks button → calls onAction callback
-│  ├─ User types in input → state updates
-│  └─ User navigates keyboard → focus moves
-├─ Integration tests
-│  ├─ API call triggers on mount
-│  ├─ Data displays correctly
-│  └─ Error state shows on API failure
-└─ Accessibility tests
-   ├─ All interactive elements keyboard accessible
-   ├─ Screen reader announces all content
-   └─ Color contrast meets WCAG AA
-```
+### Test Coverage Summary
 
-### Test Coverage Goals
-
-| Category | Target | Current | Notes |
-|----------|--------|---------|-------|
-| ❓ Statement coverage | 80%+ | ❓ _% | |
-| ❓ Branch coverage | 70%+ | ❓ _% | |
-| ❓ Function coverage | 80%+ | ❓ _% | |
-| ❓ Line coverage | 80%+ | ❓ _% | |
+| File | Test File | Coverage | Notes |
+|------|-----------|----------|-------|
+| ❓ `[Component].tsx` | ❓ `[Component].test.tsx` | ❓ [% or "Not measured"] | ❓ [Gaps or confirmed coverage areas] |
 
 ---
 
-<!-- akr:section id="known_issues" required=true order=13 authorship="human" -->
-## Known Issues & Limitations
+<!-- akr:section id="known_issues" required=true order=11 authorship="human" -->
+## Known Issues
 
-### Module Limitations
+**This module does NOT:**
+- ❓ [Limitation 1 — absent business capability and where it lives instead]
+- ❓ [Limitation 2 — stub or incomplete handler]
+- ❓ [Limitation 3 — known UX gap]
 
-❓ _Document what this module does NOT do:_
-
-**This module does NOT**:
-- ❓ Limitation 1 (example: Support real-time updates)
-- ❓ Limitation 2 (example: Handle offline functionality)
-- ❓ Limitation 3 (example: Support mobile-optimized layout without CSS module)
-
-### Known Issues
+### Open Issues
 
 | Issue | Impact | Workaround | Tracking |
 |-------|--------|------------|----------|
-| ❓ Issue description | ❓ Who's affected | ❓ Temporary fix | ❓ Link to ticket |
-
-### Browser Support
-
-| Browser | Version | Support | Known Issues |
-|---------|---------|---------|--------------|
-| ❓ Chrome | 90+ | ✅ Full | None |
-| ❓ Firefox | 88+ | ✅ Full | None |
-| ❓ Safari | 14+ | ⚠️ Partial | ❓ Issue with... |
+| ❓ [Issue description] | ❓ [Who's affected] | ❓ [Temporary fix] | ❓ [Link to ticket] |
 
 ---
 
-<!-- akr:section id="performance_considerations" required=true order=14 authorship="human" -->
-## Performance Considerations
-
-### Module Performance
-
-- **Initial load time**: ❓ _ms (measure Time to Interactive for module)_
-- **Re-render frequency**: ❓ _Low / Medium / High per user interaction_
-- **Memory usage**: ❓ _MB for typical usage_
-- **Bundle size**: ❓ _KB (gzipped) including all components and hooks_
-
-### Applied Optimizations
-
-✅ **Optimizations in place**:
-- ❓ Code splitting - Lazy load with `React.lazy`
-- ❓ Memoization - `React.memo` on expensive components
-- ❓ Hook memoization - `useCallback`, `useMemo` in custom hooks
-- ❓ Virtualization - For large lists ([component name])
-
-### Performance Tips
-
-✅ **DO:**
-- ❓ Pass stable callback props (wrap with `useCallback`)
-- ❓ Use `key` prop in lists for React reconciliation
-- ❓ Memoize expensive props with `useMemo`
-
-❌ **DON'T:**
-- ❓ Pass inline arrow functions as props
-- ❓ Pass new object/array literals as props
-- ❓ Fetch data in render function
-
----
-
-<!-- akr:section id="questions_gaps" required=true order=15 authorship="human" -->
+<!-- akr:section id="questions_gaps" required=true order=12 authorship="human" -->
 ## Questions & Gaps
 
-### Unanswered Questions
+### AI-Flagged Questions
 
-- ❓ Question 1 (example: What's the plan for real-time updates?)
-- ❓ Question 2 (example: Should this module support offline mode?)
-- ❓ Question 3 (example: Is mobile design approved?)
+🤖 [AI will identify ambiguous UX behavior, missing business context, type contract mismatches, unverifiable ownership observed in source]
 
-### Documentation Gaps
+### Human-Flagged Questions
 
-- ❓ Gap 1 (example: Missing accessibility testing results)
-- ❓ Gap 2 (example: Need performance benchmarks)
-- ❓ Gap 3 (example: Mobile responsiveness not fully documented)
-
-### Technical Debt
-
-- ❓ Debt item 1 (example: Should refactor hook logic)
-- ❓ Debt item 2 (example: Extract magic numbers to constants)
-- ❓ Debt item 3 (example: Add proper error boundaries)
-
----
-
-<!-- akr:section id="version_history" required=true order=16 authorship="human" -->
-## Version History
-
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| ❓ 1.0.0 | YYYY-MM-DD | ❓ Name | Initial documentation |
-| ❓ 1.1.0 | YYYY-MM-DD | ❓ Name | Added accessibility section |
-| ❓ 2.0.0 | YYYY-MM-DD | ❓ Name | Module restructuring |
-
----
+❓ [HUMAN: Add questions you have while reviewing — missing business rule context, unclear routing, owners for gaps]
 
 ## Documentation Standards
 

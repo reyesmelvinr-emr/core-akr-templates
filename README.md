@@ -13,7 +13,15 @@ This repository is designed to support:
 - Governance and compliance controls that scale
 - Human-in-the-loop review where accountability is required
 
+## Documentation Retrieval Strategy
 
+Documentation in this repository is organized into three tiers to optimize Copilot retrieval, team onboarding speed, and context efficiency:
+
+- **Core Include Set** (always loaded for Copilot): README.md, charter templates, and copilot-instructions. Ensures AI agents can answer module documentation and generation queries without secondary lookups.
+- **Conditional/Secondary** (loaded when governance, architecture, compliance, or onboarding questions arise): TEAM_STARTUP_ONBOARDING_GUIDE.md, VALIDATION_GUIDE.md, AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md, DEVELOPER_REFERENCE.md, MIGRATION_GUIDE.md.
+- **Reference/Optional** (linked for deep dives, strategic context, or historical reference): AKR_AI_CODEBASE_UNDERSTANDING_FEEDBACK.md, planning and workshop materials, skill distribution details.
+
+**For Copilot/AI Retrieval:** The repository's Core Include Set is optimized for Copilot chat interactions. When Copilot agents answer questions about module documentation, template generation, or governance workflows, they pull from the Core set by default. Request Secondary or Reference documents explicitly if you need governance policy deep dives or historical context.
 
 ## Start Here
 
@@ -30,29 +38,48 @@ High-level assessment documents:
 
 ## Repository At a Glance
 
-- [.akr](.akr)
-  - Canonical templates, schemas, validation scripts, standards, and Vale rules
-- [copilot-instructions](copilot-instructions)
-  - Condensed charter guidance used by AKR workflows
-- [.github/skills](.github/skills)
-  - Distributed skill assets such as akr-docs and akr-interview
-- [examples/onboarding](examples/onboarding)
-  - Onboarding seeds for consuming repositories
-- [templates](templates)
-  - Historical and compatibility templates retained for transition support
-- [planning/implementation_plans](planning/implementation_plans)
-  - Program phases, gates, and execution plans
+### Core (Always Loaded for Copilot)
+- [copilot-instructions](copilot-instructions) — Condensed charter guidance used by AKR workflows for both backend and UI modules
+- [.akr/charters](.akr/charters) — Canonical charter templates that define module documentation standards
+
+### Conditional (Load on Onboarding/Governance/Architecture/Compliance Questions)
+- [.akr](.akr) — Complete templates, schemas, validation scripts, standards, and Vale rules
+- [docs/TEAM_STARTUP_ONBOARDING_GUIDE.md](docs/TEAM_STARTUP_ONBOARDING_GUIDE.md) — Role-based setup paths for all team types; primarily needed during initial onboarding
+- [docs/VALIDATION_GUIDE.md](docs/VALIDATION_GUIDE.md) — Compliance gates, review escalation, and quality checks
+- [docs/DEVELOPER_REFERENCE.md](docs/DEVELOPER_REFERENCE.md) — HITL role alignment and review responsibilities
+- [docs/AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md](docs/AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md) — Governance model and standards alignment
+- [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) — Runtime and workspace execution models
+
+### Reference/Optional (Strategic Context and Distribution Details)
+- [.github/skills](.github/skills) — Distributed skill assets such as akr-docs and akr-interview
+- [.github/workflows](.github/workflows) — Skill and bundle distribution automation
+- [examples/onboarding](examples/onboarding) — Onboarding seeds for consuming repositories
+- [docs/AKR_SOLUTION_FEATURES_AND_FUNCTIONALITY.md](docs/AKR_SOLUTION_FEATURES_AND_FUNCTIONALITY.md) — Feature overview and vision
+- [docs/AKR_SKILLS_DISTRIBUTION_APPLICATION_VS_CONSOLIDATION.md](docs/AKR_SKILLS_DISTRIBUTION_APPLICATION_VS_CONSOLIDATION.md) — Skill strategy and distribution patterns
+
 
 ## How Teams Use AKR
 
-AKR supports two team types: source (application) teams that produce module-level documentation, and business consolidation teams that aggregate documentation into capability artifacts. Both team types have distinct skill surfaces, onboarding workflows, and configuration.
+### Core Workflow (All Teams)
 
-Full step-by-step setup for all roles — Technical PO/TL, Non-Technical PO, and Source Repo Developer — is in [docs/TEAM_STARTUP_ONBOARDING_GUIDE.md](docs/TEAM_STARTUP_ONBOARDING_GUIDE.md).
+1. **Onboarding** — Run `distribute-onboarding-bundle.yml` once per repository to seed local configuration and role context.
+2. **Module Documentation** — Use the `akr-docs` skill to generate module-level documentation aligned with AKR templates and business context.
+3. **Review and Governance** — Apply validation rules and HITL review gates via `compliance_mode` (pilot → production).
 
-Key distribution entry points:
+Full step-by-step setup for Technical PO/TL, Non-Technical PO, and Source Repo Developer roles is in [docs/TEAM_STARTUP_ONBOARDING_GUIDE.md](docs/TEAM_STARTUP_ONBOARDING_GUIDE.md).
 
-- Application teams: run `distribute-onboarding-bundle.yml` once per repo, then `distribute-skill.yml` to install the `akr-docs` and `akr-interview` skill bundles.
-- Consolidation teams: run `distribute-business-skill.yml` to install the `akr-business-consolidation` skill bundle and the `sync-source-evidence.yml` workflow.
+### Application Teams (Source Repositories)
+
+Run the core workflow above, then:
+- Execute `distribute-skill.yml` to install the `akr-docs` and `akr-interview` skill bundles.
+- Generate and maintain module documentation in the `docs/modules/` directory using the `akr-docs` skill.
+
+### Consolidation Teams (Business Aggregation)
+
+Run the core workflow, then:
+- Execute `distribute-business-skill.yml` to install the `akr-business-consolidation` skill bundle.
+- Use the `sync-source-evidence.yml` workflow to pull and aggregate source module documentation into capability artifacts.
+- For advanced governance questions, consult [docs/AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md](docs/AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md).
 
 ## Governance, Compliance, and Human-in-the-Loop
 
