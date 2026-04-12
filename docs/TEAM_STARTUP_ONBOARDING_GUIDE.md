@@ -98,9 +98,12 @@ The Product Owner and Technical Lead agree on and publish the initial canonical 
 
 The consolidation repository must exist, be governed, and have the AKR business skill bundle distributed to it.
 
-1. Create the repository (see [planning/TRAINING_TRACKER_BUSINESS_ONBOARDING_PLAN.md](../planning/TRAINING_TRACKER_BUSINESS_ONBOARDING_PLAN.md) for the full repository setup checklist).
+1. Create the repository (see [docs/CONSOLIDATION REPO SETUP.md](CONSOLIDATION%20REPO%20SETUP.md) for the full consolidation repository setup checklist and target-state contract).
 2. Ensure branch protection is enabled on the default branch.
 3. Run `distribute-business-skill.yml` targeting this repository to install the `akr-business-consolidation` skill bundle and seed `.github/copilot-instructions.md` if absent.
+4. Ensure the repository is also targeted by the central `distribute-tag-registry.yml` workflow. The consolidation repo does not receive `.akr/tags/tag-registry.json` from `distribute-business-skill.yml`.
+5. Seed or refresh `.akr/tags/tag-registry.json` in the consolidation repo by running `distribute-tag-registry.yml` after the approved capability values have been merged in `core-akr-templates/.akr/tags/tag-registry.json`, or by including the repo in the workflow target list before the next registry change is pushed.
+6. Treat `.akr/tags/tag-registry.json` in the consolidation repo as a read-only distributed artifact from `core-akr-templates`; request registry changes through the central repository instead of editing the local copy.
 
 ### 5.3 Source repositories have AKR module documentation
 
@@ -418,9 +421,8 @@ This is a step-by-step sequence for the very first capability run, regardless of
 
 | Document | Purpose |
 |---|---|
-| [planning/CROSS_REPOSITORY_CONSOLIDATION_TARGET_STATE.md](../planning/CROSS_REPOSITORY_CONSOLIDATION_TARGET_STATE.md) | Target-state architecture and repository contracts |
+| [docs/CONSOLIDATION REPO SETUP.md](CONSOLIDATION%20REPO%20SETUP.md) | Consolidation repository setup, target-state architecture, and repository contracts |
 | [planning/CROSS_REPOSITORY_POC_IMPLEMENTATION_PLAN.md](../planning/CROSS_REPOSITORY_POC_IMPLEMENTATION_PLAN.md) | POC implementation workstreams and acceptance criteria |
-| [planning/TRAINING_TRACKER_BUSINESS_ONBOARDING_PLAN.md](../planning/TRAINING_TRACKER_BUSINESS_ONBOARDING_PLAN.md) | Consolidation repository provisioning and governance setup |
 | [docs/AKR_PROPOSED_ARCHITECTURE_ONBOARDING_AND_SKILLS.md](AKR_PROPOSED_ARCHITECTURE_ONBOARDING_AND_SKILLS.md) | Full architecture diagram and skills inventory |
 | [docs/DEVELOPER_REFERENCE.md](DEVELOPER_REFERENCE.md) | HITL role alignment and configuration reference |
 | [docs/VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) | Validation rules and CI enforcement |

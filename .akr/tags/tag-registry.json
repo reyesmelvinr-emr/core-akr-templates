@@ -1,98 +1,109 @@
 {
-  "version": "1.0.0",
-  "lastUpdated": "2026-01-14",
+  "version": "1.3.0",
+  "lastUpdated": "2026-04-12",
+  "template": {
+    "name": "AKR Tag Registry",
+    "distributionTarget": "application-onboarding",
+    "purpose": "Central registry template for reusable feature tags and application-specific businessCapability tags",
+    "usage": [
+      "Core features and enums are maintained by standards team",
+      "Each onboarding application must add its own businessCapability entries under registry.businessCapabilities",
+      "Consolidation validation only accepts approved businessCapability values from registry.businessCapabilities"
+    ]
+  },
   "registry": {
     "features": {
       "ApplicationEditor": {
         "approved": true,
-        "synonyms": ["App Editor", "Application Management Editor", "AppEditor"],
         "domain": "ApplicationManagement",
         "description": "Editor for creating and modifying application configurations",
         "owner": "UI Team",
         "status": "active",
+        "synonyms": ["App Editor", "Application Management Editor", "AppEditor"],
         "relatedFeatures": ["ApplicationValidation", "ApplicationWorkflow"],
         "addedDate": "2026-01-14"
       },
-      "UserAuthentication": {
+      "AuditLogging": {
         "approved": true,
-        "synonyms": ["Auth", "Login", "SSO", "Authentication", "User Login"],
-        "domain": "Security",
-        "description": "User authentication and authorization system including SSO integration",
-        "owner": "API Team",
+        "domain": "Compliance",
+        "description": "Comprehensive audit logging for compliance and security",
+        "owner": "Infrastructure Team",
         "status": "active",
-        "relatedFeatures": ["UserAuthorization", "RoleManagement"],
+        "synonyms": ["Audit", "Activity Log", "Audit Trail", "Logging"],
+        "relatedFeatures": ["SecurityMonitoring", "ComplianceReporting"],
         "addedDate": "2026-01-14"
       },
-      "UserAuthorization": {
+      "DataExport": {
         "approved": true,
-        "synonyms": ["Authorization", "Permissions", "Access Control", "RBAC"],
-        "domain": "Security",
-        "description": "Role-based access control and permission management",
+        "domain": "DataManagement",
+        "description": "Export data to various formats (CSV, Excel, PDF)",
         "owner": "API Team",
         "status": "active",
-        "relatedFeatures": ["UserAuthentication", "RoleManagement"],
+        "synonyms": ["Export", "Data Download", "Bulk Export", "Report Export"],
+        "relatedFeatures": ["DataImport", "DocumentGeneration"],
+        "addedDate": "2026-01-14"
+      },
+      "DataImport": {
+        "approved": true,
+        "domain": "DataManagement",
+        "description": "Import data from external sources (CSV, Excel, API)",
+        "owner": "API Team",
+        "status": "active",
+        "synonyms": ["Import", "Data Upload", "Bulk Import", "CSV Import"],
+        "relatedFeatures": ["DataValidation", "DataExport"],
         "addedDate": "2026-01-14"
       },
       "DocumentGeneration": {
         "approved": true,
-        "synonyms": ["Doc Generation", "Report Generation", "Document Creation"],
         "domain": "Reporting",
         "description": "Automated generation of documents and reports from templates",
         "owner": "API Team",
         "status": "active",
+        "synonyms": ["Doc Generation", "Report Generation", "Document Creation"],
         "relatedFeatures": ["TemplateManagement", "DocumentExport"],
         "addedDate": "2026-01-14"
       },
       "NotificationSystem": {
         "approved": true,
-        "synonyms": ["Notifications", "Alerts", "Email Notifications", "Push Notifications"],
         "domain": "Communication",
         "description": "Multi-channel notification delivery system (email, SMS, push)",
         "owner": "Integration Team",
         "status": "active",
+        "synonyms": ["Notifications", "Alerts", "Email Notifications", "Push Notifications"],
         "relatedFeatures": ["EmailTemplates", "NotificationPreferences"],
         "addedDate": "2026-01-14"
       },
-      "DataImport": {
+      "UserAuthentication": {
         "approved": true,
-        "synonyms": ["Import", "Data Upload", "Bulk Import", "CSV Import"],
-        "domain": "DataManagement",
-        "description": "Import data from external sources (CSV, Excel, API)",
+        "domain": "Security",
+        "description": "User authentication and authorization system including SSO integration",
         "owner": "API Team",
         "status": "active",
-        "relatedFeatures": ["DataValidation", "DataExport"],
+        "synonyms": ["Auth", "Login", "SSO", "Authentication", "User Login"],
+        "relatedFeatures": ["UserAuthorization", "RoleManagement"],
         "addedDate": "2026-01-14"
       },
-      "DataExport": {
+      "UserAuthorization": {
         "approved": true,
-        "synonyms": ["Export", "Data Download", "Bulk Export", "Report Export"],
-        "domain": "DataManagement",
-        "description": "Export data to various formats (CSV, Excel, PDF)",
+        "domain": "Security",
+        "description": "Role-based access control and permission management",
         "owner": "API Team",
         "status": "active",
-        "relatedFeatures": ["DataImport", "DocumentGeneration"],
-        "addedDate": "2026-01-14"
-      },
-      "AuditLogging": {
-        "approved": true,
-        "synonyms": ["Audit", "Activity Log", "Audit Trail", "Logging"],
-        "domain": "Compliance",
-        "description": "Comprehensive audit logging for compliance and security",
-        "owner": "Infrastructure Team",
-        "status": "active",
-        "relatedFeatures": ["SecurityMonitoring", "ComplianceReporting"],
+        "synonyms": ["Authorization", "Permissions", "Access Control", "RBAC"],
+        "relatedFeatures": ["UserAuthentication", "RoleManagement"],
         "addedDate": "2026-01-14"
       }
     },
+    "businessCapabilities": {},
     "domains": [
       "ApplicationManagement",
-      "Security",
-      "Reporting",
       "Communication",
-      "DataManagement",
       "Compliance",
-      "WorkflowAutomation",
-      "Integration"
+      "DataManagement",
+      "Integration",
+      "Reporting",
+      "Security",
+      "WorkflowAutomation"
     ],
     "layers": [
       "UI",
@@ -109,24 +120,61 @@
     ],
     "componentTypes": [
       "Component",
-      "Service",
       "Controller",
-      "Repository",
-      "Model",
-      "Utility",
-      "Table",
-      "StoredProcedure",
-      "View",
+      "Hook",
       "Middleware",
-      "Hook"
+      "Model",
+      "Repository",
+      "Service",
+      "StoredProcedure",
+      "Table",
+      "Utility",
+      "View"
     ]
+  },
+  "examples": {
+    "businessCapabilities": {
+      "CourseManagement": {
+        "approved": true,
+        "description": "Manage course catalog definitions, lifecycle, and policy constraints",
+        "owner": "Training Tracker Team",
+        "status": "active",
+        "addedDate": "2026-04-12"
+      },
+      "EnrollmentManagement": {
+        "approved": true,
+        "description": "Manage enrollment flows, eligibility, and enrollment lifecycle decisions",
+        "owner": "Training Tracker Team",
+        "status": "active",
+        "addedDate": "2026-04-12"
+      },
+      "UserManagement": {
+        "approved": true,
+        "description": "Manage user account lifecycle and user administration behavior",
+        "owner": "Training Tracker Team",
+        "status": "active",
+        "addedDate": "2026-04-12"
+      }
+    }
   },
   "governance": {
     "approvers": [
       "tech-lead@example.com",
       "architect@example.com"
     ],
-    "approvalProcess": "New tags require approval via PR to this registry. Two approvers required. Tags should follow PascalCase naming. Synonyms should cover common variations.",
+    "namingConvention": {
+      "featureKeys": "PascalCase",
+      "businessCapabilityKeys": "PascalCase"
+    },
+    "approvalProcess": {
+      "requiredApprovals": 2,
+      "changeMethod": "pull-request",
+      "rules": [
+        "All new tags must be submitted through PR",
+        "Business capabilities must be approved before source docs use them",
+        "Consolidation is blocked for non-approved businessCapability values"
+      ]
+    },
     "changelogRequired": true
   },
   "changelog": [
@@ -139,6 +187,36 @@
         "Added 8 core features across 6 domains",
         "Established governance process",
         "Defined approved layers and statuses"
+      ]
+    },
+    {
+      "date": "2026-04-12",
+      "version": "1.1.0",
+      "author": "Standards Team",
+      "changes": [
+        "Added businessCapabilities registry section",
+        "Added training-tracker canonical capabilities: CourseManagement, EnrollmentManagement, UserManagement"
+      ]
+    },
+    {
+      "date": "2026-04-12",
+      "version": "1.2.0",
+      "author": "Standards Team",
+      "changes": [
+        "Restructured registry as reusable template for all applications",
+        "Separated core framework features from application-specific businessCapabilities",
+        "Marked training-tracker examples as draft/template entries"
+      ]
+    },
+    {
+      "date": "2026-04-12",
+      "version": "1.3.0",
+      "author": "Standards Team",
+      "changes": [
+        "Standardized distribution-ready template structure",
+        "Moved sample business capabilities to examples.businessCapabilities",
+        "Set registry.businessCapabilities to empty object for onboarding teams",
+        "Normalized governance structure into machine-friendly objects"
       ]
     }
   ]

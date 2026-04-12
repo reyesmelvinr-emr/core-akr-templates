@@ -7,15 +7,11 @@ project:
 
 modules:
   - name: CourseDomain
-    businessCapability: CourseCatalogManagement
-    feature: FN99999_US002
-    project_type: api-backend
-    status: approved
+    grouping_status: approved
     # Set true only with documented rationale - see CHARTER-RESTORATION-PLAN.md override guidance
     ssg_pass3_source_reread: false
     # Set true only with documented rationale - see CHARTER-RESTORATION-PLAN.md override guidance
     ssg_pass4_source_reread: false
-    max_files: 8
     files:
       - path: src/Controllers/CoursesController.cs
         tier: primary
@@ -32,15 +28,11 @@ modules:
     doc_output: docs/modules/CourseDomain_doc.md
 
   - name: EnrollmentDomain
-    businessCapability: EnrollmentManagement
-    feature: FN99999_US089
-    project_type: api-backend
-    status: draft
+    grouping_status: draft
     # Set true only with documented rationale - see CHARTER-RESTORATION-PLAN.md override guidance
     ssg_pass3_source_reread: false
     # Set true only with documented rationale - see CHARTER-RESTORATION-PLAN.md override guidance
     ssg_pass4_source_reread: false
-    max_files: 8
     files:
       - path: src/Controllers/EnrollmentsController.cs
         tier: primary
@@ -60,7 +52,7 @@ database_objects:
     source: database/tables/training.Courses.sql
     doc_output: docs/database/training.Courses_doc.md
     feature: FN99999_US002
-    businessCapability: CourseCatalogManagement
+    businessCapability: CourseManagement
 
 unassigned:
   - path: src/Infrastructure/CacheService.cs

@@ -57,6 +57,8 @@ Run capability validation with enforcement of status-aware file contracts:
 python validation/scripts/validate_business_docs.py --status-aware
 ```
 
+The script is maintained in this repository at `validation/scripts/validate_business_docs.py` and supports `--workspace-root`, `--capability-path`, `--fail-on`, `--report-format`, and `--verbose`.
+
 This validates:
 
 #### Active capabilities

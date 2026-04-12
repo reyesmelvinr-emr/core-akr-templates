@@ -37,8 +37,8 @@ Map condensed charter versions to the SKILL.md version they were validated again
 | Charter File | Charter Version | Compatible SKILL Version | Last Validated | Notes |
 |---|---|---|---|---|
 | backend-service.instructions.md | 1.0 | v1.0.0 | 2026-03-31 | Grounding Rules, Readability Floor, Unknowns Discipline added. Bump charter version when SKILL-COMPAT validator reads this table. |
-| ui-component.instructions.md | 1.0 | v1.0.0 | ❓ | Existence confirmed; compatibility not yet validated. |
-| database.instructions.md | 1.0 | v1.0.0 | ❓ | Existence not confirmed for this charter version; validate in D11-A. |
+| ui-component.instructions.md | 1.0 | v1.0.0 | 2026-04-12 | Charter presence and compatibility validated against current condensed charter mapping. |
+| database.instructions.md | 1.0 | v1.0.0 | 2026-04-12 | Charter presence and compatibility validated; follow-up behavior eval remains tracked under D11-A. |
 
 ## Re-Evaluation Policy
 - Re-run evals after any SKILL.md change.

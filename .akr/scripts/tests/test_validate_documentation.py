@@ -60,7 +60,7 @@ def _write_module_doc(path: Path, extra_front_matter: str = "") -> None:
     )
 
 
-def test_review_status_is_accepted() -> None:
+def test_grouping_status_draft_is_accepted() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "modules.yaml").write_text(
@@ -74,13 +74,10 @@ def test_review_status_is_accepted() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: review
-                    max_files: 3
+                    grouping_status: draft
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -95,7 +92,7 @@ def test_review_status_is_accepted() -> None:
         schema_errors = [
             issue for issue in payload["preflight_issues"] if issue["rule"] == "modules-schema"
         ]
-        assert all("status" not in issue["message"] for issue in schema_errors)
+        assert all("grouping_status" not in issue["message"] for issue in schema_errors)
 
 
 def test_standards_version_floor_is_enforced() -> None:
@@ -143,13 +140,10 @@ def test_preview_mode_prints_preview_block() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -178,13 +172,10 @@ def test_declared_artifacts_missing_warns() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                     review_sheet: docs/modules/.akr/trainingtracker_review.md
                     draft_output: docs/modules/.akr/CourseDomain_draft.md
@@ -217,13 +208,10 @@ def test_final_doc_rejects_draft_only_front_matter() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -260,13 +248,10 @@ def test_semantic_score_present_surfaced_in_json() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -298,13 +283,10 @@ def test_semantic_score_absent_combined_equals_structural() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -336,13 +318,10 @@ def test_score_fields_not_flagged_as_draft_only() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -375,13 +354,10 @@ def test_needs_and_verify_markers_are_reported() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -418,13 +394,10 @@ def test_deferred_marker_requires_owner_format_warning() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -456,13 +429,10 @@ def test_document_level_compliance_mode_overrides_project_default() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
-                      - src/Controllers/CoursesController.cs
+                      - path: src/Controllers/CoursesController.cs
+                        tier: primary
                     doc_output: docs/modules/CourseDomain_doc.md
                 database_objects: []
                 unassigned: []
@@ -483,8 +453,8 @@ def test_document_level_compliance_mode_overrides_project_default() -> None:
         assert any(i["severity"] == "error" and "unresolved ❓ marker" in i["message"] for i in issues)
 
 
-def test_legacy_string_files_entry_warns() -> None:
-    """Legacy string-form files[] entries must emit a deprecation warning in preflight_issues."""
+def test_legacy_string_files_entry_errors() -> None:
+    """String-form files[] entries are rejected under strict modules schema enforcement."""
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / "modules.yaml").write_text(
@@ -498,11 +468,7 @@ def test_legacy_string_files_entry_warns() -> None:
                   compliance_mode: pilot
                 modules:
                   - name: CourseDomain
-                    businessCapability: CourseCatalogManagement
-                    feature: FN00001_US100
-                    project_type: api-backend
-                    status: approved
-                    max_files: 3
+                    grouping_status: approved
                     files:
                       - src/Controllers/CoursesController.cs
                     doc_output: docs/modules/CourseDomain_doc.md
@@ -516,8 +482,11 @@ def test_legacy_string_files_entry_warns() -> None:
 
         result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
         payload = json.loads(result.stdout)
-        preflight_warnings = [
+        preflight_errors = [
             issue for issue in payload["preflight_issues"]
-            if issue["severity"] == "warning" and issue["rule"] == "modules-schema"
+            if issue["severity"] == "error" and issue["rule"] == "modules-schema"
         ]
-        assert any("deprecated string form" in issue["message"] for issue in preflight_warnings)
+        assert any("must be an object with path and tier" in issue["message"] for issue in preflight_errors)
+
+
+

@@ -36,6 +36,7 @@ GENERIC_REQUIRED_SECTIONS = ["Overview"]
 PROJECT_LAYER_ENUM = {"UI", "API", "Database", "Integration", "Infrastructure", "Full-Stack"}
 PROJECT_TYPE_ENUM = {"api-backend", "ui-component", "microservice", "general"}
 MODULE_STATUS_ENUM = {"draft", "review", "approved", "in-progress", "deprecated"}
+MODULE_GROUPING_STATUS_ENUM = {"draft", "approved"}
 DB_TYPE_ENUM = {"table", "view", "procedure", "function", "schema"}
 FILE_TIER_ENUM = {"primary", "supporting"}
 VALID_COMPLIANCE_MODES = {"pilot", "production"}
@@ -65,6 +66,20 @@ MODULE_REQUIRED_FRONT_MATTER_FIELDS = {
     "project_type",
     "status",
     "compliance_mode",
+}
+
+MODULE_ALLOWED_KEYS = {
+    "name",
+    "grouping_status",
+    "files",
+    "doc_output",
+    "review_sheet",
+    "draft_output",
+    "last_reviewed_at",
+    "review_mode",
+    "notes",
+    "ssg_pass4_source_reread",
+    "ssg_pass3_source_reread",
 }
 
 
@@ -237,24 +252,15 @@ def _collect_declared_artifact_warnings(manifest: Dict[str, Any], workspace_root
 def _validate_module_file_entry(entry: Any, module_idx: int, file_idx: int) -> List[ValidationIssue]:
     issues: List[ValidationIssue] = []
 
-    # Legacy string entries are deprecated; emit a warning and continue.
+    # Strict schema requires object-form entries with path and tier.
     if isinstance(entry, str):
-        if not entry.strip():
-            issues.append(
-                ValidationIssue(
-                    "error",
-                    f"modules[{module_idx}].files[{file_idx}] must not be empty",
-                    "modules-schema",
-                )
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"modules[{module_idx}].files[{file_idx}] must be an object with path and tier",
+                "modules-schema",
             )
-        else:
-            issues.append(
-                ValidationIssue(
-                    "warning",
-                    f"modules[{module_idx}].files[{file_idx}] uses deprecated string form; migrate to {{path, tier}} object",
-                    "modules-schema",
-                )
-            )
+        )
         return issues
 
     # Required format: object entry with explicit path and tier.
@@ -279,15 +285,7 @@ def _validate_module_file_entry(entry: Any, module_idx: int, file_idx: int) -> L
         )
 
     tier_value = entry.get("tier")
-    if tier_value is None:
-        issues.append(
-            ValidationIssue(
-                "warning",
-                f"modules[{module_idx}].files[{file_idx}].tier missing; defaulting to primary for backward compatibility",
-                "modules-schema",
-            )
-        )
-    elif tier_value not in FILE_TIER_ENUM:
+    if tier_value not in FILE_TIER_ENUM:
         issues.append(
             ValidationIssue(
                 "error",
@@ -352,6 +350,16 @@ def _validate_manifest_schema(manifest: Dict[str, Any]) -> List[ValidationIssue]
             issues.append(ValidationIssue("error", f"modules[{idx}] must be an object", "modules-schema"))
             continue
 
+        unknown_keys = sorted(set(module.keys()) - MODULE_ALLOWED_KEYS)
+        for key in unknown_keys:
+            issues.append(
+                ValidationIssue(
+                    "error",
+                    f"modules[{idx}] has unsupported field: {key}",
+                    "modules-schema",
+                )
+            )
+
         name = module.get("name")
         if not isinstance(name, str) or not name.strip():
             issues.append(ValidationIssue("error", f"modules[{idx}].name is required", "modules-schema"))
@@ -360,31 +368,24 @@ def _validate_manifest_schema(manifest: Dict[str, Any]) -> List[ValidationIssue]
         else:
             module_names.add(name)
 
-        project_type = module.get("project_type")
-        if project_type not in PROJECT_TYPE_ENUM:
+        grouping_status = module.get("grouping_status")
+        if grouping_status not in MODULE_GROUPING_STATUS_ENUM:
             issues.append(
                 ValidationIssue(
                     "error",
-                    f"modules[{idx}].project_type has unknown value: {project_type}",
+                    f"modules[{idx}].grouping_status must be one of: draft, approved",
                     "modules-schema",
                 )
             )
 
-        status = module.get("status")
-        if status not in MODULE_STATUS_ENUM:
-            issues.append(ValidationIssue("error", f"modules[{idx}].status has invalid value: {status}", "modules-schema"))
-
-        max_files = module.get("max_files")
         files = module.get("files")
-        if not isinstance(max_files, int) or max_files < 1 or max_files > 8:
-            issues.append(ValidationIssue("error", f"modules[{idx}].max_files must be 1..8", "modules-schema"))
         if not isinstance(files, list) or len(files) == 0:
             issues.append(ValidationIssue("error", f"modules[{idx}].files must include at least one file", "modules-schema"))
-        elif isinstance(max_files, int) and len(files) > max_files:
+        elif len(files) > 8:
             issues.append(
                 ValidationIssue(
                     "error",
-                    f"modules[{idx}] exceeds max_files ({len(files)} > {max_files})",
+                    f"modules[{idx}].files exceeds max length (8)",
                     "modules-schema",
                 )
             )
@@ -429,7 +430,6 @@ def _build_doc_index(manifest: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
             index[doc_output] = {
                 "doc_type": "module",
                 "module_name": module.get("name"),
-                "project_type": module.get("project_type"),
                 "doc_output": doc_output,
                 "draft_output": module.get("draft_output"),
                 "review_sheet": module.get("review_sheet"),

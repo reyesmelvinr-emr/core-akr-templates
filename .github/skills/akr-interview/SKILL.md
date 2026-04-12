@@ -82,6 +82,15 @@ Remote loading is not supported for this skill; PATH B only.
 If the active chat model is not listed under `compatibility.models`, stop and return a blocking
 message naming the supported models and ask the user to switch before re-running `/akr-interview`.
 
+## Non-Applicable Invocation Contexts
+
+- **GitHub Copilot coding-agent (Actions): NOT SUPPORTED**
+  - This skill requires multi-turn `user_input_requests` and interactive answer confirmation.
+  - Non-interactive coding agents cannot complete the interview loop safely.
+- **Automated CI workflows: NOT SUPPORTED**
+  - CI runs have no human response loop for resolving markers and callout routing.
+  - Use validation-only workflows in CI and run `/akr-interview` in VS Code Copilot Chat.
+
 ## Step 0: Execute Mode Script
 
 1. Confirm invocation arguments: `[file]`, `--as @username` (optional), `--callouts-only` (optional).

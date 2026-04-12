@@ -1,319 +1,597 @@
 {
-  "manifest_version": "1.0.0",
-  "last_updated": "2026-01-14",
-  "min_mcp_version": "1.0.0",
-  "templates": [
-    {
-      "id": "service-comprehensive",
-      "name": "Comprehensive Service Documentation",
-      "file": ".akr/templates/comprehensive_service_template.md",
-      "version": "1.0.0",
-      "description": "Comprehensive documentation template for complex, critical backend services requiring extensive detail (15-20 minutes)",
-      "applicable_to": [
-        "Backend Services",
-        "Core Business Logic",
-        "Critical Infrastructure"
-      ],
-      "estimated_time_minutes": 18,
-      "complexity": "comprehensive",
-      "mandatory_sections": [
-        "Overview",
-        "Purpose and Scope",
-        "Architecture",
-        "Dependencies",
-        "API Endpoints",
-        "Data Models",
-        "Business Logic",
-        "Error Handling",
-        "Performance Considerations",
-        "Security",
-        "Testing",
-        "Deployment",
-        "Monitoring",
-        "Troubleshooting",
-        "Future Enhancements"
-      ],
-      "recommended_for": [
-        "Authentication services",
-        "Payment processing",
-        "Core business workflows",
-        "External integrations"
-      ]
-    },
-    {
-      "id": "service-standard",
-      "name": "Standard Service Documentation",
-      "file": ".akr/templates/standard_service_template.md",
-      "version": "1.0.0",
-      "description": "Standard documentation template for typical backend services (10-15 minutes)",
-      "applicable_to": [
-        "Backend Services",
-        "Business Logic Services",
-        "Data Access Layer"
-      ],
-      "estimated_time_minutes": 12,
-      "complexity": "standard",
-      "mandatory_sections": [
-        "Overview",
-        "Purpose",
-        "Architecture",
-        "Dependencies",
-        "Key Methods",
-        "Configuration",
-        "Error Handling",
-        "Testing",
-        "Usage Examples"
-      ],
-      "recommended_for": [
-        "Standard CRUD services",
-        "Business logic services",
-        "Data transformation services",
-        "Notification services"
-      ]
-    },
-    {
-      "id": "service-lean",
-      "name": "Lean Baseline Service Documentation",
-      "file": ".akr/templates/lean_baseline_service_template.md",
-      "version": "1.0.0",
-      "description": "Lean documentation template for simple services and utilities (5-10 minutes)",
-      "applicable_to": [
-        "Utility Services",
-        "Helper Classes",
-        "Simple Services"
-      ],
-      "estimated_time_minutes": 7,
-      "complexity": "lean",
-      "mandatory_sections": [
-        "Overview",
-        "Purpose",
-        "Key Methods",
-        "Dependencies",
-        "Usage Examples",
-        "Configuration"
-      ],
-      "recommended_for": [
-        "Utility classes",
-        "Helper services",
-        "Simple CRUD operations",
-        "Formatters and validators"
-      ]
-    },
-    {
-      "id": "service-minimal",
-      "name": "Minimal Service Documentation",
-      "file": ".akr/templates/minimal_service_template.md",
-      "version": "1.0.0",
-      "description": "Minimal documentation template for very simple services (3-5 minutes)",
-      "applicable_to": [
-        "Simple Utilities",
-        "Constants",
-        "Enums",
-        "DTOs"
-      ],
-      "estimated_time_minutes": 4,
-      "complexity": "minimal",
-      "mandatory_sections": [
-        "Overview",
-        "Purpose",
-        "Usage Example"
-      ],
-      "recommended_for": [
-        "Constants classes",
-        "Enum definitions",
-        "Simple DTOs",
-        "Configuration classes",
-        "Temporary implementations"
-      ]
-    },
-    {
-      "id": "ui-component",
-      "name": "UI Component Documentation",
-      "file": ".akr/templates/ui_component_template.md",
-      "version": "1.0.0",
-      "description": "Documentation template for React/Angular UI components (8-12 minutes)",
-      "applicable_to": [
-        "React Components",
-        "Angular Components",
-        "Vue Components",
-        "Web Components"
-      ],
-      "estimated_time_minutes": 10,
-      "complexity": "standard",
-      "mandatory_sections": [
-        "Overview",
-        "Purpose",
-        "Props/Inputs",
-        "Events/Outputs",
-        "State Management",
-        "Styling",
-        "Usage Examples",
-        "Accessibility",
-        "Testing"
-      ],
-      "recommended_for": [
-        "Reusable UI components",
-        "Form controls",
-        "Data display components",
-        "Layout components"
-      ]
-    },
-    {
-      "id": "table-doc",
-      "name": "Database Table Documentation",
-      "file": ".akr/templates/table_doc_template.md",
-      "version": "1.0.0",
-      "description": "Documentation template for database tables and schemas (6-10 minutes)",
-      "applicable_to": [
-        "Database Tables",
-        "Views",
-        "Stored Procedures"
-      ],
-      "estimated_time_minutes": 8,
-      "complexity": "standard",
-      "mandatory_sections": [
-        "Overview",
-        "Purpose",
-        "Schema",
-        "Columns",
-        "Relationships",
-        "Indexes",
-        "Constraints",
-        "Usage Patterns",
-        "Performance Considerations"
-      ],
-      "recommended_for": [
-        "Core business tables",
-        "Lookup tables",
-        "Transaction tables",
-        "Audit tables"
-      ]
-    },
-    {
-      "id": "embedded-database",
-      "name": "Embedded Database Documentation",
-      "file": ".akr/templates/embedded_database_template.md",
-      "version": "1.0.0",
-      "description": "Documentation template for embedded databases and local storage (6-10 minutes)",
-      "applicable_to": [
-        "SQLite Databases",
-        "IndexedDB",
-        "Local Storage",
-        "Embedded Databases"
-      ],
-      "estimated_time_minutes": 8,
-      "complexity": "standard",
-      "mandatory_sections": [
-        "Overview",
-        "Purpose",
-        "Schema",
-        "Data Models",
-        "Access Patterns",
-        "Synchronization",
-        "Performance",
-        "Migration Strategy"
-      ],
-      "recommended_for": [
-        "Mobile app databases",
-        "Offline-first applications",
-        "Browser storage",
-        "Desktop app databases"
-      ]
-    },
-    {
-      "id": "legacy-inventory",
-      "name": "Legacy System Inventory Documentation",
-      "file": ".akr/templates/legacy_inventory_template.md",
-      "version": "1.0.0",
-      "description": "Documentation template for legacy system inventory and assessment (10-15 minutes)",
-      "applicable_to": [
-        "Legacy Systems",
-        "System Inventory",
-        "Technical Debt Assessment"
-      ],
-      "estimated_time_minutes": 12,
-      "complexity": "standard",
-      "mandatory_sections": [
-        "System Overview",
-        "Current State",
-        "Technology Stack",
-        "Dependencies",
-        "Known Issues",
-        "Technical Debt",
-        "Migration Considerations",
-        "Risk Assessment",
-        "Recommendations"
-      ],
-      "recommended_for": [
-        "Legacy system documentation",
-        "Modernization planning",
-        "Technical debt assessment",
-        "System retirement planning"
-      ]
-    }
-  ],
-  "charters": [
-    {
-      "id": "akr-charter",
-      "name": "AKR Charter - General",
-      "file": ".akr/charters/AKR_CHARTER.md",
-      "version": "1.0.0",
-      "description": "General AKR documentation standards and guidelines"
-    },
-    {
-      "id": "akr-charter-backend",
-      "name": "AKR Charter - Backend",
-      "file": ".akr/charters/AKR_CHARTER_BACKEND.md",
-      "version": "1.0.0",
-      "description": "AKR documentation standards for backend services"
-    },
-    {
-      "id": "akr-charter-ui",
-      "name": "AKR Charter - UI",
-      "file": ".akr/charters/AKR_CHARTER_UI.md",
-      "version": "1.0.0",
-      "description": "AKR documentation standards for UI components"
-    },
-    {
-      "id": "akr-charter-db",
-      "name": "AKR Charter - Database",
-      "file": ".akr/charters/AKR_CHARTER_DB.md",
-      "version": "1.0.0",
-      "description": "AKR documentation standards for database objects"
-    }
-  ],
-  "template_inheritance": {
-    "enabled": true,
-    "description": "Teams can extend base templates with custom sections while preserving organizational standards",
-    "layers": [
-      {
-        "layer": "organization",
-        "path": ".akr/templates/",
-        "description": "Organization-wide base templates (mandatory sections)"
-      },
-      {
-        "layer": "team",
-        "path": ".akr/templates/team/",
-        "description": "Team-specific extensions (additional sections)"
-      }
-    ]
-  },
-  "metadata": {
-    "repository": "core-akr-templates",
-    "organization": "Emerson",
-    "maintainer": "CDS - Team Hawkeye",
-    "license": "Internal Use Only",
-    "changelog": [
-      {
-        "version": "1.0.0",
-        "date": "2026-01-14",
-        "changes": [
-          "Initial release with 8 templates",
-          "Added 4 AKR charters",
-          "Template inheritance support",
-          "Comprehensive metadata"
-        ]
-      }
-    ]
-  }
+    "manifest_version":  "1.1.0",
+    "last_updated":  "2026-04-12",
+    "min_mcp_version":  "1.0.0",
+    "templates":  [
+                      {
+                          "id":  "business-capability-template",
+                          "name":  "Business Capability Template",
+                          "file":  ".akr/templates/business_capability_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "capability-backlog-template",
+                          "name":  "Capability Backlog Template",
+                          "file":  ".akr/templates/capability_backlog_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "capability-enhancement-testing-template",
+                          "name":  "Capability Enhancement Testing Template",
+                          "file":  ".akr/templates/capability_enhancement_testing_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "capability-enhancements-template",
+                          "name":  "Capability Enhancements Template",
+                          "file":  ".akr/templates/capability_enhancements_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "capability-external-dependencies-template",
+                          "name":  "Capability External Dependencies Template",
+                          "file":  ".akr/templates/capability_external_dependencies_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "capability-internal-dependencies-template",
+                          "name":  "Capability Internal Dependencies Template",
+                          "file":  ".akr/templates/capability_internal_dependencies_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "capability-limitations-template",
+                          "name":  "Capability Limitations Template",
+                          "file":  ".akr/templates/capability_limitations_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "capability-testing-template",
+                          "name":  "Capability Testing Template",
+                          "file":  ".akr/templates/capability_testing_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "service-comprehensive",
+                          "name":  "Comprehensive Service Documentation",
+                          "file":  ".akr/templates/comprehensive_service_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Comprehensive documentation template for complex, critical backend services requiring extensive detail (15-20 minutes)",
+                          "applicable_to":  [
+                                                "Backend Services",
+                                                "Core Business Logic",
+                                                "Critical Infrastructure"
+                                            ],
+                          "estimated_time_minutes":  18,
+                          "complexity":  "comprehensive",
+                          "mandatory_sections":  [
+                                                     "Overview",
+                                                     "Purpose and Scope",
+                                                     "Architecture",
+                                                     "Dependencies",
+                                                     "API Endpoints",
+                                                     "Data Models",
+                                                     "Business Logic",
+                                                     "Error Handling",
+                                                     "Performance Considerations",
+                                                     "Security",
+                                                     "Testing",
+                                                     "Deployment",
+                                                     "Monitoring",
+                                                     "Troubleshooting",
+                                                     "Future Enhancements"
+                                                 ],
+                          "recommended_for":  [
+                                                  "Authentication services",
+                                                  "Payment processing",
+                                                  "Core business workflows",
+                                                  "External integrations"
+                                              ]
+                      },
+                      {
+                          "id":  "embedded-database",
+                          "name":  "Embedded Database Documentation",
+                          "file":  ".akr/templates/embedded_database_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Documentation template for embedded databases and local storage (6-10 minutes)",
+                          "applicable_to":  [
+                                                "SQLite Databases",
+                                                "IndexedDB",
+                                                "Local Storage",
+                                                "Embedded Databases"
+                                            ],
+                          "estimated_time_minutes":  8,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+                                                     "Overview",
+                                                     "Purpose",
+                                                     "Schema",
+                                                     "Data Models",
+                                                     "Access Patterns",
+                                                     "Synchronization",
+                                                     "Performance",
+                                                     "Migration Strategy"
+                                                 ],
+                          "recommended_for":  [
+                                                  "Mobile app databases",
+                                                  "Offline-first applications",
+                                                  "Browser storage",
+                                                  "Desktop app databases"
+                                              ]
+                      },
+                      {
+                          "id":  "feature-consolidated",
+                          "name":  "Feature Consolidated",
+                          "file":  ".akr/templates/feature-consolidated.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "feature-testing-consolidated",
+                          "name":  "Feature Testing Consolidated",
+                          "file":  ".akr/templates/feature-testing-consolidated.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "service-lean",
+                          "name":  "Lean Baseline Service Documentation",
+                          "file":  ".akr/templates/lean_baseline_service_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Lean documentation template for simple services and utilities (5-10 minutes)",
+                          "applicable_to":  [
+                                                "Utility Services",
+                                                "Helper Classes",
+                                                "Simple Services"
+                                            ],
+                          "estimated_time_minutes":  7,
+                          "complexity":  "lean",
+                          "mandatory_sections":  [
+                                                     "Overview",
+                                                     "Purpose",
+                                                     "Key Methods",
+                                                     "Dependencies",
+                                                     "Usage Examples",
+                                                     "Configuration"
+                                                 ],
+                          "recommended_for":  [
+                                                  "Utility classes",
+                                                  "Helper services",
+                                                  "Simple CRUD operations",
+                                                  "Formatters and validators"
+                                              ]
+                      },
+                      {
+                          "id":  "lean-baseline-service-template-module",
+                          "name":  "Lean Baseline Service Template Module",
+                          "file":  ".akr/templates/lean_baseline_service_template_module.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "legacy-inventory",
+                          "name":  "Legacy System Inventory Documentation",
+                          "file":  ".akr/templates/legacy_inventory_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Documentation template for legacy system inventory and assessment (10-15 minutes)",
+                          "applicable_to":  [
+                                                "Legacy Systems",
+                                                "System Inventory",
+                                                "Technical Debt Assessment"
+                                            ],
+                          "estimated_time_minutes":  12,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+                                                     "System Overview",
+                                                     "Current State",
+                                                     "Technology Stack",
+                                                     "Dependencies",
+                                                     "Known Issues",
+                                                     "Technical Debt",
+                                                     "Migration Considerations",
+                                                     "Risk Assessment",
+                                                     "Recommendations"
+                                                 ],
+                          "recommended_for":  [
+                                                  "Legacy system documentation",
+                                                  "Modernization planning",
+                                                  "Technical debt assessment",
+                                                  "System retirement planning"
+                                              ]
+                      },
+                      {
+                          "id":  "service-minimal",
+                          "name":  "Minimal Service Documentation",
+                          "file":  ".akr/templates/minimal_service_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Minimal documentation template for very simple services (3-5 minutes)",
+                          "applicable_to":  [
+                                                "Simple Utilities",
+                                                "Constants",
+                                                "Enums",
+                                                "DTOs"
+                                            ],
+                          "estimated_time_minutes":  4,
+                          "complexity":  "minimal",
+                          "mandatory_sections":  [
+                                                     "Overview",
+                                                     "Purpose",
+                                                     "Usage Example"
+                                                 ],
+                          "recommended_for":  [
+                                                  "Constants classes",
+                                                  "Enum definitions",
+                                                  "Simple DTOs",
+                                                  "Configuration classes",
+                                                  "Temporary implementations"
+                                              ]
+                      },
+                      {
+                          "id":  "module-draft-template",
+                          "name":  "Module Draft Template",
+                          "file":  ".akr/templates/module_draft_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "project-review-template",
+                          "name":  "Project Review Template",
+                          "file":  ".akr/templates/project_review_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "service-standard",
+                          "name":  "Standard Service Documentation",
+                          "file":  ".akr/templates/standard_service_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Standard documentation template for typical backend services (10-15 minutes)",
+                          "applicable_to":  [
+                                                "Backend Services",
+                                                "Business Logic Services",
+                                                "Data Access Layer"
+                                            ],
+                          "estimated_time_minutes":  12,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+                                                     "Overview",
+                                                     "Purpose",
+                                                     "Architecture",
+                                                     "Dependencies",
+                                                     "Key Methods",
+                                                     "Configuration",
+                                                     "Error Handling",
+                                                     "Testing",
+                                                     "Usage Examples"
+                                                 ],
+                          "recommended_for":  [
+                                                  "Standard CRUD services",
+                                                  "Business logic services",
+                                                  "Data transformation services",
+                                                  "Notification services"
+                                              ]
+                      },
+                      {
+                          "id":  "table-doc",
+                          "name":  "Database Table Documentation",
+                          "file":  ".akr/templates/table_doc_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Documentation template for database tables and schemas (6-10 minutes)",
+                          "applicable_to":  [
+                                                "Database Tables",
+                                                "Views",
+                                                "Stored Procedures"
+                                            ],
+                          "estimated_time_minutes":  8,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+                                                     "Overview",
+                                                     "Purpose",
+                                                     "Schema",
+                                                     "Columns",
+                                                     "Relationships",
+                                                     "Indexes",
+                                                     "Constraints",
+                                                     "Usage Patterns",
+                                                     "Performance Considerations"
+                                                 ],
+                          "recommended_for":  [
+                                                  "Core business tables",
+                                                  "Lookup tables",
+                                                  "Transaction tables",
+                                                  "Audit tables"
+                                              ]
+                      },
+                      {
+                          "id":  "traceability-template",
+                          "name":  "Traceability Template",
+                          "file":  ".akr/templates/traceability-template.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      },
+                      {
+                          "id":  "ui-component",
+                          "name":  "UI Component Documentation",
+                          "file":  ".akr/templates/ui_component_template.md",
+                          "version":  "1.0.0",
+                          "description":  "Documentation template for React/Angular UI components (8-12 minutes)",
+                          "applicable_to":  [
+                                                "React Components",
+                                                "Angular Components",
+                                                "Vue Components",
+                                                "Web Components"
+                                            ],
+                          "estimated_time_minutes":  10,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+                                                     "Overview",
+                                                     "Purpose",
+                                                     "Props/Inputs",
+                                                     "Events/Outputs",
+                                                     "State Management",
+                                                     "Styling",
+                                                     "Usage Examples",
+                                                     "Accessibility",
+                                                     "Testing"
+                                                 ],
+                          "recommended_for":  [
+                                                  "Reusable UI components",
+                                                  "Form controls",
+                                                  "Data display components",
+                                                  "Layout components"
+                                              ]
+                      },
+                      {
+                          "id":  "ui-component-template-module",
+                          "name":  "Ui Component Template Module",
+                          "file":  ".akr/templates/ui_component_template_module.md",
+                          "version":  "1.0.0",
+                          "description":  "Template tracked for governance inventory and distribution traceability.",
+                          "applicable_to":  [
+                                                "AKR"
+                                            ],
+                          "estimated_time_minutes":  0,
+                          "complexity":  "standard",
+                          "mandatory_sections":  [
+
+                                                 ],
+                          "recommended_for":  [
+                                                  "Governance inventory"
+                                              ]
+                      }
+                  ],
+    "charters":  [
+                     {
+                         "id":  "akr-charter",
+                         "name":  "AKR Charter - General",
+                         "file":  ".akr/charters/AKR_CHARTER.md",
+                         "version":  "1.0.0",
+                         "description":  "General AKR documentation standards and guidelines"
+                     },
+                     {
+                         "id":  "akr-charter-backend",
+                         "name":  "AKR Charter - Backend",
+                         "file":  ".akr/charters/AKR_CHARTER_BACKEND.md",
+                         "version":  "1.0.0",
+                         "description":  "AKR documentation standards for backend services"
+                     },
+                     {
+                         "id":  "akr-charter-ui",
+                         "name":  "AKR Charter - UI",
+                         "file":  ".akr/charters/AKR_CHARTER_UI.md",
+                         "version":  "1.0.0",
+                         "description":  "AKR documentation standards for UI components"
+                     },
+                     {
+                         "id":  "akr-charter-db",
+                         "name":  "AKR Charter - Database",
+                         "file":  ".akr/charters/AKR_CHARTER_DB.md",
+                         "version":  "1.0.0",
+                         "description":  "AKR documentation standards for database objects"
+                     }
+                 ],
+    "template_inheritance":  {
+                                 "enabled":  true,
+                                 "description":  "Teams can extend base templates with custom sections while preserving organizational standards",
+                                 "layers":  [
+                                                {
+                                                    "layer":  "organization",
+                                                    "path":  ".akr/templates/",
+                                                    "description":  "Organization-wide base templates (mandatory sections)"
+                                                },
+                                                {
+                                                    "layer":  "team",
+                                                    "path":  ".akr/templates/team/",
+                                                    "description":  "Team-specific extensions (additional sections)"
+                                                }
+                                            ]
+                             },
+    "metadata":  {
+                     "repository":  "core-akr-templates",
+                     "organization":  "Emerson",
+                     "maintainer":  "CDS - Team Hawkeye",
+                     "license":  "Internal Use Only",
+                     "changelog":  [
+                                       {
+                                           "version":  "1.0.0",
+                                           "date":  "2026-01-14",
+                                           "changes":  [
+                                                           "Initial release with 8 templates",
+                                                           "Added 4 AKR charters",
+                                                           "Template inheritance support",
+                                                           "Comprehensive metadata"
+                                                       ]
+                                       },
+                                       {
+                                           "version":  "1.1.0",
+                                           "date":  "2026-04-12",
+                                           "changes":  [
+                                                           "Expanded template inventory to include all tracked .akr/templates artifacts",
+                                                           "Added governance traceability coverage for module and consolidation templates"
+                                                       ]
+                                       }
+                                   ]
+                 }
 }

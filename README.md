@@ -72,6 +72,7 @@ Full step-by-step setup for Technical PO/TL, Non-Technical PO, and Source Repo D
 
 Run the core workflow above, then:
 - Execute `distribute-skill.yml` to install the `akr-docs` and `akr-interview` skill bundles.
+- `akr-interview` is interactive-only and intended for VS Code Copilot Chat sessions; do not run it in non-interactive coding-agent CI flows.
 - Generate and maintain module documentation in the `docs/modules/` directory using the `akr-docs` skill.
 
 ### Consolidation Teams (Business Aggregation)
