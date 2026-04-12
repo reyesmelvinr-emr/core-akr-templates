@@ -1,0 +1,110 @@
+version: "1.0"
+project: "AS-PMO-Customer-Visibility"
+description: "Supply Chain Optimization (SCO) Customer Visibility Tracking Application"
+
+modules:
+  - id: "shipment_tracking"
+    name: "Shipment Tracking"
+    description: "Core shipment tracking functionality providing real-time visibility across multiple carriers and cross-dock networks"
+    layer: "business-logic"
+    tags:
+      - business-domain: "shipment-tracking"
+      - feature: "core-tracking"
+      - component-type: "service"
+    components:
+      - file: "app/views.py"
+        role: "view_handler"
+        description: "HTTP request handlers for shipment tracking views and UI rendering"
+      - file: "app/endpoints.py"
+        role: "api_endpoint"
+        description: "RESTful endpoints for shipment data queries and tracking information"
+      - file: "app/helpers.py"
+        role: "utility"
+        description: "Helper functions for shipment processing, data transformation, and business logic"
+
+  - id: "user_interface"
+    name: "User Interface Layer"
+    description: "Web-based user interface for customer tracking and navigation"
+    layer: "presentation"
+    tags:
+      - business-domain: "customer-visibility"
+      - feature: "ui"
+      - component-type: "presentation"
+    components:
+      - file: "app/forms.py"
+        role: "validator"
+        description: "Form validation and input sanitization for tracking queries"
+      - file: "app/middlewares.py"
+        role: "middleware"
+        description: "Request/response middleware for security, logging, and tracking"
+
+  - id: "data_integration"
+    name: "Data Integration & Storage"
+    description: "Integration with OTM (Oracle Transportation Management) and Azure storage"
+    layer: "data-access"
+    tags:
+      - business-domain: "supply-chain-optimization"
+      - feature: "data-integration"
+      - component-type: "integration"
+    components:
+      - file: "CusVis/azure.py"
+        role: "cloud_integration"
+        description: "Azure Storage Blob integration for shipment data persistence and retrieval"
+      - file: "app/constants.py"
+        role: "constant_definitions"
+        description: "Application constants and configuration values for tracking status codes and reason codes"
+
+  - id: "configuration"
+    name: "Application Configuration"
+    description: "Django project configuration and settings management"
+    layer: "infrastructure"
+    tags:
+      - business-domain: "configuration"
+      - feature: "app-config"
+      - component-type: "configuration"
+    components:
+      - file: "CusVis/settings.py"
+        role: "configuration"
+        description: "Django settings configuration including database, Azure AD authentication, and middleware setup"
+      - file: "CusVis/urls.py"
+        role: "routing"
+        description: "URL routing configuration for the application"
+      - file: "app/urls.py"
+        role: "routing"
+        description: "App-level URL routing for tracking endpoints"
+
+# Business capability mapping for consolidation
+businessCapabilities:
+  - id: "ShipmentTracking"
+    name: "Shipment Tracking"
+    modules:
+      - "shipment_tracking"
+    description: "End-to-end visibility of shipments across SCO cross-dock network"
+    kpis:
+      - "Real-time visibility across carriers"
+      - "Multiple leg tracking support"
+      - "Unified status reporting"
+
+  - id: "CustomerVisibility"
+    name: "Customer Visibility Platform"
+    modules:
+      - "user_interface"
+    description: "Customer-facing web platform for accessing shipment tracking information"
+    kpis:
+      - "User experience"
+      - "Page load performance"
+      - "Data accuracy"
+
+  - id: "DataIntegration"
+    name: "Data Integration & Persistence"
+    modules:
+      - "data_integration"
+    description: "Integration with OTM and cloud storage infrastructure"
+    kpis:
+      - "Data sync reliability"
+      - "Storage performance"
+      - "API availability"
+
+documentation_strategy: "module-driven"
+auto_generate: true
+require_review_before_commit: true
