@@ -12,10 +12,8 @@ Produce a textual relationship map for a selected capability across layers and d
 
 ## Required metadata checks
 
-- `businessCapability` must be an approved value from `core-akr-templates/.akr/tags/tag-registry.json`.
-- `feature` must match `FN#####_US#####`.
-- `layer` must be present and valid for each input source.
-- Do not write output if any metadata check fails; report failures with `❓`.
+Validate metadata using `SKILL.md` section **Required Metadata and Governance**.
+Do not write output if any metadata check fails; report failures with `❓`.
 
 ## Required checks
 

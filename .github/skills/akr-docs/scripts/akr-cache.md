@@ -123,7 +123,8 @@ Before first fetch, run a lightweight `@github get file` pre-flight.
 For each target asset:
 
 1. Fetch live content from `core-akr-templates`.
-2. Write/overwrite encoded cache key under `.akr/cache/`.
+2. Encode cache key per `SKILL.md` section **Cache Key Encoding Contract**.
+3. Write/overwrite encoded cache key under `.akr/cache/`.
 3. Record as `refreshed`.
 
 On fetch/write failure:

@@ -70,7 +70,8 @@ blocks. Discard the template prose body.** Parse and carry forward:
 
 **Before fetching, check cache:**
 1. Compute cache key: `{owner}/{repo}@{branch}/{template_path}` (e.g. `reyesmelvinr-emr/core-akr-templates@master/.akr/templates/lean_baseline_service_template_module.md`)
-2. Cache file: `.akr/cache/{encoded_cache_key}.md`
+2. Encode key per `SKILL.md` section **Cache Key Encoding Contract**.
+3. Cache file: `.akr/cache/{encoded_cache_key}.md`
 3. If cache file exists: read template from cache, skip `@github` fetch, set `template-cache: hit`.
 4. If cache file does not exist: fetch via `@github get file`, write content to cache file, set `template-cache: miss`.
 
@@ -94,7 +95,8 @@ allowed `@github` call.
 
 **Before fetching, check cache:**
 1. Compute cache key: `{owner}/{repo}@{branch}/{charter_path}` (e.g. `reyesmelvinr-emr/core-akr-templates@master/copilot-instructions/backend-service.instructions.md`)
-2. Cache file: `.akr/cache/{encoded_cache_key}.md`
+2. Encode key per `SKILL.md` section **Cache Key Encoding Contract**.
+3. Cache file: `.akr/cache/{encoded_cache_key}.md`
 3. If cache file exists: read charter from cache, skip `@github` fetch, set `charter-cache: hit`.
 4. If cache file does not exist: fetch via `@github get file`, write content to cache file, set `charter-cache: miss`.
 
@@ -258,7 +260,7 @@ Wait for explicit user confirmation before Step 9.
 ## Step 9: Write Final Document
 
 On user confirmation:
-1. Strip draft-only front matter fields (`preview-generated-at`, `generation-started-at`, `draft-generation-seconds`, `stage-timings`, `review-mode`)
+1. Strip draft-only front matter fields (`preview-generated-at`, `generation-started-at`, `draft-generation-seconds`, `stage-timings`, `review-mode`, `generation-strategy`, `passes-completed`, `excluded-sections`)
 2. Set `status: draft` — never copy grouping status from modules.yaml
 3. Confirm `<!-- akr-generated -->` metadata header is present
 4. Finalize by promoting the reviewed draft artifact:
@@ -302,7 +304,7 @@ python ~/.akr/templates/.github/skills/akr-docs/scripts/akr_inline_validate.py \
 | YAML front matter presence | Missing `---` block |
 | Required front matter fields | Missing businessCapability, feature, layer, project_type, status, compliance_mode |
 | Field value validity | Invalid layer, project_type, status, compliance_mode values |
-| Draft-only field cleanliness | preview-generated-at, generation-started-at, draft-generation-seconds, stage-timings, or review-mode present in final output |
+| Draft-only field cleanliness | preview-generated-at, generation-started-at, draft-generation-seconds, stage-timings, review-mode, generation-strategy, passes-completed, or excluded-sections present in final output |
 | akr-generated header | Missing `<!-- akr-generated` comment |
 | Required section headings | Missing sections (discovered from akr:section directives or baseline fallback) |
 | Unresolved ❓ markers | Warning in pilot, error in production |
@@ -349,11 +351,16 @@ scoring, and modules.yaml cross-checks.
 
 ## Step 11: Auto-Score (runs only when Step 10 passes with 0 errors)
 
-Gate: proceed only if Step 10 inline validation exits with 0 errors. If
-validation failed, skip this step entirely and go to Step 12.
+Gate: proceed only if Step 10 output includes `Status: ✅ PASSED` and `Errors: 0`.
+If Step 10 output includes `Status: ❌ FAILED` or any `[ERROR]` lines,
+skip this step entirely and go to Step 12.
 
 This scoring step runs in the same Copilot session as generation — zero
 additional LLM API cost beyond the current session.
+
+Use the scoring rubric and weighting rules from `/akr-docs score` as the
+authoritative source (`akr-score.md`, Steps 3-4). Do not redefine alternate
+rubrics or weights in this mode.
 
 **Evaluate sections:**
 
@@ -367,31 +374,8 @@ additional LLM API cost beyond the current session.
    score Quick Reference (TL;DR), Purpose and Scope, Business Rules
    (`why_it_exists` and `since_when` columns), and Questions & Gaps if present.
 
-**Rubric (0–10 per section):**
-
-| Score | Tier | Criteria |
-|-------|------|----------|
-| 0–2 | Template placeholder | Content unchanged from template; bare ❓ with no additional text |
-| 3–4 | Generic | Content present but applies to any module; no domain-specific context |
-| 5–6 | Acknowledged gap | Explicitly notes what is unknown or deferred — **rewarded** |
-| 7–8 | Substantive | Module-specific business context evident; minor gaps acceptable |
-| 9–10 | Complete | Genuine domain knowledge; no template filler; all sub-fields populated |
-
-**Section weights:**
-
-| Section | Weight |
-|---------|--------|
-| Business Rules | 2.0 |
-| Quick Reference (TL;DR) | 1.5 |
-| Purpose and Scope | 1.5 |
-| Questions & Gaps | 1.0 |
-| All other human-authored sections | 1.0 |
-
-**Compute score:**
-
-```
-semantic_score = round(sum(section_score × weight) / sum(weight) × 10)  # 0–100
-```
+Apply the rubric, weights, and score formula exactly as defined in
+`akr-score.md` Steps 3-4.
 
 **Display per-section summary in chat:**
 
@@ -454,7 +438,11 @@ Inline validation: {✅ PASSED / ❌ FAILED — N errors}
 Semantic score:     {N}/100 ({tier}) | skipped
 
 {If PASSED}
-Next step: Open a PR. Full CI validation runs automatically and will check:
+Next step: resolve open items using the right flow, then open a PR.
+  - Use `/akr-docs resolve` for source-grounded draft cleanup.
+  - Use `/akr-interview` for callout-driven collaboration and owner-specific routing.
+
+After resolution, open a PR. Full CI validation runs automatically and will check:
   - Vale prose linting
   - modules.yaml cross-references
   - Completeness scoring
@@ -485,7 +473,7 @@ Applies before writing final document (Step 9), independent of validation:
 - [ ] `data_operations`: reads, writes, and side effects covered
 - [ ] All unknowns marked ❓ or DEFERRED with owner
 - [ ] `<!-- akr-generated -->` header present
-- [ ] Draft-only front matter fields (`preview-generated-at`, `generation-started-at`, `draft-generation-seconds`, `stage-timings`, `review-mode`) absent from final output
+- [ ] Draft-only front matter fields (`preview-generated-at`, `generation-started-at`, `draft-generation-seconds`, `stage-timings`, `review-mode`, `generation-strategy`, `passes-completed`, `excluded-sections`) absent from final output
 - [ ] Score front matter fields (`semantic-score`, `semantic-scored-at`, `semantic-score-version`) present if scoring was not skipped
 - [ ] Excluded sections recorded in draft front matter with reasons
 - [ ] All stage timing metrics captured in draft front matter and surfaced in confirmation prompt

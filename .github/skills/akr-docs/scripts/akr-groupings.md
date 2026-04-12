@@ -8,15 +8,21 @@ Scan project source files and produce a `modules.yaml` manifest grouping files b
 
 `modules.yaml` must include both `tier=primary` and `tier=supporting` files for each module so coding assistance can use full module context. Documentation generation scope remains `tier=primary` only.
 
+Token budget: 0-1 `@github` calls.
+- 0 calls for straightforward grouping.
+- 1 call only when charter loading criteria below are met.
+
 ## Charter Reference
 
-Load the project-type charter slice on demand only if the user requests rationale or you encounter an ambiguous grouping decision:
+Load the project-type charter slice on demand only if the user requests rationale or you hit one of these ambiguous grouping conditions:
+- A file cannot be assigned to any module using domain noun matching alone.
+- Two or more modules can plausibly claim the same file based on naming patterns.
 
 - Backend projects: `@github get file core-akr-templates/copilot-instructions/backend-service.instructions.md`
 - UI projects: `@github get file core-akr-templates/copilot-instructions/ui-component.instructions.md`
 - Database objects: `@github get file core-akr-templates/copilot-instructions/database.instructions.md`
 
-Do NOT load a charter if the grouping is straightforward from file names and directory structure alone.
+Do NOT load a charter if grouping is straightforward from file names and directory structure alone.
 
 ## modules.yaml Contract
 
@@ -124,14 +130,14 @@ Tier rules:
    - Shared infrastructure with no clear domain noun → "Shared infrastructure, group manually"
    - SQL/migration files → "Database artifact, belongs in database_objects"
 
-6. **Max files per module:** Aim for 4–7. Flag but do not block if a module reaches 8.
+6. **Max files per module:** Aim for 4-7. At 8 files, add a warning note in reviewer output and set `max_files: 8` explicitly where that field is used by downstream validators. The declared max is the enforced limit.
 
 7. **Platform/shared files:** If 2+ files serve cross-cutting infrastructure (middleware, DbContext, startup), group them into a `Runtime` or `Platform` module.
 
 ## Output Steps
 
 1. Write `modules.yaml` to project root.
-2. Display a machine-friendly AI-optimized summary block in chat using nested YAML (SUMMARY_V2):
+2. Display a **Grouping Review Summary** block in chat using nested YAML (SUMMARY_V2):
 
    ```yaml
    # SUMMARY_V2
@@ -161,16 +167,17 @@ Tier rules:
        reason: {reason}
    ```
 
-   Notes:
+  Notes:
    - Only include `tier=primary` files in the `files` list. Omit `tier=supporting` files entirely. Do not write a `tier` field in the output — inclusion in the list implies primary.
   - If a module has no primary files, exclude it from `modules` and add it to `merge_recommendations`.
+  - Include: `supporting_files_not_shown: {count}` at summary level to signal omitted supporting files.
    - `role` must be a snake_case enum. Use the set that matches the project layer:
      - **Backend (`layer: API`):** `controller`, `service_interface`, `service_impl`, `repository_interface`, `repository_impl`, `domain_entity`, `dto_contract`, `middleware`, `db_context`, `shared_infrastructure`
      - **UI (`layer: UI`):** `page_container`, `custom_hook`, `api_client`, `context_provider`, `route_registration`, `shared_component`, `entry_point`, `route_fallback`, `utility`, `mock_data`
      - **Both:** `utility`, `test`, `test_setup`
    - `modules.yaml` remains the source of truth and retains all files including supporting ones.
 
-3. Instruct the reviewer: "Review `modules.yaml` in your editor. If SUMMARY_V2 contains `merge_recommendations`, resolve those first by merging or removing the listed modules. Then change `grouping_status: draft` to `grouping_status: approved` for modules you confirm. Run `/akr-docs generate [ModuleName]` only for approved modules that have at least one primary file. Treat `modules.yaml` as the source of truth; use SUMMARY_V2 as a review/debug aid."
+3. Instruct the reviewer: "Review `modules.yaml` in your editor. If SUMMARY_V2 contains `merge_recommendations`, resolve those first by merging or removing the listed modules. Then change `grouping_status: draft` to `grouping_status: approved` for modules you confirm. Run `/akr-docs generate [ModuleName]` only for approved modules that have at least one primary file. Treat `modules.yaml` as the source of truth; use SUMMARY_V2 as a review aid for primary-file coverage only."
 
 4. Add a note in the chat summary:
   - `modules.yaml` includes both `primary` and `supporting` files for coding assistance context.

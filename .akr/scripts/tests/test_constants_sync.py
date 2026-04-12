@@ -165,6 +165,38 @@ def main() -> int:
         )
         all_pass = all_pass and ok
 
+    # --- Required section baseline alignment ---
+    inline_required_sections = getattr(inline, "BASELINE_REQUIRED_SECTIONS", None)
+    full_required_sections = getattr(full, "MODULE_REQUIRED_SECTIONS", None)
+    if inline_required_sections is None or full_required_sections is None:
+        print("  ❌ BASELINE_REQUIRED_SECTIONS / MODULE_REQUIRED_SECTIONS not found in one or both files")
+        all_pass = False
+    else:
+        ok = _assert_equal(
+            "MODULE_REQUIRED_SECTIONS_ALIGNMENT",
+            frozenset(inline_required_sections),
+            frozenset(full_required_sections),
+            "inline (BASELINE_REQUIRED_SECTIONS)",
+            "full CI (MODULE_REQUIRED_SECTIONS)",
+        )
+        all_pass = all_pass and ok
+
+    # --- Draft-only front matter alignment ---
+    inline_draft_fields_for_sync = getattr(inline, "DRAFT_ONLY_FIELDS", None)
+    full_draft_fields_for_sync = getattr(full, "DRAFT_ONLY_FRONT_MATTER_FIELDS", None)
+    if inline_draft_fields_for_sync is None or full_draft_fields_for_sync is None:
+        print("  ❌ DRAFT_ONLY_FIELDS / DRAFT_ONLY_FRONT_MATTER_FIELDS not found in one or both files")
+        all_pass = False
+    else:
+        ok = _assert_equal(
+            "DRAFT_ONLY_FIELDS_ALIGNMENT",
+            frozenset(inline_draft_fields_for_sync),
+            frozenset(full_draft_fields_for_sync),
+            "inline (DRAFT_ONLY_FIELDS)",
+            "full CI (DRAFT_ONLY_FRONT_MATTER_FIELDS)",
+        )
+        all_pass = all_pass and ok
+
     # --- SCORE_FRONT_MATTER_FIELDS safety invariant ---
     # Verifies the constant exists in akr_inline_validate.py AND that none of its
     # values are also in DRAFT_ONLY_FIELDS.  Score fields stripped on final commit

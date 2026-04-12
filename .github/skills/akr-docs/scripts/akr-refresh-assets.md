@@ -60,7 +60,8 @@ Switch behavior:
 For each selected target asset:
 
 1. Compute cache key: `{owner}/{repo}@{branch}/{asset_path}`
-2. Cache file: `.akr/cache/{encoded_cache_key}.md`
+2. Encode key per `SKILL.md` section **Cache Key Encoding Contract**.
+3. Cache file: `.akr/cache/{encoded_cache_key}.md`
 3. Fetch live content via `@github get file` from `core-akr-templates`.
 4. Overwrite cache file with fetched content.
 5. Record status as `refreshed`.

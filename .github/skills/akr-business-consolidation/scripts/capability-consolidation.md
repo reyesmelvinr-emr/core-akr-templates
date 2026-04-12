@@ -34,7 +34,7 @@ Use canonical templates from `core-akr-templates/.akr/templates/`:
 ## Required checks
 
 - Validate `businessCapability` against registry before write.
-- Validate metadata fields and front matter shape.
+- Validate metadata fields and front matter shape using `SKILL.md` section **Required Metadata and Governance**.
 - Preserve existing repository-owned policy files.
 
 ## Output quality
@@ -45,13 +45,7 @@ Use canonical templates from `core-akr-templates/.akr/templates/`:
 
 ## Source access
 
-Read `consolidation.mode` from `.akr-config.json` in the consolidation repository root before locating source documentation.
+Determine source-document location using `SKILL.md` section **Consolidation Mode**.
+If `.akr-config.json` is absent or mode is not set, default to `source-evidence` and confirm evidence path before proceeding.
 
-| `consolidation.mode` | Where to read source docs |
-|---|---|
-| `local-workspace` | Read directly from the workspace folders listed in `consolidation.sourceRepos`. Each value corresponds to a folder name in the active VS Code multi-root workspace. |
-| `source-evidence` | Read from `<consolidation.sourceEvidencePath>/<repo-name>/` inside the consolidation repository. Default path: `docs/references/source-evidence/`. |
-
-If `.akr-config.json` is absent or `consolidation.mode` is not set, default to `source-evidence` and prompt the user to confirm the evidence path before proceeding.
-
-For `source-evidence` mode, also read `sync-manifest.json` in each evidence folder to include source repo name, commit SHA, and sync timestamp in `traceability.md`.
+For `source-evidence` mode, read `sync-manifest.json` per `SKILL.md` section **Source Evidence Schema (sync-manifest.json)** and include source repo name, commit SHA, and sync timestamp in `traceability.md`.

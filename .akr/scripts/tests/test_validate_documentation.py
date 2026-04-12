@@ -26,13 +26,15 @@ def _write_module_doc(path: Path, extra_front_matter: str = "") -> None:
             project_type: api-backend
             status: approved
             compliance_mode: pilot
-            generation-strategy: section-scoped
             {extra_front_matter}---
             <!-- akr-generated
             skill: akr-docs
             -->
 
             ## Overview
+            x
+
+            ## Quick Reference (TL;DR)
             x
 
             ## Module Files
@@ -45,6 +47,12 @@ def _write_module_doc(path: Path, extra_front_matter: str = "") -> None:
             x
 
             ## Business Rules
+            x
+
+            ## Data Operations
+            x
+
+            ## Questions & Gaps
             x
             """
         ),
@@ -351,3 +359,165 @@ def test_score_fields_not_flagged_as_draft_only() -> None:
         payload = json.loads(result.stdout)
         messages = [issue["message"] for issue in payload["results"][0]["issues"]]
         assert not any("draft-only front matter" in m for m in messages)
+
+
+def test_needs_and_verify_markers_are_reported() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "modules.yaml").write_text(
+            textwrap.dedent(
+                """\
+                project:
+                  name: TrainingTracker.Api
+                  layer: API
+                  standards_version: v1.1.0
+                  minimum_standards_version: v1.1.0
+                  compliance_mode: pilot
+                modules:
+                  - name: CourseDomain
+                    businessCapability: CourseCatalogManagement
+                    feature: FN00001_US100
+                    project_type: api-backend
+                    status: approved
+                    max_files: 3
+                    files:
+                      - src/Controllers/CoursesController.cs
+                    doc_output: docs/modules/CourseDomain_doc.md
+                database_objects: []
+                unassigned: []
+                """
+            ),
+            encoding="utf-8",
+        )
+
+        _write_module_doc(
+            root / "docs/modules/CourseDomain_doc.md",
+            "",
+        )
+        doc_path = root / "docs/modules/CourseDomain_doc.md"
+        doc_path.write_text(doc_path.read_text(encoding="utf-8") + "\nNEEDS owner input\nVERIFY contract alignment\n", encoding="utf-8")
+
+        result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
+        payload = json.loads(result.stdout)
+        messages = [issue["message"] for issue in payload["results"][0]["issues"]]
+        assert any("NEEDS marker" in m for m in messages)
+        assert any("VERIFY marker" in m for m in messages)
+
+
+def test_deferred_marker_requires_owner_format_warning() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "modules.yaml").write_text(
+            textwrap.dedent(
+                """\
+                project:
+                  name: TrainingTracker.Api
+                  layer: API
+                  standards_version: v1.1.0
+                  minimum_standards_version: v1.1.0
+                  compliance_mode: pilot
+                modules:
+                  - name: CourseDomain
+                    businessCapability: CourseCatalogManagement
+                    feature: FN00001_US100
+                    project_type: api-backend
+                    status: approved
+                    max_files: 3
+                    files:
+                      - src/Controllers/CoursesController.cs
+                    doc_output: docs/modules/CourseDomain_doc.md
+                database_objects: []
+                unassigned: []
+                """
+            ),
+            encoding="utf-8",
+        )
+        _write_module_doc(root / "docs/modules/CourseDomain_doc.md")
+        doc_path = root / "docs/modules/CourseDomain_doc.md"
+        doc_path.write_text(doc_path.read_text(encoding="utf-8") + "\nDEFERRED: pending historical verification\n", encoding="utf-8")
+
+        result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
+        payload = json.loads(result.stdout)
+        messages = [issue["message"] for issue in payload["results"][0]["issues"]]
+        assert any("missing required owner attribution format" in m for m in messages)
+
+
+def test_document_level_compliance_mode_overrides_project_default() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "modules.yaml").write_text(
+            textwrap.dedent(
+                """\
+                project:
+                  name: TrainingTracker.Api
+                  layer: API
+                  standards_version: v1.1.0
+                  minimum_standards_version: v1.1.0
+                  compliance_mode: pilot
+                modules:
+                  - name: CourseDomain
+                    businessCapability: CourseCatalogManagement
+                    feature: FN00001_US100
+                    project_type: api-backend
+                    status: approved
+                    max_files: 3
+                    files:
+                      - src/Controllers/CoursesController.cs
+                    doc_output: docs/modules/CourseDomain_doc.md
+                database_objects: []
+                unassigned: []
+                """
+            ),
+            encoding="utf-8",
+        )
+        _write_module_doc(root / "docs/modules/CourseDomain_doc.md")
+        doc_path = root / "docs/modules/CourseDomain_doc.md"
+        content = doc_path.read_text(encoding="utf-8")
+        content = content.replace("compliance_mode: pilot", "compliance_mode: production")
+        content += "\n❓ unresolved marker\n"
+        doc_path.write_text(content, encoding="utf-8")
+
+        result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
+        payload = json.loads(result.stdout)
+        issues = payload["results"][0]["issues"]
+        assert any(i["severity"] == "error" and "unresolved ❓ marker" in i["message"] for i in issues)
+
+
+def test_legacy_string_files_entry_warns() -> None:
+    """Legacy string-form files[] entries must emit a deprecation warning in preflight_issues."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "modules.yaml").write_text(
+            textwrap.dedent(
+                """\
+                project:
+                  name: TrainingTracker.Api
+                  layer: API
+                  standards_version: v1.1.0
+                  minimum_standards_version: v1.1.0
+                  compliance_mode: pilot
+                modules:
+                  - name: CourseDomain
+                    businessCapability: CourseCatalogManagement
+                    feature: FN00001_US100
+                    project_type: api-backend
+                    status: approved
+                    max_files: 3
+                    files:
+                      - src/Controllers/CoursesController.cs
+                    doc_output: docs/modules/CourseDomain_doc.md
+                database_objects: []
+                unassigned: []
+                """
+            ),
+            encoding="utf-8",
+        )
+        _write_module_doc(root / "docs/modules/CourseDomain_doc.md")
+
+        result = _run_validator(root, ["--file", "docs/modules/CourseDomain_doc.md", "--output", "json"])
+        payload = json.loads(result.stdout)
+        preflight_warnings = [
+            issue for issue in payload["preflight_issues"]
+            if issue["severity"] == "warning" and issue["rule"] == "modules-schema"
+        ]
+        assert any("deprecated string form" in issue["message"] for issue in preflight_warnings)

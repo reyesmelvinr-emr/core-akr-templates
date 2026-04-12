@@ -76,6 +76,9 @@ DRAFT_ONLY_FIELDS = frozenset({
     "draft-generation-seconds",
     "stage-timings",
     "review-mode",
+    "generation-strategy",
+    "passes-completed",
+    "excluded-sections",
 })
 
 # Score fields written by /akr-docs score before PR.
@@ -425,8 +428,16 @@ def _check_transparency_markers(content: str, compliance_mode: str) -> List[Dict
     issues = []
 
     q_count = content.count("❓")
+    needs_count = len(re.findall(r"\bNEEDS\b", content, re.IGNORECASE))
+    verify_count = len(re.findall(r"\bVERIFY\b", content, re.IGNORECASE))
     bot_count = content.count("🤖")
     deferred_count = len(re.findall(r"\bDEFERRED\b", content, re.IGNORECASE))
+    malformed_deferred_lines = []
+
+    for line in content.splitlines():
+        if re.search(r"\bDEFERRED\b", line, re.IGNORECASE):
+            if not re.search(r"DEFERRED\s*:\s*.*\bOwner\s*:\s*.*", line, re.IGNORECASE):
+                malformed_deferred_lines.append(line)
 
     if q_count > 0:
         severity = "error" if compliance_mode == "production" else "warning"
@@ -441,6 +452,27 @@ def _check_transparency_markers(content: str, compliance_mode: str) -> List[Dict
             "line": None,
         })
 
+    if needs_count > 0:
+        severity = "error" if compliance_mode == "production" else "warning"
+        issues.append({
+            "severity": severity,
+            "rule": "transparency-markers",
+            "message": (
+                f"Found {needs_count} unresolved NEEDS marker(s). "
+                + ("Blocking in production mode." if compliance_mode == "production"
+                   else "Resolve before graduating to production mode.")
+            ),
+            "line": None,
+        })
+
+    if verify_count > 0:
+        issues.append({
+            "severity": "warning",
+            "rule": "transparency-markers",
+            "message": f"Found {verify_count} VERIFY marker(s). Confirm these assumptions against source evidence.",
+            "line": None,
+        })
+
     if deferred_count > 0:
         issues.append({
             "severity": "warning",
@@ -448,6 +480,17 @@ def _check_transparency_markers(content: str, compliance_mode: str) -> List[Dict
             "message": (
                 f"Found {deferred_count} DEFERRED marker(s). "
                 "Verify each has an owner and follow-up trigger."
+            ),
+            "line": None,
+        })
+
+    if malformed_deferred_lines:
+        issues.append({
+            "severity": "warning",
+            "rule": "transparency-markers",
+            "message": (
+                "One or more DEFERRED markers are missing required owner attribution format "
+                "(expected 'DEFERRED: ... Owner: ...')."
             ),
             "line": None,
         })
@@ -504,6 +547,14 @@ def validate_file(
     issues.extend(_check_metadata_canonical_format(content))
     issues.extend(_check_required_sections(content))
     issues.extend(_check_transparency_markers(content, effective_compliance))
+
+    if "semantic-score" not in front_matter:
+        issues.append({
+            "severity": "info",
+            "rule": "semantic-score-absent",
+            "message": "Semantic score not present. Run '/akr-docs score [ModuleName]' before opening PR to enable combined scoring.",
+            "line": None,
+        })
 
     error_count = sum(1 for i in issues if i["severity"] == "error")
     warning_count = sum(1 for i in issues if i["severity"] == "warning")

@@ -12,9 +12,7 @@ Identify which business capabilities are affected by source documentation or cod
 
 ## Required checks
 
-- `businessCapability` values must be approved registry values.
-- `feature` must match `FN#####_US#####`.
-- `layer` must be present and valid for each input source.
+- Validate metadata using `SKILL.md` section **Required Metadata and Governance**.
 
 ## Outputs
 
@@ -28,13 +26,7 @@ When source metadata is incomplete, mark findings with `❓` and include a concr
 
 ## Source access
 
-Read `consolidation.mode` from `.akr-config.json` in the consolidation repository root before locating source documentation.
+Determine source-document location using `SKILL.md` section **Consolidation Mode**.
+If `.akr-config.json` is absent or mode is not set, default to `source-evidence` and confirm evidence path before proceeding.
 
-| `consolidation.mode` | Where to read source docs |
-|---|---|
-| `local-workspace` | Read directly from the workspace folders listed in `consolidation.sourceRepos`. Each value corresponds to a folder name in the active VS Code multi-root workspace. |
-| `source-evidence` | Read from `<consolidation.sourceEvidencePath>/<repo-name>/` inside the consolidation repository. Default path: `docs/references/source-evidence/`. |
-
-If `.akr-config.json` is absent or `consolidation.mode` is not set, default to `source-evidence` and prompt the user to confirm the evidence path before proceeding.
-
-For `source-evidence` mode, use `sync-manifest.json` `commit_sha` and `triggering_pr` fields as the source change reference when constructing the impact analysis output.
+For `source-evidence` mode, use `sync-manifest.json` fields per `SKILL.md` section **Source Evidence Schema (sync-manifest.json)**. At minimum include `commit_sha` and `triggering_pr` in impact analysis output.

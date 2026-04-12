@@ -51,7 +51,7 @@ them without reading the whole document.
 
 - `[file]`: path to the AKR module document (markdown). If omitted, prompt the user to provide it.
 - `--as @username`: declare the current user's identity for callout routing. The `@` prefix is required. Username matching is case-insensitive.
-- `--callouts-only`: skip general open markers (❓, NEEDS, VERIFY, DEFERRED without owner). Only process items that carry an explicit `@username` callout tag. Requires at least one callout to be present or the skill exits with a "No callouts found" message.
+- `--callouts-only`: skip general open markers (❓, NEEDS, VERIFY, DEFERRED without owner). Only process items that carry an explicit `@username` callout tag. If no items are addressed to the current user, report that and list other usernames when present.
 
 ## Callout Syntax Reference
 
@@ -101,5 +101,5 @@ message naming the supported models and ask the user to switch before re-running
 
 - If `[file]` is not found: report the path and ask the user to confirm it is correct.
 - If the file has no open markers and no callouts: report "No open items found in [file]. The document appears complete." and exit cleanly.
-- If `--callouts-only` is set but no callouts are found: report "No @username callouts found in [file]." and exit cleanly.
+- If `--callouts-only` is set and no callouts are addressed to the current user: report "No callouts addressed to @username in [file]." If other callouts exist, list those usernames. If no callouts exist at all, report "No callouts found in [file]." and exit cleanly.
 - If `--as @username` is set but no items are tagged for that user: report the list of usernames that do have callouts in the document (if any), and ask if the user wants to run in full interview mode instead.

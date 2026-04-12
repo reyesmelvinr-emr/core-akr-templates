@@ -221,8 +221,10 @@ Generate one focused question per item. Rules:
 
 **"save" response:**
 1. Apply `PENDING_EDITS` accumulated so far.
-2. Report: "Progress saved. Continuing interview from item {n+1} of {total}."
-3. Resume the loop from the next item.
+2. Record checkpoint: "Saved through item {Item ID} at {timestamp}".
+3. Clear saved items from `PENDING_EDITS` so they are not re-applied in Phase 6.
+4. Report: "Progress saved. Continuing interview from item {n+1} of {total}."
+5. Resume the loop from the next item.
 
 ---
 
@@ -241,13 +243,14 @@ The goal is to produce documentation-grade prose that reads as if authored by a 
 6. **Keep it concise** — one to two sentences maximum unless the context demands more. Do not pad.
 7. **For "Since When" fields** — produce a compact date or milestone reference: "Introduced in v2.1.0 (Q3 2025)" or "Present since initial implementation (v1.0.0)".
 8. **For "Why It Exists" fields** — produce a governance statement: "Enforced to {prevent/ensure/verify} {outcome}, as required by {policy/stakeholder/constraint}."
+9. **Never introduce unresolved markers** — rephrased output must not include `❓`, `NEEDS`, `VERIFY`, or `DEFERRED`. If information is uncertain, use the defer flow instead of inserting uncertainty markers.
 
 ### Rephrasing Examples
 
 | Raw Answer | Rephrased Insert |
 |------------|-----------------|
 | "we added this I think when compliance asked us to cap enrollments" | "Introduced at stakeholder request from the Compliance team to enforce a maximum enrollment count per course." |
-| "idk maybe v1 or initial release" | "Present since initial implementation (v1.0.0). Exact release date to be confirmed. ❓" |
+| "idk maybe v1 or initial release" | "Present since initial implementation (v1.0.0)." *(If uncertainty remains material, use defer flow instead of inserting markers.)* |
 | "its there so admins cant accidentally delete active courses" | "Enforced to prevent accidental deletion of courses with active or in-progress enrollments." |
 | "around Q3 last year, when we did the training reg overhaul" | "Introduced during the Training Registration overhaul (approximately Q3 2025)." |
 
@@ -268,7 +271,7 @@ Example:
 
 After the interview loop ends (all items processed, or "done" was typed):
 
-1. Apply all `PENDING_EDITS` to `INTERVIEW_DOC`.
+1. Apply remaining `PENDING_EDITS` (items added after the most recent save checkpoint) to `INTERVIEW_DOC`.
 
    **Edit application rules:**
    - For general open markers: replace the marker token (❓ / NEEDS / VERIFY / DEFERRED) and any adjacent placeholder text with the rephrased answer text.

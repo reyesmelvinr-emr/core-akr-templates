@@ -17,12 +17,18 @@ modules:
     ssg_pass4_source_reread: false
     max_files: 8
     files:
-      - src/Controllers/CoursesController.cs
-      - src/Services/CourseService.cs
-      - src/Services/Interfaces/ICourseService.cs
-      - src/Repositories/CourseRepository.cs
-      - src/Repositories/Interfaces/ICourseRepository.cs
-      - src/Contracts/CourseDtos.cs
+      - path: src/Controllers/CoursesController.cs
+        tier: primary
+      - path: src/Services/CourseService.cs
+        tier: primary
+      - path: src/Services/Interfaces/ICourseService.cs
+        tier: primary
+      - path: src/Repositories/CourseRepository.cs
+        tier: primary
+      - path: src/Repositories/Interfaces/ICourseRepository.cs
+        tier: primary
+      - path: src/Contracts/CourseDtos.cs
+        tier: primary
     doc_output: docs/modules/CourseDomain_doc.md
 
   - name: EnrollmentDomain
@@ -36,11 +42,16 @@ modules:
     ssg_pass4_source_reread: false
     max_files: 8
     files:
-      - src/Controllers/EnrollmentsController.cs
-      - src/Services/EnrollmentService.cs
-      - src/Services/Interfaces/IEnrollmentService.cs
-      - src/Repositories/EnrollmentRepository.cs
-      - src/Contracts/EnrollmentDtos.cs
+      - path: src/Controllers/EnrollmentsController.cs
+        tier: primary
+      - path: src/Services/EnrollmentService.cs
+        tier: primary
+      - path: src/Services/Interfaces/IEnrollmentService.cs
+        tier: primary
+      - path: src/Repositories/EnrollmentRepository.cs
+        tier: primary
+      - path: src/Contracts/EnrollmentDtos.cs
+        tier: primary
     doc_output: docs/modules/EnrollmentDomain_doc.md
 
 database_objects:

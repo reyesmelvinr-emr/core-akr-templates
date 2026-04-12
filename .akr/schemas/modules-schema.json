@@ -65,8 +65,19 @@
             "minItems": 1,
             "maxItems": 8,
             "items": {
-              "type": "string",
-              "minLength": 1
+              "type": "object",
+              "required": ["path", "tier"],
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tier": {
+                  "type": "string",
+                  "enum": ["primary", "supporting"]
+                }
+              }
             },
             "uniqueItems": true
           },

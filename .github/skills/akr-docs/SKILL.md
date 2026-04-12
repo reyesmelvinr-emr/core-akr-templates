@@ -65,6 +65,26 @@ Prerequisite reminder for `/akr-docs refresh-assets`: GitHub MCP server must be 
 - `refresh-assets` and `update-cache` runs require at most 2 `@github` calls total: 1 template fetch and 1 charter fetch. With `--template-only` or `--charter-only`, require only 1 `@github` call.
 - `cache-status` requires 0 `@github` calls.
 
+## Cache Key Encoding Contract
+
+All cache filenames under `.akr/cache/` must use the same deterministic encoding.
+
+Raw key format:
+
+`{owner}/{repo}@{branch}/{asset_path}`
+
+Encode using this ordered replacement sequence:
+
+1. Replace `\\` with `__`
+2. Replace `/` with `__`
+3. Replace `@` with `_at_`
+
+Encoded cache filename format:
+
+`.akr/cache/{encoded_cache_key}.md`
+
+Mode scripts must reference this section as the single source of truth and must not redefine alternate encoding schemes.
+
 ## Step 0: MCP Pre-flight Check
 
 Before loading a mode script, choose the execution lane:

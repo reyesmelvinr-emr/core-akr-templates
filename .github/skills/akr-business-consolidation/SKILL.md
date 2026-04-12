@@ -37,6 +37,11 @@ Load only the mode script required by the command.
 | `/akr-business-consolidation capability-test-generation [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-test-generation.md` | Generate enhancement-focused tests |
 | `/akr-business-consolidation capability-relationship-mapping [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-relationship-mapping.md` | Explain dependency and cross-layer relationships |
 
+Dispatcher pre-check for `capability-test-generation`:
+- Determine capability status from `docs/business-capabilities/{active|new|archived}/<CapabilityName>/`.
+- If status is `new` or `archived`, stop before loading the mode script and return:
+  "Test generation is only available for active capabilities. <CapabilityName> is currently <status>."
+
 ## Required Metadata and Governance
 
 All generated capability files must include front matter with:
@@ -51,6 +56,8 @@ All generated capability files must include front matter with:
 Registry source of truth:
 
 - `core-akr-templates/.akr/tags/tag-registry.json`
+
+Mode scripts must reference this section as the authoritative metadata contract and avoid restating duplicate check blocks.
 
 ## Output Contract
 
@@ -101,5 +108,27 @@ The skill reads source documentation from different locations depending on the `
 | `source-evidence` | Source docs read from `docs/references/source-evidence/<repo-name>/` inside the consolidation repository. Snapshot is refreshed via `sync-source-evidence.yml` workflow. | Non-technical PO with consolidation repo access only |
 
 If `consolidation.mode` is absent, default to `source-evidence`.
+
+Mode scripts must reference this section as the authoritative source-access contract and avoid duplicating this table.
+
+## Source Evidence Schema (sync-manifest.json)
+
+In `source-evidence` mode, each evidence folder may include `sync-manifest.json` with this schema:
+
+```json
+{
+  "source_repo": "owner/repo",
+  "branch": "branch-name",
+  "commit_sha": "commit-sha-or-placeholder",
+  "synced_at": "ISO-8601 timestamp",
+  "triggering_pr": "pr-number-or-manual-dispatch-id",
+  "files_synced": ["glob/or/path", "..."]
+}
+```
+
+Field usage:
+- `commit_sha`: source revision identifier for traceability output.
+- `synced_at`: evidence freshness indicator.
+- `triggering_pr`: upstream trigger reference for auditability.
 
 Refer to [docs/TEAM_STARTUP_ONBOARDING_GUIDE.md](../../docs/TEAM_STARTUP_ONBOARDING_GUIDE.md) for setup instructions for each mode.

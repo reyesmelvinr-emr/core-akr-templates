@@ -16,11 +16,13 @@ import yaml
 
 
 MODULE_REQUIRED_SECTIONS = [
-    "Overview",
+    "Quick Reference (TL;DR)",
     "Module Files",
     "Operations Map",
     "Architecture Overview",
     "Business Rules",
+    "Data Operations",
+    "Questions & Gaps",
 ]
 
 DB_REQUIRED_SECTIONS = [
@@ -36,7 +38,18 @@ PROJECT_TYPE_ENUM = {"api-backend", "ui-component", "microservice", "general"}
 MODULE_STATUS_ENUM = {"draft", "review", "approved", "in-progress", "deprecated"}
 DB_TYPE_ENUM = {"table", "view", "procedure", "function", "schema"}
 FILE_TIER_ENUM = {"primary", "supporting"}
-DRAFT_ONLY_FRONT_MATTER_FIELDS = {"preview-generated-at", "review-mode"}
+VALID_COMPLIANCE_MODES = {"pilot", "production"}
+CONSTANTS_VERSION = "1.0.0"
+DRAFT_ONLY_FRONT_MATTER_FIELDS = {
+    "preview-generated-at",
+    "generation-started-at",
+    "draft-generation-seconds",
+    "stage-timings",
+    "review-mode",
+    "generation-strategy",
+    "passes-completed",
+    "excluded-sections",
+}
 
 # Score fields written by /akr-docs score — must NEVER be in DRAFT_ONLY_FRONT_MATTER_FIELDS.
 SCORE_FRONT_MATTER_FIELDS: frozenset = frozenset({
@@ -224,7 +237,7 @@ def _collect_declared_artifact_warnings(manifest: Dict[str, Any], workspace_root
 def _validate_module_file_entry(entry: Any, module_idx: int, file_idx: int) -> List[ValidationIssue]:
     issues: List[ValidationIssue] = []
 
-    # Backward compatibility: allow legacy string entries (path only).
+    # Legacy string entries are deprecated; emit a warning and continue.
     if isinstance(entry, str):
         if not entry.strip():
             issues.append(
@@ -234,14 +247,22 @@ def _validate_module_file_entry(entry: Any, module_idx: int, file_idx: int) -> L
                     "modules-schema",
                 )
             )
+        else:
+            issues.append(
+                ValidationIssue(
+                    "warning",
+                    f"modules[{module_idx}].files[{file_idx}] uses deprecated string form; migrate to {{path, tier}} object",
+                    "modules-schema",
+                )
+            )
         return issues
 
-    # New format: object entry with explicit path+tier.
+    # Required format: object entry with explicit path and tier.
     if not isinstance(entry, dict):
         issues.append(
             ValidationIssue(
                 "error",
-                f"modules[{module_idx}].files[{file_idx}] must be a string path or object",
+                f"modules[{module_idx}].files[{file_idx}] must be an object with path and tier",
                 "modules-schema",
             )
         )
@@ -309,7 +330,7 @@ def _validate_manifest_schema(manifest: Dict[str, Any]) -> List[ValidationIssue]
         )
 
     compliance_mode = project.get("compliance_mode")
-    if compliance_mode not in {"pilot", "production"}:
+    if compliance_mode not in VALID_COMPLIANCE_MODES:
         issues.append(ValidationIssue("error", "modules.yaml project.compliance_mode must be pilot or production", "modules-schema"))
 
     standards_version = _parse_semver(project.get("standards_version"))
@@ -451,8 +472,16 @@ def _check_required_sections(content: str, required_sections: List[str]) -> List
 def _check_transparency_markers(content: str, compliance_mode: str) -> List[ValidationIssue]:
     issues: List[ValidationIssue] = []
     q_count = content.count("❓")
+    needs_count = len(re.findall(r"\bNEEDS\b", content, flags=re.IGNORECASE))
+    verify_count = len(re.findall(r"\bVERIFY\b", content, flags=re.IGNORECASE))
     ai_count = content.count("🤖")
     deferred_count = len(re.findall(r"\bDEFERRED\b", content, flags=re.IGNORECASE))
+    malformed_deferred_lines = []
+
+    for line in content.splitlines():
+        if re.search(r"\bDEFERRED\b", line, flags=re.IGNORECASE):
+            if not re.search(r"DEFERRED\s*:\s*.*\bOwner\s*:\s*.*", line, flags=re.IGNORECASE):
+                malformed_deferred_lines.append(line)
 
     if q_count > 0 and compliance_mode == "production":
         issues.append(
@@ -471,11 +500,46 @@ def _check_transparency_markers(content: str, compliance_mode: str) -> List[Vali
             )
         )
 
+    if needs_count > 0 and compliance_mode == "production":
+        issues.append(
+            ValidationIssue(
+                "error",
+                f"Found {needs_count} unresolved NEEDS marker(s) in production compliance mode",
+                "transparency-markers",
+            )
+        )
+    elif needs_count > 0:
+        issues.append(
+            ValidationIssue(
+                "warning",
+                f"Found {needs_count} unresolved NEEDS marker(s) in pilot compliance mode",
+                "transparency-markers",
+            )
+        )
+
+    if verify_count > 0:
+        issues.append(
+            ValidationIssue(
+                "warning",
+                f"Found {verify_count} VERIFY marker(s); verify these assumptions against source evidence",
+                "transparency-markers",
+            )
+        )
+
     if deferred_count > 0:
         issues.append(
             ValidationIssue(
                 "warning",
                 f"Found {deferred_count} DEFERRED marker(s); verify deferred content ownership",
+                "transparency-markers",
+            )
+        )
+
+    if malformed_deferred_lines:
+        issues.append(
+            ValidationIssue(
+                "warning",
+                "One or more DEFERRED markers are missing required owner attribution format (expected 'DEFERRED: ... Owner: ...')",
                 "transparency-markers",
             )
         )
@@ -564,7 +628,7 @@ def _check_module_front_matter(content: str, front_matter: Dict[str, str]) -> Li
         )
 
     compliance_mode = front_matter.get("compliance_mode")
-    if compliance_mode and compliance_mode not in {"pilot", "production"}:
+    if compliance_mode and compliance_mode not in VALID_COMPLIANCE_MODES:
         issues.append(
             ValidationIssue(
                 "error",
@@ -704,7 +768,7 @@ def _validate_single_file(
     doc_path: Path,
     workspace_root: Path,
     doc_index: Dict[str, Dict[str, Any]],
-    compliance_mode: str,
+    default_compliance_mode: str,
 ) -> ValidationResult:
     text = doc_path.read_text(encoding="utf-8")
 
@@ -717,12 +781,19 @@ def _validate_single_file(
         required = GENERIC_REQUIRED_SECTIONS
 
     issues: List[ValidationIssue] = []
+    front_matter = _extract_front_matter_fields(text)
+    doc_compliance_mode = front_matter.get("compliance_mode", "").strip()
+    effective_compliance_mode = (
+        doc_compliance_mode
+        if doc_compliance_mode in VALID_COMPLIANCE_MODES
+        else default_compliance_mode
+    )
+
     issues.extend(_check_required_sections(text, required))
-    issues.extend(_check_transparency_markers(text, compliance_mode))
+    issues.extend(_check_transparency_markers(text, effective_compliance_mode))
 
     if doc_type == "module":
         issues.extend(_check_akr_generated_header(text))
-        front_matter = _extract_front_matter_fields(text)
         issues.extend(_check_module_front_matter(text, front_matter))
         if info.get("doc_output") == _relative_posix(doc_path, workspace_root):
             if any(field in front_matter for field in DRAFT_ONLY_FRONT_MATTER_FIELDS):
@@ -870,6 +941,8 @@ def main() -> int:
             preflight_issues.extend(_collect_declared_artifact_warnings(manifest, workspace_root))
             doc_index = _build_doc_index(manifest)
             compliance_mode = manifest.get("project", {}).get("compliance_mode", "pilot")
+            if compliance_mode not in VALID_COMPLIANCE_MODES:
+                compliance_mode = "pilot"
         except Exception as exc:  # noqa: BLE001
             preflight_issues.append(ValidationIssue("error", f"Failed to parse modules.yaml: {exc}", "modules-schema"))
     else:
