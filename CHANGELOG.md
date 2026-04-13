@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-04-13 - Batch Generate Documentation Flow
+
+### Added
+
+- Batch generate command path for AKR docs: `/akr-docs generate --batch [ModuleA ModuleB ...]`.
+- Batch pre-flight validation guidance (explicit module list, max 5 modules, approve-only gating).
+- Single consolidated confirmation gate behavior after draft generation in batch mode.
+
+### Updated
+
+- `.github/skills/akr-docs/scripts/akr-generate.md`:
+  - Added single-module and batch-mode split in pre-flight and downstream steps.
+  - Added Step 8.5 consolidated confirmation gate for batch runs.
+  - Updated Step 9 promotion flow to support partial success handling.
+  - Updated Step 10 for per-module inline validation aggregation in batch runs.
+  - Updated Step 11 to auto-skip scoring in batch mode.
+  - Added batch-specific Step 12 summary contract.
+- `.github/skills/akr-docs/SKILL.md`:
+  - Dispatcher invocation surface updated to include batch syntax.
+  - Invocation table updated for generate mode batch option.
+  - Step 0 pre-flight notes updated for batch validation checks.
+- `docs/TEAM_STARTUP_ONBOARDING_GUIDE.md`: developer command set expanded with batch generate usage and behavior notes.
+- `docs/AKR_ONBOARDING_STORY.md`: narrative examples updated with batch generate option.
+- `docs/MIGRATION_GUIDE.md`: invocation and token-budget sections updated to include batch scenario.
+- `docs/VALIDATION_GUIDE.md`: added batch-mode validation behavior and follow-up scoring guidance.
+
 ## 2026-03-18 - Phase 1 Deliverables 4-7A
 
 ### Added

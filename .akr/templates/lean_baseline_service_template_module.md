@@ -212,7 +212,6 @@ Document only exceptions this module explicitly catches and handles with domain-
 
 ---
 
-<!-- akr:section id="questions_gaps" required=true order=12 authorship="human" -->
 <!-- akr:section id="questions_gaps" required=true order=11 authorship="human" -->
 ## Questions & Gaps
 

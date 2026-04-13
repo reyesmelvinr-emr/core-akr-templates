@@ -96,14 +96,37 @@ SCORE_FRONT_MATTER_FIELDS = frozenset({
 # Keep in sync with MODULE_REQUIRED_SECTIONS in validate_documentation.py.
 # ---------------------------------------------------------------------------
 BASELINE_REQUIRED_SECTIONS = [
-    "Quick Reference (TL;DR)",
+    "Quick Reference",
     "Module Files",
-    "Operations Map",
-    "Architecture Overview",
+    "API Operations",
+    "Integration Context",
     "Business Rules",
     "Data Operations",
     "Questions & Gaps",
 ]
+
+SECTION_ID_HEADING_ALIASES = {
+    "quick_reference": ["Quick Reference", "Quick Reference (TL;DR)"],
+    "module_files": ["Module Files"],
+    "purpose_scope": ["Purpose and Scope", "Purpose Scope"],
+    "api_operations": ["API Operations", "Operations Map"],
+    "how_it_works": ["How It Works"],
+    "integration_context": ["Integration Context", "Architecture Overview"],
+    "business_rules": ["Business Rules"],
+    "data_operations": ["Data Operations"],
+    "failure_modes": ["Failure Modes", "Failure Modes & Exception Handling"],
+    "questions_gaps": ["Questions & Gaps", "Questions Gaps"],
+}
+
+BASELINE_REQUIRED_SECTION_ALIASES = {
+    "Quick Reference": ["Quick Reference", "Quick Reference (TL;DR)"],
+    "Module Files": ["Module Files"],
+    "API Operations": ["API Operations", "Operations Map"],
+    "Integration Context": ["Integration Context", "Architecture Overview"],
+    "Business Rules": ["Business Rules"],
+    "Data Operations": ["Data Operations"],
+    "Questions & Gaps": ["Questions & Gaps", "Questions Gaps"],
+}
 
 
 # ---------------------------------------------------------------------------
@@ -157,6 +180,14 @@ def _extract_required_sections_from_directives(content: str) -> Optional[List[st
 def _section_id_to_heading(section_id: str) -> str:
     """Convert snake_case section id to Title Case heading for display."""
     return section_id.replace("_", " ").title()
+
+
+def _section_id_to_heading_aliases(section_id: str) -> List[str]:
+    return SECTION_ID_HEADING_ALIASES.get(section_id, [_section_id_to_heading(section_id)])
+
+
+def _baseline_heading_aliases(section_name: str) -> List[str]:
+    return BASELINE_REQUIRED_SECTION_ALIASES.get(section_name, [section_name])
 
 
 def _normalize_heading(text: str) -> str:
@@ -395,25 +426,24 @@ def _check_required_sections(content: str) -> List[Dict]:
     directive_sections = _extract_required_sections_from_directives(content)
 
     if directive_sections is not None:
-        # Use directive-derived list
         required = directive_sections
         source = "directives"
     else:
-        # Fallback to baseline list — convert to normalized form
-        required = [_normalize_heading(s) for s in BASELINE_REQUIRED_SECTIONS]
+        required = BASELINE_REQUIRED_SECTIONS
         source = "baseline"
 
     headings = _extract_h2_headings(content)
     issues = []
 
     for section in required:
-        norm = _normalize_heading(section) if source == "directives" else section
-        if norm not in headings:
-            readable = (
-                _section_id_to_heading(section)
-                if source == "directives"
-                else section
-            )
+        aliases = (
+            _section_id_to_heading_aliases(section)
+            if source == "directives"
+            else _baseline_heading_aliases(section)
+        )
+        normalized_aliases = [_normalize_heading(alias) for alias in aliases]
+        if not any(norm in headings for norm in normalized_aliases):
+            readable = aliases[0]
             issues.append({
                 "severity": "error",
                 "rule": "required-sections",

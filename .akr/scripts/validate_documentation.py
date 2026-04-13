@@ -16,14 +16,24 @@ import yaml
 
 
 MODULE_REQUIRED_SECTIONS = [
-    "Quick Reference (TL;DR)",
+    "Quick Reference",
     "Module Files",
-    "Operations Map",
-    "Architecture Overview",
+    "API Operations",
+    "Integration Context",
     "Business Rules",
     "Data Operations",
     "Questions & Gaps",
 ]
+
+MODULE_REQUIRED_SECTION_ALIASES = {
+    "Quick Reference": ["Quick Reference", "Quick Reference (TL;DR)"],
+    "Module Files": ["Module Files"],
+    "API Operations": ["API Operations", "Operations Map"],
+    "Integration Context": ["Integration Context", "Architecture Overview"],
+    "Business Rules": ["Business Rules"],
+    "Data Operations": ["Data Operations"],
+    "Questions & Gaps": ["Questions & Gaps", "Questions Gaps"],
+}
 
 DB_REQUIRED_SECTIONS = [
     "Overview",
@@ -136,6 +146,11 @@ class ValidationResult:
 
 def _normalize_heading(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", text.lower())
+
+
+def _required_heading_matches(section: str) -> List[str]:
+    aliases = MODULE_REQUIRED_SECTION_ALIASES.get(section, [section])
+    return [_normalize_heading(alias) for alias in aliases]
 
 
 def _extract_h2_headings(content: str) -> List[Tuple[str, int]]:
@@ -457,8 +472,8 @@ def _check_required_sections(content: str, required_sections: List[str]) -> List
     heading_map = {_normalize_heading(name): line for name, line in headings}
 
     for section in required_sections:
-        norm = _normalize_heading(section)
-        if norm not in heading_map:
+        acceptable = _required_heading_matches(section)
+        if not any(norm in heading_map for norm in acceptable):
             issues.append(
                 ValidationIssue(
                     "error",
@@ -725,6 +740,11 @@ def _compute_completeness(required_sections: List[str], issues: List[ValidationI
     return round(max(0.0, min(100.0, base - penalties)), 2)
 
 
+def _is_required_section_present(section_name: str, section_map: Dict[str, int]) -> bool:
+    acceptable = _required_heading_matches(section_name)
+    return any(norm in section_map for norm in acceptable)
+
+
 def _classify_document(
     doc_path: Path,
     workspace_root: Path,
@@ -882,7 +902,7 @@ def _format_preview_output(
         }
         required_sections = MODULE_REQUIRED_SECTIONS if result.doc_type == "module" else DB_REQUIRED_SECTIONS if result.doc_type == "database_object" else GENERIC_REQUIRED_SECTIONS
         section_status = " | ".join(
-            f"{name} {'OK' if _normalize_heading(name) in section_map else 'MISSING'}" for name in required_sections
+            f"{name} {'OK' if _is_required_section_present(name, section_map) else 'MISSING'}" for name in required_sections
         )
         question_count = sum(1 for issue in result.issues if issue.rule == "transparency-markers" and "marker(s)" in issue.message)
         inferred_count = sum(1 for issue in result.issues if issue.rule == "transparency-markers" and "informational" in issue.message)
