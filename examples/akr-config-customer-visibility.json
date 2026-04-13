@@ -1,0 +1,139 @@
+{
+  "version": "2.0",
+  "project": {
+    "name": "AS-PMO-Customer-Visibility",
+    "type": "backend",
+    "description": "Django web application providing single-site tracking for Supply Chain Optimization (SCO) shipments across multiple carriers and cross-dock networks",
+    "layer": "API",
+    "domains": [
+      "supply-chain-optimization",
+      "customer-visibility",
+      "shipment-tracking"
+    ]
+  },
+  "templates": {
+    "repository": "https://github.com/reyesmelvinr-emr/core-akr-templates.git",
+    "branch": "master",
+    "local_path": "~/.akr/templates"
+  },
+  "documentation": {
+    "output_path": "docs/",
+    "include_patterns": [
+      "app/**/*.py",
+      "CusVis/**/*.py"
+    ],
+    "exclude_patterns": [
+      "**/test*.py",
+      "**/*_test.py",
+      "**/conftest.py",
+      "**/migrations/**",
+      "**/static/**",
+      "**/templates/**",
+      "manage.py",
+      "settings.py",
+      "wsgi.py",
+      "asgi.py",
+      "**/__pycache__/**",
+      "**/*.pyc"
+    ],
+    "default_template": "lean_baseline_service_template_module.md"
+  },
+  "component_mappings": [
+    {
+      "source_pattern": "app/views.py",
+      "role": "view_handler",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/endpoints.py",
+      "role": "api_endpoint",
+      "doc_path": "docs/api/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/forms.py",
+      "role": "validator",
+      "doc_path": "docs/validation/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/helpers.py",
+      "role": "utility",
+      "doc_path": "docs/utilities/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/middlewares.py",
+      "role": "middleware",
+      "doc_path": "docs/middleware/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/constants.py",
+      "role": "constant_definitions",
+      "doc_path": "docs/config/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/urls.py",
+      "role": "routing",
+      "doc_path": "docs/routing/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "CusVis/settings.py",
+      "role": "configuration",
+      "doc_path": "docs/configuration/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "CusVis/azure.py",
+      "role": "cloud_integration",
+      "doc_path": "docs/cloud/",
+      "template": "lean_baseline_service_template_module.md"
+    }
+  ],
+  "team": {
+    "name": "SCO Customer Visibility Team",
+    "roles": {
+      "technical_lead": ["team-lead@emerson.com"],
+      "developer": ["developer1@emerson.com", "developer2@emerson.com"],
+      "product_owner": ["po@emerson.com"],
+      "qa_tester": ["qa@emerson.com"],
+      "scrum_master": ["scrum-master@emerson.com"]
+    }
+  },
+  "technology_stack": {
+    "backend": "Django 3.2.3",
+    "runtime": "Python 3.8+",
+    "storage": "Azure Storage Blob",
+    "authentication": "Azure AD",
+    "testing": "pytest with pytest-django and pytest-cov"
+  },
+  "tags": {
+    "enabled": true,
+    "categories": [
+      "feature",
+      "component-type",
+      "technology",
+      "business-domain",
+      "django-layer"
+    ],
+    "auto_generate": true,
+    "required_tags": [
+      "business-domain"
+    ]
+  },
+  "validation": {
+    "required_sections": true,
+    "transparency_markers": true,
+    "completeness_threshold": 75,
+    "vale_linting": true,
+    "compliance_mode": "pilot"
+  },
+  "humanInput": {
+    "defaultRole": "developer",
+    "priorityFilter": "important"
+  }
+}

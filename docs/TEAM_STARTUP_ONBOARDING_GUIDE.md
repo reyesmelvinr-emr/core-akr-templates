@@ -156,9 +156,16 @@ Use the `akr-docs` skill to generate and maintain module documentation:
 ```text
 /akr-docs groupings                  ← discover and group modules into documentation units
 /akr-docs generate <ModuleName>      ← generate draft module documentation
+/akr-docs generate --batch <ModuleA ModuleB ...>  ← generate multiple approved modules (max 5)
 /akr-docs resolve <DocFile>          ← close unknowns with HITL input
 /akr-docs score <DocFile>            ← check documentation readiness score
 ```
+
+Batch generate behavior:
+- Batch mode validates all listed module names up front and requires `grouping_status: approved` for each.
+- A single confirmation gate is shown after all drafts are written.
+- Inline validation still runs per module.
+- Semantic scoring is auto-skipped in batch mode; run `/akr-docs score <DocFile>` later for modules that need scoring metadata.
 
 The `validate-documentation.yml` CI workflow runs automatically on documentation PRs. Address any failures before merging. Use `cache-status` and `update-cache` to maintain local fallback assets in `.akr/cache/` when remote GitHub access is unstable.
 

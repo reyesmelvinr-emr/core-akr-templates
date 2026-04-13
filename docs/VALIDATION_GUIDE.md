@@ -43,6 +43,20 @@ If no changed-file list is available:
 python .akr/scripts/validate_documentation.py --all docs/modules --fail-on needs
 ```
 
+## Batch Generate Validation Behavior
+
+When using `/akr-docs generate --batch ModuleA ModuleB ...`, validation behavior remains module-scoped:
+
+1. Each listed module is generated independently with its own stage timings.
+2. A single confirmation gate appears after draft generation completes for all listed modules.
+3. Final promotion can proceed for successful modules even if other listed modules failed generation.
+4. Inline validation runs per produced module document.
+5. Semantic scoring (Step 11 auto-score) is skipped by default in batch mode.
+
+Recommended follow-up for batch runs:
+- Resolve validation failures module-by-module.
+- Run `/akr-docs score [ModuleName]` only for modules that need score metadata before PR.
+
 ---
 
 ## Status-Aware Validation for Consolidation Repositories

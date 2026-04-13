@@ -129,6 +129,7 @@ Use the akr-docs skill for all module documentation tasks.
 Invocation:
 - /akr-docs groupings          — propose module groupings
 - /akr-docs generate [Module]  — generate documentation for approved module
+- /akr-docs generate --batch [ModuleA ModuleB ...] — generate docs for an explicit approved module list (max 5; score auto-skipped)
 - /akr-docs resolve [file]     — resolve ❓ markers in existing draft
 
 Charter and template content is loaded by the skill at runtime from core-akr-templates.
@@ -163,6 +164,7 @@ Current script counts have expanded, but the architectural token savings pattern
 |---|---|---|---|
 | `/akr-docs groupings` | ~3,500 (full SKILL.md) | ~400 (dispatcher) + ~600 (groupings script) | ~65% |
 | `/akr-docs generate Module` | ~3,500 + ~2,500 (charter) | ~400 (dispatcher) + ~800 (generate script) + ~2,500 (charter, one call) | ~17% on generation |
+| `/akr-docs generate --batch A B C` | Repeated single-module overhead per run | Shared dispatcher/template/charter fetch path + per-module assembly; one confirmation gate | Lower orchestration overhead across listed modules |
 | `/akr-docs resolve file` | ~3,500 (full SKILL.md) | ~400 (dispatcher) + ~400 (resolve script) | ~77% |
 | SSG Pass 2–7 | Re-reads charter risk | Charter in forward payload, no re-fetch | Eliminates re-fetch violations |
 

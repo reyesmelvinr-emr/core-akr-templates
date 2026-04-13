@@ -2,7 +2,7 @@
 name: akr-docs
 description: >
   Generate AKR module documentation following charters and templates.
-  Invoke explicitly via /akr-docs [groupings | generate | resolve | refresh-assets | score | cache-status | update-cache] [target-for-generate-or-resolve] [--use-ssg] [--remote] [--template-only] [--charter-only].
+  Invoke explicitly via /akr-docs [groupings | generate | resolve | refresh-assets | score | cache-status | update-cache] [target-for-generate-or-resolve | --batch module1 module2 ...] [--use-ssg] [--remote] [--template-only] [--charter-only].
 disable-model-invocation: true
 compatibility:
   models:
@@ -38,7 +38,7 @@ Prerequisite reminder for `/akr-docs refresh-assets`: GitHub MCP server must be 
 | Command | Mode Script | When to Use |
 |---------|-------------|-------------|
 | `/akr-docs groupings` | `.github/skills/akr-docs/scripts/akr-groupings.md` by default; `@github get file core-akr-templates/.github/skills/akr-docs/scripts/akr-groupings.md` only when remote mode-script loading is explicitly forced | No modules.yaml, or re-grouping needed |
-| `/akr-docs generate [ModuleName] [--remote]` | `.github/skills/akr-docs/scripts/akr-generate.md` by default; `@github get file core-akr-templates/.github/skills/akr-docs/scripts/akr-generate.md` only when remote mode-script loading is explicitly forced | modules.yaml approved, generate docs |
+| `/akr-docs generate [ModuleName] [--remote]` or `/akr-docs generate --batch [ModuleA ModuleB ...]` | `.github/skills/akr-docs/scripts/akr-generate.md` by default; `@github get file core-akr-templates/.github/skills/akr-docs/scripts/akr-generate.md` only when remote mode-script loading is explicitly forced | modules.yaml approved, generate docs (batch max: 5 modules; Step 11 auto-skipped) |
 | `/akr-docs resolve [file] [--remote]` | `.github/skills/akr-docs/scripts/akr-resolve.md` by default; `@github get file core-akr-templates/.github/skills/akr-docs/scripts/akr-resolve.md` only when remote mode-script loading is explicitly forced | Draft has unresolved ❓ markers |
 | `/akr-docs refresh-assets [--template-only] [--charter-only]` | `.github/skills/akr-docs/scripts/akr-refresh-assets.md` | Refresh local `.akr/cache/` template/charter assets for all modules |
 | `/akr-docs score [ModuleName]` | `.github/skills/akr-docs/scripts/akr-score.md` | Final doc ready; score content quality before opening PR |
@@ -91,6 +91,8 @@ Before loading a mode script, choose the execution lane:
 - If mode is `refresh-assets`, `cache-status`, or `update-cache`: load the mode script from PATH B.
 - If mode is `groupings`, `generate`, `resolve`, or `score` and invocation does not include `--remote`: load the mode script from PATH B.
 - If mode is `groupings`, `generate`, or `resolve` and invocation includes `--remote`: load the mode script from PATH A after a lightweight `@github get file` pre-flight check.
+
+Batch generate pre-flight: when invocation includes `generate --batch`, validate all listed module names before generation starts. Reject runs with more than 5 modules and stop early if any listed module is missing from `modules.yaml` or has `grouping_status: draft`.
 
 Model pre-flight: if the active chat model is not listed under `compatibility.models`, stop and return a blocking message that names the supported models and asks the user to switch models before re-running `/akr-docs`.
 
