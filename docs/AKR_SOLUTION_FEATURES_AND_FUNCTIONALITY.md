@@ -10,6 +10,10 @@ This solution is designed to balance:
 - AI acceleration and human accountability.
 - Delivery speed and governance controls.
 
+For management review, apply phased interpretation:
+- Phase 1 (pilot): module-first documentation and validation reliability.
+- Phase 2+: cross-repo consolidation and broader portfolio analytics.
+
 ## Problem This Solution Addresses
 
 Many teams struggle with documentation drift, inconsistent structure, and unclear ownership. AKR addresses this by providing:
@@ -78,6 +82,8 @@ AKR turns documentation into an operational workflow rather than a one-time arti
 
 AKR makes business capability mapping and feature-level consolidation first-class so teams can explain what the system does and why it matters, not only how code is structured.
 
+In pilot scoring, consolidation should be treated as optional target-state capability, not a required success condition.
+
 ## Governance, Compliance, and Human-in-the-Loop Design
 
 ## Governance Built Into the Workflow
@@ -95,6 +101,11 @@ Compliance behavior is configurable and explicit:
 - Pilot mode supports iterative adoption with warning-tolerant enforcement.
 - Production mode applies stricter failure conditions for unresolved critical gaps.
 - Emergency rollback procedures exist for operational risk scenarios with documented ownership.
+
+Pilot KPI focus should stay narrow and measurable:
+- onboarding time delta
+- documentation effort delta
+- percent merged module docs with zero unresolved unknown markers
 
 ## Human-in-the-Loop as a Core Principle
 

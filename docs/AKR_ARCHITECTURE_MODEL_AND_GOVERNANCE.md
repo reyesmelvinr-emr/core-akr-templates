@@ -4,6 +4,10 @@
 
 AKR is a documentation architecture that combines centralized standards with distributed execution. The model is designed to help teams produce reliable, reviewable documentation while preserving flexibility for application-specific context.
 
+For management evaluation, use explicit phasing:
+- Phase 1 (pilot): single-repo module documentation workflow and validation discipline.
+- Phase 2+: cross-repo consolidation and broader portfolio evidence.
+
 The architecture is optimized for:
 
 - Structured generation and validation.
@@ -61,6 +65,8 @@ This layer ensures each repository can apply AKR controls without rebuilding fra
 Consolidation repositories aggregate module-level artifacts into business-feature narratives and dependency views.
 
 This enables cross-team visibility and supports portfolio-level understanding.
+
+Consolidation is an enabled target-state capability and should be treated as Phase 2+ for pilot scoring.
 
 ## End-to-End Documentation Lifecycle
 
@@ -159,7 +165,7 @@ For executive sponsors and architecture review teams, the current AKR state is b
 
 ### Why the Current Architecture Is Advantageous
 
-- Minimal infrastructure overhead
+- Minimal platform infrastructure overhead
   - AKR relies on repository-native assets, distributed skill packages, and CI validation patterns rather than heavy standalone platform infrastructure.
 - Strong standards continuity
   - Templates, schemas, and governance contracts remain centralized, while execution is distributed to application repositories.
@@ -179,7 +185,7 @@ For executive sponsors and architecture review teams, the current AKR state is b
 
 ### Critical Caveat for Review Teams
 
-The architecture enables low infrastructure cost, but it does not eliminate operational discipline requirements. Long-term success still depends on:
+The architecture enables low platform cost, but it does not eliminate operational discipline requirements. Long-term success still depends on:
 
 1. Versioned contract governance (templates, schemas, compatibility tracking).
 2. Stable validation outcomes across workflow and tool changes.
@@ -224,8 +230,9 @@ While governance, compliance, and human-in-the-loop controls are essential, the 
 ### Suggested Additions for Ongoing Governance Reviews
 
 1. Track value KPIs in addition to compliance KPIs, such as onboarding time to first productive contribution, documentation rework rate, and unresolved-marker aging.
-2. Add role-specific quality checks in periodic reviews so architecture, development, QA, and product each validate the sections they depend on most.
-3. Establish quarterly evidence reviews that connect AKR outputs to delivery outcomes (faster PR cycles, fewer clarification loops, better release readiness).
-4. Maintain a lightweight feedback loop where teams propose template and workflow improvements based on observed delivery friction.
+2. For pilot review, use a small KPI set: onboarding time delta, documentation effort delta, and percent merged docs with zero unresolved unknown markers.
+3. Add role-specific quality checks in periodic reviews so architecture, development, QA, and product each validate the sections they depend on most.
+4. Establish quarterly evidence reviews that connect AKR outputs to delivery outcomes (faster PR cycles, fewer clarification loops, better release readiness).
+5. Maintain a lightweight feedback loop where teams propose template and workflow improvements based on observed delivery friction.
 
 This framing positions AKR not only as a governance mechanism, but as a practical enablement system that improves delivery performance and cross-team effectiveness.

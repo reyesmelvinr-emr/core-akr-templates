@@ -2,80 +2,142 @@
 
 ## Overview
 
-This document provides guidance on monitoring and controlling GitHub Actions costs for AKR documentation validation workflows.
+This document provides current guidance for monitoring and controlling GitHub Actions costs for AKR documentation validation workflows.
 
-## Pricing (January 2026)
+The guidance below was refreshed against the current GitHub billing and Actions documentation in April 2026. The earlier January 2026 assumptions in this file were partially outdated.
 
-### GitHub-Hosted Runners
+## Current Billing Model (April 2026)
 
-| Runner Type | Cost per Minute | Free Tier |
-|-------------|----------------|-----------|
-| **Ubuntu** | $0.008 → $0.005* | 2,000 min/month |
-| Windows | $0.016 | 2,000 min/month (2x multiplier) |
-| macOS | $0.080 | 2,000 min/month (10x multiplier) |
+### Standard GitHub-Hosted Runner Rates
 
-\* Pricing reduced ~39% in January 2026
+For AKR documentation validation, the relevant default runner is usually standard `ubuntu-latest`, which maps to a Linux 2-core x64 hosted runner.
 
-### Free Tier Details
+| Runner Type | SKU | Current Cost per Minute | Notes |
+|-------------|-----|-------------------------|-------|
+| Linux 1-core (x64) | `actions_linux_slim` | $0.002 | Not the typical default for AKR validation |
+| **Linux 2-core (x64)** | `actions_linux` | **$0.006** | Typical `ubuntu-latest` standard runner |
+| Linux 2-core (arm64) | `actions_linux_arm` | $0.005 | Lower-cost ARM option where compatible |
+| Windows 2-core (x64) | `actions_windows` | $0.010 | Higher cost than Linux |
+| macOS 3-core or 4-core | `actions_macos` | $0.062 | Very high cost; avoid for doc validation |
 
-- **Free tier:** 2,000 minutes/month for GitHub-hosted runners
-- **Usage:** Applies to public repositories and private repositories with GitHub Free, Pro, or Team
-- **Organizations:** Free tier shared across all repositories
-- **Overflow:** ~$0.005/minute after free tier exhausted
+### Important Billing Notes
 
-## Cost Estimation
+- GitHub rounds each job's usage up to the nearest whole minute.
+- Standard GitHub-hosted runners are free for public repositories.
+- Self-hosted runners do not consume GitHub-hosted runner minutes.
+- Larger runners are always billed separately, even for public repositories, and included minutes do not apply to them.
+- Usage is billed to the repository owner, not the person who triggered the workflow.
+
+### Included Minutes and Storage by Plan
+
+For private repositories, included usage depends on the owner account plan.
+
+| Plan | Included Storage | Included Standard Runner Minutes per Month | Included Cache Storage per Repository |
+|------|------------------|--------------------------------------------|---------------------------------------|
+| GitHub Free | 500 MB | 2,000 | 10 GB |
+| GitHub Pro | 1 GB | 3,000 | 10 GB |
+| GitHub Free for organizations | 500 MB | 2,000 | 10 GB |
+| GitHub Team | 2 GB | 3,000 | 10 GB |
+| GitHub Enterprise Cloud | 50 GB | 50,000 | 10 GB |
+
+### Storage Notes
+
+- Included Actions storage is shared with GitHub Packages.
+- Storage billing accrues hourly over the billing cycle, not just from the current amount stored at the end of the month.
+- Deleting artifacts reduces future storage accrual, but it does not erase storage already accrued earlier in the same billing cycle.
+- Additional cache storage is billed at $0.07 per GiB per month when usage exceeds the included amount.
+
+## AKR Cost Estimate
+
+### Assumptions for This Repository Pattern
+
+- Workflow: `validate-documentation.yml`
+- Runner: standard `ubuntu-latest`
+- Expected runtime: about 3.5 minutes wall-clock
+- Billing model: one job, rounded up to 4 billed minutes
+- Cost basis after included minutes are exhausted: 4 minutes x $0.006 = $0.024 per run
 
 ### Per Validation Run
 
-| Step | Duration | Cost |
-|------|----------|------|
-| Checkout + Setup | ~1 min | $0.005 |
-| Vale Installation | ~0.5 min | $0.0025 |
-| Template Clone | ~0.5 min | $0.0025 |
-| Validation | ~1 min | $0.005 |
-| Checks API + Comments | ~0.5 min | $0.0025 |
-| **Total per run** | **~3.5 min** | **~$0.0175** |
+| Metric | Estimate |
+|--------|----------|
+| Observed runtime | ~3.5 minutes |
+| Billed runtime | 4 minutes |
+| Estimated paid cost on Linux 2-core | **$0.024 per run** |
+
+This cost only applies after the included monthly minutes have been exhausted for a private repository owner. For public repositories using standard runners, the cost remains $0.
 
 ### Monthly Projections
 
-**Scenario 1: Small Team (5 developers, 20 PRs/month)**
-- Runs: 20 PRs × 3.5 min = 70 minutes
-- Cost: Within free tier ($0)
+| Scenario | PR Runs per Month | Estimated Billed Minutes | GitHub Free Org Cost | GitHub Team or Pro Cost |
+|----------|-------------------|--------------------------|----------------------|-------------------------|
+| Small team | 20 | 80 | $0 | $0 |
+| Medium team | 60 | 240 | $0 | $0 |
+| Large team | 150 | 600 | $0 | $0 |
+| Very large org | 500 | 2,000 | $0 | $0 |
+| Enterprise-scale private repo | 1,000 | 4,000 | **$12.00** | **$6.00** |
 
-**Scenario 2: Medium Team (15 developers, 60 PRs/month)**
-- Runs: 60 PRs × 3.5 min = 210 minutes
-- Cost: Within free tier ($0)
+Formula used for paid Linux overage:
 
-**Scenario 3: Large Team (30 developers, 150 PRs/month)**
-- Runs: 150 PRs × 3.5 min = 525 minutes
-- Cost: Within free tier ($0)
-
-**Scenario 4: Very Large Org (100 developers, 500 PRs/month)**
-- Runs: 500 PRs × 3.5 min = 1,750 minutes
-- Cost: Within free tier ($0)
-
-**Scenario 5: Enterprise Scale (200 developers, 1000 PRs/month)**
-- Runs: 1,000 PRs × 3.5 min = 3,500 minutes
-- Overage: 3,500 - 2,000 = 1,500 minutes
-- Cost: 1,500 × $0.005 = **$7.50/month**
+```text
+max(0, billed_minutes - included_minutes) x 0.006
+```
 
 ## Monitoring Usage
 
-### 1. GitHub Actions Usage Dashboard
+### 1. Budgets and Billing
 
-**Organization level:**
-1. Go to Organization Settings
-2. Billing and plans → Usage this month
-3. View Actions minutes used
-4. Set up spending limits
+GitHub's current control surface is `Budgets and alerts`, not the older `spending limits` wording.
 
-**Repository level:**
-1. Repository → Insights → Actions
-2. View workflow runs and durations
+**Organization or enterprise level:**
+1. Open the organization or enterprise account.
+2. Go to `Billing & Licensing`.
+3. Open `Budgets and alerts`.
+4. Create a product-level budget for `Actions`.
+5. Set alerts at 75%, 90%, and 100%.
+6. Optionally enable `Stop usage when budget limit is reached`.
 
-### 2. Automated Usage Tracking
+**Important:** Avoid overlapping blocking budgets at both product and SKU scope unless that is intentional. GitHub applies usage to all applicable budgets, and any exhausted blocking budget can stop further usage.
 
-The workflow logs usage metrics after each run:
+### 2. Included Usage Alerts
+
+GitHub can send included-usage email alerts when the account reaches:
+
+- 90% of included usage
+- 100% of included usage
+
+These are separate from budget alerts.
+
+### 3. GitHub Actions Metrics
+
+For organizations, GitHub now provides dedicated Actions metrics views under `Insights`.
+
+You can analyze usage by:
+
+- Workflow
+- Job
+- Repository
+- Runtime OS
+- Runner type
+
+You can also export usage data to CSV.
+
+Important detail: the usage metrics view shows raw minutes consumed and does not apply billing multipliers or convert usage into dollar spend. It is useful for trend analysis, but billing still needs to be interpreted against runner pricing.
+
+### 4. Repository-Level Checks
+
+At repository level, use the Actions tab and workflow history to inspect:
+
+- Run frequency
+- Typical duration
+- Retries and failures
+- Whether redundant runs are being canceled
+
+## Automated Usage Tracking
+
+If you want workflow-level internal tracking, log cost-oriented metadata after each run and upload it as a short-retention artifact.
+
+Example payload:
 
 ```json
 {
@@ -83,9 +145,11 @@ The workflow logs usage metrics after each run:
   "repository": "org/repo",
   "branch": "feature-branch",
   "event": "pull_request",
-  "duration_minutes": 3,
-  "timestamp": "2026-01-14T10:30:00Z",
-  "runner": "Linux",
+  "runner": "Linux 2-core x64",
+  "duration_minutes_observed": 3.5,
+  "duration_minutes_billed": 4,
+  "estimated_runner_cost_usd": 0.024,
+  "timestamp": "2026-04-16T10:30:00Z",
   "validation_results": {
     "vale_errors": 0,
     "akr_errors": 2,
@@ -95,26 +159,25 @@ The workflow logs usage metrics after each run:
 }
 ```
 
-These metrics are uploaded as artifacts for analysis.
+Use a short artifact retention window so usage metrics do not create unnecessary storage accrual.
 
-### 3. PowerBI/Excel Dashboard (Optional)
-
-Download usage metrics artifacts and aggregate:
+### Power BI or Excel Aggregation
 
 ```powershell
-# Download artifacts from GitHub API
-gh run list --repo org/repo --workflow validate-documentation.yml --json databaseId,conclusion,createdAt
+# Aggregate previously downloaded usage metric artifacts
+$runs = Get-ChildItem usage-metrics-*.json |
+  ForEach-Object { Get-Content $_ | ConvertFrom-Json }
 
-# Aggregate monthly costs
-$totalMinutes = (Get-ChildItem usage-metrics-*.json | 
-  ForEach-Object { (Get-Content $_ | ConvertFrom-Json).duration_minutes } | 
-  Measure-Object -Sum).Sum
+$totalBilledMinutes = ($runs | Measure-Object -Property duration_minutes_billed -Sum).Sum
+$includedMinutes = 2000
+$runnerRate = 0.006
+$monthlyCost = [Math]::Max(0, ($totalBilledMinutes - $includedMinutes) * $runnerRate)
 
-$monthlyCost = [Math]::Max(0, ($totalMinutes - 2000) * 0.005)
-
-Write-Host "Total minutes: $totalMinutes"
-Write-Host "Monthly cost: `$$monthlyCost"
+Write-Host "Total billed minutes: $totalBilledMinutes"
+Write-Host "Estimated monthly runner cost: `$$monthlyCost"
 ```
+
+Adjust `$includedMinutes` to `3000` for GitHub Pro or Team, or `50000` for GitHub Enterprise Cloud.
 
 ## Cost Optimization Strategies
 
@@ -124,28 +187,19 @@ Write-Host "Monthly cost: `$$monthlyCost"
 on:
   pull_request:
     paths:
-      - 'docs/**'           # Only docs changes
-      - 'src/**/*.{cs,ts}'  # Only source code changes
-      - '.akr-config.json'  # Only config changes
+      - 'docs/**'
+      - '.akr/**'
+      - '.github/workflows/validate-documentation.yml'
+      - '.akr-config.json'
 ```
 
-**Savings:** Reduce unnecessary runs by ~40-60%
+This prevents documentation validation from running on unrelated code-only changes.
 
-### 2. Use Path Filters
+### 2. Validate Only Changed Files
 
-```yaml
-- name: Get changed files
-  id: changed-files
-  uses: tj-actions/changed-files@v41
-  with:
-    files: |
-      docs/**/*.md
-      src/**/*.{cs,ts,tsx}
-```
+Use changed-file filtering so the workflow validates only the affected docs instead of the whole repository when possible.
 
-Only validate changed files, not entire repository.
-
-**Savings:** Reduce validation time by ~50-70%
+**Expected impact:** lower runtime and fewer unnecessary comments.
 
 ### 3. Cancel Redundant Runs
 
@@ -155,171 +209,137 @@ concurrency:
   cancel-in-progress: true
 ```
 
-Cancel previous runs when new commits are pushed.
+This is still one of the simplest ways to cut waste on busy pull requests.
 
-**Savings:** ~20-30% reduction
-
-### 4. Cache Dependencies
+### 4. Cache Dependencies Carefully
 
 ```yaml
 - name: Setup Python
   uses: actions/setup-python@v5
   with:
     python-version: '3.11'
-    cache: 'pip'  # Cache pip dependencies
+    cache: 'pip'
 ```
 
-**Savings:** ~10-20% faster runs
+Caching can reduce runtime, but remember that cache storage is metered beyond the included 10 GB per repository.
 
-### 5. Use Self-Hosted Runners (Advanced)
+### 5. Keep Artifact Retention Short
 
-For very large organizations:
-- **Cost:** $0 for compute (you provide hardware)
-- **Setup:** Requires infrastructure and maintenance
-- **Best for:** >10,000 minutes/month usage
+```yaml
+- name: Upload usage metrics
+  uses: actions/upload-artifact@v4
+  with:
+    name: usage-metrics
+    path: usage-metrics.json
+    retention-days: 7
+```
 
-## Setting Spending Limits
+Because storage accrues hourly, low-value artifacts should not be retained for long periods.
 
-### Organization Level
+### 6. Avoid Larger Runners for Documentation Jobs
 
-1. Go to Organization Settings → Billing and plans
-2. Set monthly spending limit:
-   ```
-   Actions spending limit: $10/month (recommended start)
-   ```
-3. Enable email alerts at 75%, 90%, 100%
+Documentation validation rarely needs larger runners. They are always billable and cannot use included minutes.
 
-### Repository Level
+### 7. Consider Self-Hosted Runners Only at Higher Scale
 
-Configure workflow timeout to prevent runaway costs:
+Self-hosted runners avoid GitHub-hosted minute charges, but they shift cost and operational burden to your infrastructure. This is typically only worth the complexity at sustained higher usage.
+
+## Budgets and Alerts
+
+### Recommended Starting Budget
+
+For an organization adopting AKR validation on private repositories, a reasonable initial Actions budget is:
+
+```text
+$10 to $25 per month at the organization level
+```
+
+That is more than enough for typical documentation validation workloads unless many repositories are sharing the same quota and frequently exceeding included minutes.
+
+### Alert Configuration
+
+Use both of these:
+
+- Budget alerts at 75%, 90%, and 100%
+- Included usage alerts at 90% and 100%
+
+### Workflow Safety Guardrail
 
 ```yaml
 jobs:
   validate-documentation:
     runs-on: ubuntu-latest
-    timeout-minutes: 10  # Max 10 minutes per run
+    timeout-minutes: 10
 ```
 
-## Alerts and Notifications
-
-### 1. GitHub Email Alerts
-
-GitHub automatically sends emails when:
-- 75% of free tier consumed
-- 90% of free tier consumed
-- 100% of free tier consumed
-- Spending limit reached
-
-### 2. Custom Slack Notifications
-
-```yaml
-- name: Notify on high usage
-  if: ${{ steps.duration.outputs.minutes > 5 }}
-  run: |
-    curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
-      -H 'Content-Type: application/json' \
-      -d '{"text": "⚠️ Documentation validation took ${{ steps.duration.outputs.minutes }} minutes"}'
-```
-
-### 3. Monthly Cost Reports
-
-Create a scheduled workflow:
-
-```yaml
-name: Monthly Cost Report
-
-on:
-  schedule:
-    - cron: '0 0 1 * *'  # First day of month
-
-jobs:
-  cost-report:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate report
-        run: |
-          # Fetch usage data
-          gh api /orgs/${{ github.repository_owner }}/settings/billing/actions \
-            --jq '.total_minutes_used, .total_paid_minutes_used'
-          
-          # Send to Slack/Email
-```
+This protects against hanging or unexpectedly slow validation runs.
 
 ## Best Practices
 
-### 1. Monitor Quarterly
+### 1. Review Usage Trends Quarterly
 
-- Review usage trends every 3 months
-- Adjust spending limits as team grows
-- Optimize workflows based on actual usage
+- Check org-level Actions usage metrics every quarter.
+- Review the top workflows and repositories by minute consumption.
+- Revisit budgets as adoption grows.
 
-### 2. Educate Developers
+### 2. Keep Validation Local-First
 
-- Show developers how to check workflow status
-- Encourage fixing validation errors locally
-- Promote pre-commit hooks for early detection
-
-### 3. Track ROI
-
-**Time Saved:**
-- Manual documentation validation: 15-20 min/PR
-- Automated validation: 3.5 min/PR
-- **Savings: 11.5-16.5 min/PR**
-
-**Cost Benefit:**
-- Developer time: $125/hr → ~$30/PR saved
-- Actions cost: ~$0.02/PR
-- **ROI: 1,500:1**
-
-### 4. Use Local Validation
-
-Encourage developers to run validation locally before pushing:
+Encourage developers to catch issues before pushing.
 
 ```bash
 # Install Vale locally
-brew install vale  # macOS
-choco install vale # Windows
+brew install vale
+choco install vale
 
-# Run validation
+# Run Vale locally
 vale docs/
 
-# Run AKR validation
-python scripts/validation/validate_documentation.py docs/
+# Run AKR structural validation locally
+python .akr/scripts/validate_documentation.py --output json
+
+# Run business-doc validation locally, if applicable
+python validation/scripts/validate_business_docs.py --status-aware
 ```
 
-**Savings:** Catch issues before triggering CI/CD (~30% reduction)
+### 3. Track ROI Using Billed Minutes
+
+Manual documentation review time is still materially more expensive than Actions runtime. Even at $0.024 per paid run on Linux, the automation cost is usually trivial compared to developer review time.
 
 ## Troubleshooting High Costs
 
-### Issue: Workflows running too long
+### Issue: Workflows cost more than expected
 
-**Solution:**
-1. Check for infinite loops or hanging processes
-2. Add timeout limits
-3. Optimize validation scripts
+**Check:**
+1. Whether the repository is private rather than public.
+2. Whether the workflow is using a larger runner.
+3. Whether repeated pushes are creating redundant runs.
+4. Whether a single 3.1 to 3.9 minute job is being rounded to 4 billed minutes.
 
-### Issue: Too many workflow runs
+### Issue: Budget alerts fire before the billing page looks high
 
-**Solution:**
-1. Review trigger conditions
-2. Implement concurrency cancellation
-3. Use path filters
+**Check:**
+1. Whether multiple repositories share the same owner budget.
+2. Whether overlapping budgets exist at product and SKU scopes.
+3. Whether usage metrics are being interpreted as raw minutes instead of billed spend.
 
-### Issue: Validating too many files
+### Issue: Storage costs rise unexpectedly
 
-**Solution:**
-1. Only validate changed files
-2. Use git diff to detect changes
-3. Skip unchanged documentation
+**Check:**
+1. Artifact retention days.
+2. Cache growth beyond the included 10 GB per repository.
+3. Whether old usage-metrics artifacts are being kept too long.
 
 ## Resources
 
-- [GitHub Actions Pricing](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)
-- [GitHub Actions Usage Limits](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration)
-- [Managing Spending Limits](https://docs.github.com/en/billing/managing-billing-for-github-actions/managing-your-spending-limit-for-github-actions)
+- [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
+- [Actions runner pricing](https://docs.github.com/en/billing/reference/actions-runner-pricing)
+- [Billing and usage for GitHub Actions](https://docs.github.com/en/actions/concepts/billing-and-usage)
+- [Setting up budgets to control spending on metered products](https://docs.github.com/en/billing/how-tos/set-up-budgets)
+- [Viewing GitHub Actions metrics for your organization](https://docs.github.com/en/enterprise-cloud@latest/organizations/collaborating-with-groups-in-organizations/viewing-github-actions-metrics-for-your-organization)
+- [GitHub pricing calculator](https://github.com/pricing/calculator?feature=actions)
 
 ---
 
-**Last Updated:** January 14, 2026  
-**Pricing as of:** January 2026 (verified)  
-**Next Review:** April 2026
+**Last Updated:** April 16, 2026  
+**Pricing Verified:** April 2026  
+**Next Review:** July 2026
