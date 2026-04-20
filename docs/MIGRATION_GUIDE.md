@@ -42,6 +42,11 @@ core-akr-templates (GitHub — single source of truth)
 │   ├── SKILL.md
 │   └── scripts/
 │       └── akr-interview.md
+├── .github/skills/akr-capability/
+│   ├── SKILL.md
+│   ├── SKILL-COMPAT.md
+│   └── scripts/
+│       └── enhancement-clarify.md
 ├── .akr/
 │   ├── vale-rules/               ← single copy of vale rules (here only)
 │   └── scripts/validate_documentation.py
@@ -63,6 +68,11 @@ application-repo (consumer)
 │   ├── SKILL.md
 │   └── scripts/
 │       └── akr-interview.md
+├── .github/skills/akr-capability/
+│   ├── SKILL.md
+│   ├── SKILL-COMPAT.md
+│   └── scripts/
+│       └── enhancement-clarify.md
 ├── .github/hooks/                ← distributed (needed locally)
 ├── .github/copilot-instructions.md ← OWNED BY APPLICATION TEAM — never overwritten
 ├── modules.yaml                  ← application-specific manifest
@@ -148,6 +158,7 @@ When `core-akr-templates` publishes the next skill release, the updated
 - Updates `SKILL-COMPAT.md`
 - Syncs mode scripts and validators under `.github/skills/akr-docs/scripts/`
 - Adds/updates `.github/skills/akr-interview/SKILL.md` and `scripts/akr-interview.md`
+- Adds/updates `.github/skills/akr-capability/SKILL.md`, `SKILL-COMPAT.md`, and `scripts/enhancement-clarify.md`
 - Updates hook files
 - Does NOT touch `validation/`, `copilot-instructions.md`, or any other file
 
@@ -188,6 +199,13 @@ the charter slices are the volatile content. This is the right split.
 A: `akr-interview` is distributed like other execution assets because it is invoked
 locally in application repositories. Governance and compatibility guidance for
 interview behavior should be reviewed together with `akr-docs` updates.
+
+**Q: Where does the akr-capability skill fit in application repositories?**
+
+A: Application repositories receive only the developer-facing `enhancement-clarify`
+mode. The PO/TL-facing `enhancement-review`, `enhancement-review-close`, and
+`enhancement-test-generation` modes stay in consolidation repositories because
+they operate on capability business artifacts rather than source-repo module docs.
 
 **Q: What happens if core-akr-templates is unavailable when CI runs?**
 
@@ -320,9 +338,9 @@ mv UserManagement new/
 
 If `backlog.md` is missing, initialize it from `capability_backlog_template.md` in `core-akr-templates/.akr/templates/`.
 
-**For each new capability**, retain only 6 files:
-- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
-- Remove `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md` if present.
+**For each new capability**, retain only 5 files:
+- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`
+- Remove `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md`, `traceability.md` if present.
 
 **For each archived capability**, retain only 5 files:
 - `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
@@ -370,7 +388,7 @@ python validation/scripts/validate_business_docs.py --status-aware
 
 Validation should confirm:
 - Active capabilities have all 9 files.
-- New capabilities have exactly 6 files (no enhancement artifacts).
+- New capabilities have exactly 5 files (no enhancement/backlog/traceability artifacts).
 - Archived capabilities have exactly 5 files (no active artifacts).
 - No ".md" files exist at the `business-capabilities/` level (all organized by status).
 

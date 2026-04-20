@@ -68,6 +68,13 @@ Each new `registry.businessCapabilities.<CapabilityName>` entry should include:
 - `owner` (string)
 - `status` (`draft`, `review`, `approved`, or `deprecated`)
 
+For capability workflow execution, maintain an operational lifecycle status for each capability (`new`, `active`, `archived`) in the workflow-facing capability metadata used by consolidation and enhance skills.
+The operational lifecycle status determines which skill families can run:
+
+- `new` -> capability-define workflow and capability-promote-new.
+- `active` -> enhancement workflow and capability-promote.
+- `archived` -> read-mostly mode; no enhancement intake.
+
 Optional field:
 
 - `addedDate` (ISO date string)
@@ -123,6 +130,8 @@ Example invalid keys:
 3. Team submits PR for approvals required by `governance.approvalProcess.requiredApprovals`.
 4. After approval, source documentation must use only approved capability keys.
 5. Consolidation validation gates on approved `registry.businessCapabilities` values.
+
+For teams using the new-capability workflow, also ensure each newly approved capability is initialized with operational lifecycle status `new` before PO/TL begin authoring capability artifacts.
 
 ## Governance Notes
 

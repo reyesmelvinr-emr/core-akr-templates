@@ -125,6 +125,7 @@ jobs:
           git checkout -B "$branch_name"
 
           mkdir -p .github/skills/akr-business-consolidation/scripts
+          mkdir -p .github/skills/akr-capability/scripts
 
           cp "$GITHUB_WORKSPACE/.github/skills/akr-business-consolidation/SKILL.md" \
              .github/skills/akr-business-consolidation/SKILL.md
@@ -141,8 +142,24 @@ jobs:
              .github/skills/akr-business-consolidation/scripts/capability-consolidation.md
           cp "$GITHUB_WORKSPACE/.github/skills/akr-business-consolidation/scripts/capability-test-maintenance.md" \
              .github/skills/akr-business-consolidation/scripts/capability-test-maintenance.md
-          cp "$GITHUB_WORKSPACE/.github/skills/akr-business-consolidation/scripts/capability-test-generation.md" \
-             .github/skills/akr-business-consolidation/scripts/capability-test-generation.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-business-consolidation/scripts/capability-promote-new.md" \
+             .github/skills/akr-business-consolidation/scripts/capability-promote-new.md
+
+          # Consolidation lane receives PO/TL-facing akr-capability modes.
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-capability/SKILL.md" \
+             .github/skills/akr-capability/SKILL.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-capability/SKILL-COMPAT.md" \
+             .github/skills/akr-capability/SKILL-COMPAT.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-capability/scripts/enhancement-review.md" \
+             .github/skills/akr-capability/scripts/enhancement-review.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-capability/scripts/enhancement-review-close.md" \
+             .github/skills/akr-capability/scripts/enhancement-review-close.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-capability/scripts/enhancement-test-generation.md" \
+             .github/skills/akr-capability/scripts/enhancement-test-generation.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-capability/scripts/capability-define-review.md" \
+             .github/skills/akr-capability/scripts/capability-define-review.md
+          cp "$GITHUB_WORKSPACE/.github/skills/akr-capability/scripts/capability-define-close.md" \
+             .github/skills/akr-capability/scripts/capability-define-close.md
 
           instructions_action="preserved"
           if [ ! -f ".github/copilot-instructions.md" ]; then
@@ -174,7 +191,8 @@ jobs:
           git add \
             .github/skills/akr-business-consolidation/SKILL.md \
             .github/skills/akr-business-consolidation/SKILL-COMPAT.md \
-            .github/skills/akr-business-consolidation/scripts/
+            .github/skills/akr-business-consolidation/scripts/ \
+            .github/skills/akr-capability/
           if [ "$instructions_action" = "seeded" ]; then
             git add .github/copilot-instructions.md
           fi
@@ -206,7 +224,7 @@ jobs:
           default_base=$(gh repo view "${{ matrix.owner }}/${{ matrix.repo }}" \
             --json defaultBranchRef --jq '.defaultBranchRef.name')
 
-          pr_body=$'## AKR Business Skill Distribution - ${{ needs.prepare-matrix.outputs.release_tag }}\n\n### Files Updated\n- `.github/skills/akr-business-consolidation/SKILL.md`\n- `.github/skills/akr-business-consolidation/SKILL-COMPAT.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-impact-analysis.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-coverage-review.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-relationship-mapping.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-consolidation.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-test-maintenance.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-test-generation.md`\n\n### copilot-instructions handling\n- `.github/copilot-instructions.md`: ${{ steps.sync.outputs.instructions_action }}\n\n### sync-source-evidence workflow handling\n- `.github/workflows/sync-source-evidence.yml`: ${{ steps.sync.outputs.sync_workflow_action }}\n\n### Distribution scope\n- Included: business consolidation skill artifacts and sync-source-evidence workflow\n- Excluded: app `akr-docs` artifacts, app hooks, and unrelated onboarding scaffolds\n\n### Reviewer Checklist\n- [ ] Skill dispatcher and all six mode scripts are present\n- [ ] Existing `.github/copilot-instructions.md` was preserved when present\n- [ ] `sync-source-evidence.yml` is present in `.github/workflows/`\n- [ ] No app-repo skill files were distributed'
+          pr_body=$'## AKR Business Skill Distribution - ${{ needs.prepare-matrix.outputs.release_tag }}\n\n### Files Updated\n- `.github/skills/akr-business-consolidation/SKILL.md`\n- `.github/skills/akr-business-consolidation/SKILL-COMPAT.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-impact-analysis.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-coverage-review.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-relationship-mapping.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-consolidation.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-test-maintenance.md`\n- `.github/skills/akr-business-consolidation/scripts/capability-promote-new.md`\n- `.github/skills/akr-capability/SKILL.md`\n- `.github/skills/akr-capability/SKILL-COMPAT.md`\n- `.github/skills/akr-capability/scripts/enhancement-review.md`\n- `.github/skills/akr-capability/scripts/enhancement-review-close.md`\n- `.github/skills/akr-capability/scripts/enhancement-test-generation.md`\n- `.github/skills/akr-capability/scripts/capability-define-review.md`\n- `.github/skills/akr-capability/scripts/capability-define-close.md`\n\n### copilot-instructions handling\n- `.github/copilot-instructions.md`: ${{ steps.sync.outputs.instructions_action }}\n\n### sync-source-evidence workflow handling\n- `.github/workflows/sync-source-evidence.yml`: ${{ steps.sync.outputs.sync_workflow_action }}\n\n### Distribution scope\n- Included: business consolidation skill artifacts, PO/TL-facing akr-capability modes, and sync-source-evidence workflow\n- Excluded: app `akr-docs` artifacts, app hooks, and unrelated onboarding scaffolds\n\n### Reviewer Checklist\n- [ ] Business skill dispatcher and scripts are present, including capability-promote-new\n- [ ] Consolidation-side akr-capability files are present (review/review-close/test-generation and capability-define-review/close)\n- [ ] Existing `.github/copilot-instructions.md` was preserved when present\n- [ ] `sync-source-evidence.yml` is present in `.github/workflows/`\n- [ ] No app-lane-only artifacts were distributed accidentally'
 
           pr_url=$(gh pr create \
             --title "chore(akr): distribute business skill bundle ${{ needs.prepare-matrix.outputs.release_tag }}" \

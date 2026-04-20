@@ -20,6 +20,7 @@ Application repositories receive the assets needed to run module-level documenta
 ## Distributed to Application Repositories
 
 - Skill dispatcher and supporting scripts for workflow execution.
+- The application bundle currently includes `akr-docs`, `akr-interview`, and the developer-facing `akr-capability` modes (`enhancement-clarify` and `capability-define-clarify`) only.
 - Skill compatibility guidance and hook integrations.
 - Onboarding seed artifacts such as project config and module manifest seeds.
 - Validation workflow definitions used in repository CI.
@@ -38,6 +39,7 @@ Application teams are accountable for:
 
 - Maintaining module manifests and local documentation outputs.
 - Running the skill workflows with required approvals.
+- Running `enhancement-clarify` before coding when a closed enhancement is handed off from the consolidation repository.
 - Resolving unknown markers and quality gaps before merge.
 - Operating within the configured compliance mode.
 
@@ -48,7 +50,8 @@ Consolidation repositories focus on business capability aggregation across appli
 ## Distributed to Consolidation Repositories
 
 - Consolidation workflow package for capability lifecycle management.
-- Standardized operating patterns for impact assessment, readiness review, consolidation, baseline promotion, and test governance.
+- The consolidation bundle includes `akr-business-consolidation` plus the PO/TL-facing `akr-capability` modes (`enhancement-review`, `enhancement-review-close`, `enhancement-test-generation`, `capability-define-review`, and `capability-define-close`).
+- Standardized operating patterns for impact assessment, readiness review, consolidation, baseline promotion, enhancement assessment, and test governance.
 - Capability-level content structures for business narratives, dependencies, and traceability.
 - Orchestration assets needed for cross-repository synthesis operations.
 
@@ -66,6 +69,7 @@ Consolidation owners are accountable for:
 - Producing consolidated documentation that remains traceable to source module docs.
 - Enforcing governance expectations for cross-repo outputs.
 - Preserving business readability while retaining technical traceability.
+- Running enhancement assessment and closeout workflows before handing coding work to developers.
 - Running promotion and maintenance cycles when enhancement items are delivered so baseline capability views stay current.
 
 ## Implemented Consolidation Promotion Flow
@@ -74,13 +78,16 @@ The implemented promotion capability provides a controlled path for elevating de
 
 - Identifies enhancement entries that include delivery-tracking references.
 - Uses human confirmation to determine which referenced delivery items are closed or complete.
+- Requests explicit PO/TL acceptance and asks whether testing is complete for each accepted item.
 - Updates baseline capability narratives with delivered behavior and rule changes.
-- Merges enhancement-driven test coverage into baseline quality conditions while preserving continuity.
+- Updates baseline limitations and internal/external dependency artifacts when delivered enhancements changed those baselines.
+- Merges enhancement-driven test coverage into baseline quality conditions only when testing completion is confirmed; otherwise it records deferred test-promotion follow-up notes.
 - Synchronizes enhancement status so planning and baseline views remain aligned.
 
 Current verification scope:
 
 - Delivery-state verification is human-in-the-loop.
+- Testing completion confirmation is human-in-the-loop and is not inferred from artifacts in the current proof-of-concept.
 - Automated delivery-system verification is documented as a future extension path.
 
 Template impact:
@@ -104,7 +111,7 @@ Template impact:
 ## Human-in-the-Loop Controls in Distribution
 
 - Application lane: technical leads and developers validate module intent and implementation fidelity.
-- Consolidation lane: product and QA-oriented reviewers validate business coherence and evidence quality, including delivery-state confirmation for promotion.
+- Consolidation lane: product and QA-oriented reviewers validate business coherence and evidence quality, including delivery-state, PO/TL acceptance, and testing-completion confirmation for promotion.
 - In both lanes, unresolved unknowns are visible, assigned, and intentionally closed.
 
 ## Comparative View
@@ -112,13 +119,13 @@ Template impact:
 ## Application Repositories
 
 - Primary purpose: code-proximate module and database documentation.
-- Workflow emphasis: grouping, generation, unknown resolution, local validation.
+- Workflow emphasis: grouping, generation, unknown resolution, local validation, and pre-coding enhancement clarification.
 - Control focus: implementation accuracy and standards adherence.
 
 ## Consolidation Repositories
 
 - Primary purpose: cross-repo business capability narratives.
-- Workflow emphasis: impact assessment, coverage review, consolidation, promotion, quality maintenance, and relationship mapping.
+- Workflow emphasis: impact assessment, enhancement review/close/test generation, consolidation, promotion, quality maintenance, and relationship mapping.
 - Control focus: governance consistency and portfolio-level maintainability.
 
 ## Why This Distribution Model Is Maintainable

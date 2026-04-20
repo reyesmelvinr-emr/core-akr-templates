@@ -60,6 +60,70 @@ This document defines the target end state for cross-repository business documen
 +----------------------------------+
 ```
 
+## Copilot Context Retrieval Architecture (POC)
+
+The diagram below explains how AKR narrows Copilot context before analysis, so generated outputs stay aligned to approved business intent and technical scope.
+
+```mermaid
+flowchart LR
+  subgraph SRC[Application Source Repositories]
+    A1[Backend and UI codebases]
+    A2[modules.yaml]
+    A3[Module docs with metadata\nbusinessCapability, feature, layer]
+    A1 --> A2
+    A1 --> A3
+  end
+
+  subgraph GOV[AKR Governance]
+    G1[Team-reviewed businessCapability list]
+    G2[tag-registry.json\napproved capability values]
+    G3[Validation gate\nrejects non-approved capability labels]
+    G1 --> G2 --> G3
+  end
+
+  subgraph AKR[AKR Skill Orchestration]
+    S1[capability-impact-analysis]
+    S2[capability-coverage-review]
+    S3[capability-consolidation]
+    S4[capability-relationship-mapping]
+    S5[capability-promote and test-maintenance]
+  end
+
+  subgraph BUS[Consolidation Repository]
+    B1[Capability folders by lifecycle\nactive, new, archived]
+    B2[index, test-conditions, limitations, dependencies, traceability]
+    B1 --> B2
+  end
+
+  subgraph COP[Copilot Context Window]
+    C1[Select target businessCapability]
+    C2[Pull matched code components\nfrom modules.yaml mapping]
+    C3[Pull matched docs from source and consolidation repos]
+    C4[Exclude unrelated legacy naming and non-matching components]
+    C5[Generate response with constrained technical and business context]
+    C1 --> C2 --> C3 --> C4 --> C5
+  end
+
+  SRC -->|declared module-to-capability mapping| COP
+  SRC -->|metadata candidates| AKR
+  GOV -->|approved vocabulary only| AKR
+  AKR -->|status-aware consolidated artifacts| BUS
+  BUS -->|capability-aligned business context| COP
+  GOV -->|capability validation signal| COP
+```
+
+### Why this improves relevance and reduces hallucinations
+
+1. `modules.yaml` is a first-pass hard filter for code scope. Only components mapped to the selected `businessCapability` are considered.
+2. Team-reviewed `businessCapability` values in `tag-registry.json` provide a controlled vocabulary, reducing drift from old naming standards and local developer preferences.
+3. Cross-repository matching on the same `businessCapability` key binds code components and documentation to one semantic target.
+4. AKR skills run assessment and consolidation before generation, so Copilot sees curated capability artifacts rather than broad repository-wide matches.
+5. The resulting context window combines technical evidence (mapped modules) and business evidence (capability docs) while excluding non-matching files.
+
+### Executive summary for non-technical stakeholders
+
+AKR works like a context firewall for Copilot. Instead of scanning everything in every repository, it first asks: "Which business capability is this request about?" Then it pulls only the code and documents that are explicitly tagged and approved for that capability. This increases answer precision, lowers noise from legacy naming, and improves trust in generated outputs for PO, QA, TL, and engineering teams.
+
 ## Target-State Principles
 
 1. `businessCapability` is the only cross-repository grouping key.
@@ -150,6 +214,8 @@ Minimum prerequisites before first consolidation write:
     skills/
       akr-business-consolidation/
         SKILL.md
+      akr-capability/
+        SKILL.md
   governance/
     review-workflow.md
     definition-of-done.md
@@ -187,7 +253,6 @@ Minimum prerequisites before first consolidation write:
           limitations.md
           internal_dependencies.md
           external_dependencies.md
-          traceability.md
           diagrams/
     references/
       glossary.md
@@ -216,7 +281,13 @@ To support a repository-specific skill surface, `core-akr-templates` maintains a
 Required consolidation bundle shape in `core-akr-templates`:
 
 - `.github/skills/akr-business-consolidation/SKILL.md`
-- `.github/skills/akr-business-consolidation/scripts/*` for capability modes (`capability-impact-analysis`, `capability-coverage-review`, `capability-relationship-mapping`, `capability-consolidation`, `capability-promote`, `capability-test-maintenance`, `capability-test-generation`) as the implementation is introduced
+- `.github/skills/akr-business-consolidation/scripts/*` for capability modes (`capability-impact-analysis`, `capability-coverage-review`, `capability-relationship-mapping`, `capability-consolidation`, `capability-promote`, `capability-test-maintenance`, `capability-promote-new`) as the implementation is introduced
+- `.github/skills/akr-capability/SKILL.md` — dispatcher for business capability enhancement assessment and new capability definition
+- `.github/skills/akr-capability/scripts/enhancement-review.md` — iterative pre-coding requirements assessment with gap detection, readiness scoring, and routing decision (invocation: `enhancement-review`)
+- `.github/skills/akr-capability/scripts/enhancement-review-close.md` — validates assessment completeness, strips review blocks, confirms explicit close (invocation: `enhancement-review-close`)
+- `.github/skills/akr-capability/scripts/enhancement-test-generation.md` — derives Business (BTC-), Technical (TTC-), and Regression (RTC-) test conditions from closed enhancements (invocation: `enhancement-test-generation`)
+- `.github/skills/akr-capability/scripts/capability-define-review.md` — iteratively assesses new capability definition artifacts and proposes refinements (invocation: `capability-define-review`)
+- `.github/skills/akr-capability/scripts/capability-define-close.md` — validates new capability definition is ready for handoff to developers (invocation: `capability-define-close`)
 - Optional compatibility and governance companion artifacts when adopted (for example `SKILL-COMPAT.md`)
 
 ### Distribution workflow contract for consolidation repositories
@@ -231,7 +302,7 @@ Required workflow separation:
 
 Required copy behavior for consolidation workflow:
 
-- Copy consolidation skill assets only (`.github/skills/akr-business-consolidation/**`).
+- Copy consolidation skill assets only (`.github/skills/akr-business-consolidation/**` and `.github/skills/akr-capability/**`).
 - Copy consolidation hook/validation assets only when explicitly part of the business-repo contract.
 - Do not copy application `akr-docs` dispatcher or its scripts into consolidation repositories.
 - Do not copy Vale rule packs or unrelated onboarding scaffolds as recurring distribution artifacts.
@@ -269,11 +340,12 @@ To avoid implementation ambiguity, ownership is explicitly split:
 
 Capabilities are organized by lifecycle status within the consolidation repository: **active** (current production-used), **archived** (codebases retained but no longer business-used), and **new** (under construction, not yet production). This organizational structure complements `businessCapability` as the canonical semantic key for cross-repository grouping; lifecycle status is a consolidation-repository navigation and governance partition only.
 
-Within each capability folder (regardless of status):
+Within each capability folder (status-aware):
 
 - `index.md` is the primary output of `capability-consolidation`. For new capabilities, it may include related Azure DevOps work-item links.
 - `test-conditions.md` (active and new only) captures QA-oriented acceptance and edge-case conditions.
 - `enhancement-test-conditions.md` (active only) captures enhancement-driven test scenarios and change-cycle test additions separate from baseline coverage.
+- In the current proof-of-concept, `enhancement-test-conditions.md` is a planning artifact for derived test coverage and does not serve as evidence that testing execution has been completed.
 - `enhancements.md` (active only) records in-development and delivery-tracked enhancements, including Product Owner business requirements, Technical Lead technical requirements, and Azure DevOps work-item references.
 - `backlog.md` (active only) holds planned enhancements that have not yet entered the work queue or development phase.
 - `limitations.md` records known business or technical limitations for the capability and any established application-team workarounds.
@@ -281,7 +353,8 @@ Within each capability folder (regardless of status):
 - `internal_dependencies.md` records dependency and impact relationships to other capabilities, processes, or functions within the current application that must be considered when changes are made to the current capability.
 - `external_dependencies.md` records interfaces and dependency relationships with external applications or platforms that interact with the current application and may be affected by capability changes.
 - Internal and external dependency documents support impact-aware planning and help QA testers derive cross-capability and integration-oriented test cases when enhancements are introduced.
-- `traceability.md` maps consolidated claims to source evidence, including source repository, source document path, section reference, and validation notes.
+- In the current proof-of-concept, there is no dedicated artifact that records completion of actual testing execution activities.
+- `traceability.md` (active and archived only) maps consolidated claims to source evidence, including source repository, source document path, section reference, and validation notes.
 - `diagrams/` stores capability-specific visuals relevant to Product Owner and business-owner review.
 
 ### Canonical template sources
@@ -296,7 +369,7 @@ The canonical consolidation templates are stored in `core-akr-templates/.akr/tem
 - `capability_limitations_template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/limitations.md`
 - `capability_internal_dependencies_template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/internal_dependencies.md`
 - `capability_external_dependencies_template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/external_dependencies.md`
-- `traceability-template.md` -> pattern for `docs/business-capabilities/<status>/<Capability>/traceability.md`
+- `traceability-template.md` -> pattern for `docs/business-capabilities/active|archived/<Capability>/traceability.md`
 
 For environments that still reference the legacy naming, `capabilitytTesting_template.md` is maintained as an alias pointing to the same testing template contract.
 
@@ -340,7 +413,7 @@ Conditional outputs depend on the target capability status:
 - `index.md`, `test-conditions.md`, `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
 
 **New capabilities:**
-- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md` (excludes enhancements, enhancement-test-conditions, backlog)
+- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md` (excludes enhancements, enhancement-test-conditions, backlog, traceability)
 
 **Archived capabilities (read-mostly):**
 - `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md` (preserves historical baseline and impact context; does not generate new test or enhancement artifacts)
@@ -354,19 +427,29 @@ Template rendering sources by file (status-aware):
 - `capability_limitations_template.md` -> `limitations.md` (all statuses)
 - `capability_internal_dependencies_template.md` -> `internal_dependencies.md` (all statuses)
 - `capability_external_dependencies_template.md` -> `external_dependencies.md` (all statuses)
-- `traceability-template.md` -> `traceability.md` (all statuses)
+- `traceability-template.md` -> `traceability.md` (active, archived only)
 - Source-to-section traceability entries and confidence markers
 
 Template usage rules:
 
 - `index.md` is the primary source of truth for scenario IDs and scenario descriptions.
-- `test-conditions.md` must reference scenario IDs defined in `index.md` and provide detailed QA steps.
-- `enhancements.md` (active only) tracks in-development and delivery-tracked enhancements and includes links to delivery-system records such as Azure DevOps Boards. Entries include enhancement ID, description, business value, technical considerations, status, target release, and delivery reference.
+- `test-conditions.md` must reference scenario IDs defined in `index.md` and provide detailed QA steps. Test conditions use `TC-*` ID prefix.
+- `enhancements.md` (active only) tracks in-development and delivery-tracked enhancements and includes links to delivery-system records such as Azure DevOps Boards. Entries include:
+  - Enhancement ID (`ENH-*` prefix)
+  - Azure Boards User Story Link (optional, but recommended for traceability)
+  - Business Requirements section (PO-owned): describes business outcomes, user-facing changes, and acceptance criteria
+  - Technical Requirements subsection (TL-owned): covers implementation approach, dependencies, and limitations
+  - Description, business value, technical considerations, status, target release, and delivery reference
 - `backlog.md` (active only) holds planned enhancements earmarked for future work but not yet queued for development. Entries include enhancement ID, description, business value, technical considerations, and may include Azure DevOps work-item links.
 - `limitations.md` captures operationally relevant capability limitations and associated workarounds, and may cite rule IDs from `index.md` for traceability.
 - `internal_dependencies.md` captures downstream and adjacent in-application capability impacts that must be considered for design review, change planning, and QA scenario expansion.
 - `external_dependencies.md` captures cross-application interfaces and integration impacts that must be considered for change planning, regression scope, and end-to-end QA coverage.
-- Scenario and test condition IDs must remain synchronized (`SCN-*` <-> `TC-*`) across both files.
+- `enhancement-test-conditions.md` (active only) tracks enhancement-driven test conditions separated by tier:
+  - Business Test Conditions (BTC-*): user-executable test steps based on business outcomes
+  - Technical Test Conditions (TTC-*): system/API/database-level validation including Technical Method column
+  - Regression Test Conditions (RTC-*): existing behavior assertions to prevent unintended side effects
+- In the current proof-of-concept, `enhancement-test-conditions.md` captures planned test coverage only; it is not a completion ledger for executed testing.
+- Scenario and test condition IDs must remain synchronized across affected files (`SCN-*` <-> `TC-*`, `ENH-*` <-> `BTC-*/TTC-*/RTC-*`).
 
 ### capability-promote
 
@@ -375,20 +458,27 @@ Purpose: Promote delivered enhancements into baseline business and QA artifacts 
 Inputs:
 - `enhancements.md` as the enhancement delivery source.
 - `index.md` as the baseline business behavior document to update.
+- `limitations.md` as the baseline limitation source to amend when delivered enhancements add, change, or remove constraints.
+- `internal_dependencies.md` as the baseline internal dependency source to amend when delivered enhancements change in-application capability interactions.
+- `external_dependencies.md` as the baseline external dependency source to amend when delivered enhancements change integration contracts or external touchpoints.
 - `test-conditions.md` as the baseline QA condition set to extend.
 - `enhancement-test-conditions.md` as the enhancement candidate condition source.
 
 Outputs:
 - Updated `index.md` with delivered enhancement behavior folded into baseline scenarios and rules.
+- Updated `limitations.md`, `internal_dependencies.md`, and `external_dependencies.md` when delivered enhancements changed baseline constraints or dependencies.
 - Updated `enhancements.md` with delivery state synchronization for promoted items.
-- Updated `test-conditions.md` with promoted enhancement test coverage.
-- Updated `enhancement-test-conditions.md` with promoted rows removed or reset after merge.
+- Updated `test-conditions.md` with promoted enhancement test coverage when testing completion is confirmed.
+- Updated `enhancement-test-conditions.md` with promoted rows removed or reset after merge when testing completion is confirmed.
 
 Execution rules:
 
 - Delivery verification is user-confirmed in the current implementation.
 - Enhancement entries should include a `Delivery Reference` value when available.
+- Promotion also requires explicit PO/TL confirmation that delivered items have been accepted by both business and technical owners.
 - Promotion should merge and preserve baseline `TC-*` continuity rather than replacing the full baseline file.
+- In the current proof-of-concept, actual testing execution is out of scope and there is no artifact that denotes completion of testing activities.
+- When testing completion cannot be evidenced, `capability-promote` may still update `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, and enhancement delivery state, while recording deferred test-merge follow-up notes.
 - If enhancement coverage is incomplete, add explicit QA gaps for follow-up rather than blocking baseline update.
 
 ### capability-test-maintenance
@@ -405,22 +495,6 @@ Outputs:
 - Updated `test-conditions.md` aligned to current `index.md` scenario definitions.
 - Revised test-condition steps and expected outcomes for impacted baseline behaviors.
 - Change notes identifying updated coverage areas and dependency-driven additions.
-
-### capability-test-generation
-
-Purpose: Generate new test scenarios and test conditions for enhancement-driven changes while preserving existing capability behavior.
-
-Inputs:
-- `enhancements.md` as the source of proposed business and technical changes.
-- `index.md` as the comparison baseline for existing behavior and rule intent.
-- `limitations.md` for known constraints that influence enhancement test design.
-- `internal_dependencies.md` for cross-capability change impact within the application.
-- `external_dependencies.md` for cross-application integration impact.
-
-Outputs:
-- Newly proposed test scenarios and test conditions added to `enhancement-test-conditions.md`.
-- Baseline-versus-change impact coverage that identifies affected existing functionality.
-- Enhancement-focused edge-case and regression test additions for QA execution.
 
 ## Audience and Language Contract
 
@@ -447,6 +521,32 @@ Consolidated documents must not:
 
 ## Operational Workflow
 
+### Phase A-0: Enhancement Assessment (Active Capabilities Only)
+
+Before capability modifications enter coding phase, active capabilities with proposed enhancements undergo a structured pre-coding assessment workflow.
+
+**Three-mode sequence:**
+
+1. **enhancement-review** (iterative): Assesses Business Requirements (PO-owned) and Technical Requirements (TL-owned) from `enhancements.md`. Produces gap analysis, readiness scoring (1-5 scale), complexity assessment, and routing recommendation (Copilot-ready / Copilot-assisted / Human required). Supports multiple iterations with delta tracking and previous-gap resolution detection. Output includes hidden `<!-- akr-capability: review-in-progress -->` marker for iteration continuity.
+
+2. **enhancement-review-close**: Validates all gaps resolved, confirms explicit PO/TL sign-off, strips review blocks from `enhancements.md` for clean file state. Prerequisite: all open gaps must be addressed; routing decision must not be 🚫 (human required) unless explicitly overridden.
+
+3. **enhancement-test-generation** (post-close only): Derives test conditions from closed enhancements:
+   - Business Test Conditions (BTC-*): maps business outcomes to user-executable test steps
+   - Technical Test Conditions (TTC-*): includes Technical Method column for API/database/log verification
+   - Regression Test Conditions (RTC-*): ensures existing behavior remains unaffected
+   
+   Produces `enhancement-test-conditions.md` ready for QA handoff.
+
+  In the current proof-of-concept, this output is a planning artifact only. It does not record test execution completion.
+
+**Workflow governance:**
+
+- Run `enhancement-review` one or more times until all gaps are resolved.
+- Run `enhancement-review-close` exactly once per enhancement cycle; cannot be re-run on the same close state.
+- Run `enhancement-test-generation` after close to populate test-ready conditions.
+- Enhancements may not proceed to coding phase until `enhancement-review-close` has been executed successfully.
+
 ### Phase A: Define
 
 The application team, led by the Product Owner, defines the initial business capability set and aligns those values in the capability registry early in onboarding.
@@ -461,7 +561,7 @@ Run `capability-consolidation` per capability into the business documentation re
 
 ### Phase D: Promote Delivered Enhancements
 
-Run `capability-promote` to fold delivered enhancement outcomes into `index.md`, synchronize enhancement delivery state, and merge enhancement tests into baseline `test-conditions.md`.
+Run `capability-promote` to fold delivered enhancement outcomes into `index.md`, synchronize enhancement delivery state, and update baseline limitations and dependency artifacts. When testing completion is confirmed, merge enhancement tests into baseline `test-conditions.md`. In the current proof-of-concept, promotion may proceed without a testing-completion artifact.
 
 ### Phase E: Maintain Tests
 
@@ -469,7 +569,7 @@ Run `capability-test-maintenance` to refresh existing test conditions using the 
 
 ### Phase F: Generate Enhancement Tests
 
-Run `capability-test-generation` to create new enhancement-focused tests from `enhancements.md` compared against `index.md`, with limitation and dependency considerations.
+Run `enhancement-test-generation` to create new enhancement-focused tests from closed `enhancements.md`, with limitation and dependency considerations, before the coding handoff leaves the PO/TL workflow.
 
 ### Phase G: Explain
 
@@ -479,32 +579,34 @@ Run `capability-relationship-mapping` when cross-layer explanation is needed wit
 
 | Phase | Workflow name | Skill(s) | Primary trigger | Primary outputs | Status applicability |
 |---|---|---|---|---|---|
+| A-0 | Enhancement Assessment | `akr-capability` (enhancement-review → enhancement-review-close → enhancement-test-generation) | New or updated enhancement in active capability | Gap analysis, readiness/complexity scores, routing recommendation, validated business/technical requirements, enhancement-test-conditions.md | Active only |
 | A | Define | Human-led registry and onboarding setup | New application onboarding | Canonical `businessCapability` list and repository prerequisites | All |
 | B | Assess | `capability-impact-analysis`, `capability-coverage-review` | Source documentation change or onboarding readiness check | Impact list, coverage matrix, readiness recommendation | All |
-| C | Consolidate | `capability-consolidation` | Phase B ready state | Active: all 9 files; New: 6 files (excludes enhancements, enhancement-test-conditions, backlog); Archived: 5 files (read-mostly historical context) | All |
-| D | Promote delivered enhancements | `capability-promote` | Enhancement delivery confirmation | Updated baseline `index.md` and merged baseline `test-conditions.md` with synchronized enhancement state | Active only |
+| C | Consolidate | `capability-consolidation` | Phase B ready state | Active: all 9 files; New: 5 files (excludes enhancements, enhancement-test-conditions, backlog, traceability); Archived: 5 files (read-mostly historical context) | All |
+| D | Promote delivered enhancements | `capability-promote` | Enhancement delivery confirmation and PO/TL acceptance | Updated baseline `index.md`, synchronized limitation/dependency artifacts, and merged baseline `test-conditions.md` when testing completion is confirmed | Active only |
 | E | Maintain tests | `capability-test-maintenance` | Baseline capability change without new enhancement scope | Updated `test-conditions.md` aligned to baseline scenarios | Active only |
-| F | Generate enhancement tests | `capability-test-generation` | Enhancement scope defined in `enhancements.md` | Updated `enhancement-test-conditions.md` | Active only |
+| F | Generate enhancement tests | `akr-capability` (`enhancement-test-generation`) | Enhancement scope defined in `enhancements.md` after review-close | Updated `enhancement-test-conditions.md` | Active only |
 | G | Explain | `capability-relationship-mapping` | On-demand architecture and impact explanation request | Cross-layer relationship summary | All |
 
 ### Status-aware workflow constraints
 
-- **Active** capabilities support the full Phase A–G workflow to manage production capability baseline, active enhancements, test coverage, and cross-layer relationships.
-- **New** capabilities support Phases A–B (define/assess), Phase C with reduced artifact set (no enhancement or backlog files), Phase G for exploratory relationship mapping, but not Phases D–F until status changes to active.
-- **Archived** capabilities support Phases A–B (reference only), Phase C with read-mostly output, and Phase G for legacy impact analysis, but not phases D–F (no new enhancement planning or test generation)
+- **Active** capabilities support the full Phase A-0–G workflow to manage production capability baseline, active enhancements with pre-coding assessment, test coverage, and cross-layer relationships. Phase A-0 (enhancement assessment) is available only for active capabilities.
+- **New** capabilities support Phases A–B (define/assess), Phase C with reduced artifact set (no enhancement, backlog, or traceability files), Phase G for exploratory relationship mapping, but not Phases A-0 or D–F until status changes to active.
+- **Archived** capabilities support Phases A–B (reference only), Phase C with read-mostly output, and Phase G for legacy impact analysis, but not Phase A-0 or phases D–F (no new enhancement planning or test generation)
 
-### POC readiness status (as of 2026-04-10)
+### POC readiness status (as of 2026-04-17)
 
-The target-state architecture is directionally defined, but the current implementation is not yet fully ready for onboarding any arbitrary application repository in the proof-of-concept phase.
+The target-state architecture is directionally defined, with core business capability skill family (`akr-capability` for capability enhancement and definition, plus `akr-business-consolidation` for cross-repo consolidation) now implemented. The implementation is not yet fully ready for onboarding arbitrary application repositories in the proof-of-concept phase.
 
 | Severity | Current gap | Evidence summary | Required action |
 |---|---|---|---|
-| Critical | Consolidation skill family is not yet implemented in `core-akr-templates` | Expected path `.github/skills/akr-business-consolidation/` is absent in `core-akr-templates` | Add consolidation skill dispatcher, mode scripts, and companion artifacts in `core-akr-templates` |
+| Complete | Consolidation skill family is now implemented in `core-akr-templates` | `.github/skills/akr-business-consolidation/` and `.github/skills/akr-capability/` now exist with implemented mode scripts and companion artifacts | Keep distribution and governance docs aligned with the implemented workflow surface |
 | Critical | Distribution registry is not yet broad enough for cross-repository POC | `.github/registered-repos.yaml` currently lists backend repo only | Add UI and additional POC repositories to app registry; maintain a separate consolidation registry |
 | High | Backend baseline configuration is incomplete | `training-tracker-backend` currently has no `.akr-config.json` while UI and business repositories do | Add backend `.akr-config.json` seed and validate against `akr-config-schema.json` |
 | High | Consolidation output repository baseline is partial | `training_tracker_business` has only partial capability artifacts and no business-facing `.github/copilot-instructions.md` | Complete capability folder artifact set and seed business-facing instructions if file is absent |
 | High | Consolidation distribution workflow is defined conceptually but not yet implemented | Target state specifies dedicated consolidation distribution, but only app-oriented distribution workflow exists currently | Implement `.github/workflows/distribute-business-skill.yml` and `.github/registered-business-repos.yaml` |
 | Medium | Local template naming drift can cause confusion | Existing business-repo local template names differ from canonical names listed in this target-state contract | Adopt canonical template naming for generation, support local aliases only for compatibility |
+| Complete | Business capability assessment and definition workflow (`akr-capability` skill family) | ✅ All five modes implemented: enhancement-review (iterative), enhancement-review-close (validation & cleanup), enhancement-test-generation (test derivation), capability-define-review (definition assessment), capability-define-close (definition validation) | In use for active capability enhancement assessment and new capability definition workflows; validated on sample enhancements and new capabilities |
 
 ### POC readiness gates
 
@@ -512,7 +614,7 @@ The following gates must all pass before declaring cross-repository POC onboardi
 
 | Gate | Exit criteria | Validation evidence |
 |---|---|---|
-| Gate 1: Core skill readiness | Both skill families exist in `core-akr-templates` (`akr-docs` and `akr-business-consolidation`) with versioned invocation contracts; all nine canonical consolidation templates are present in `core-akr-templates/.akr/templates/` (including new `capability_backlog_template.md`); skill dispatcher enforces status-aware output path generation | Presence of skill files and scripts under `.github/skills/`; presence of all nine template files under `.akr/templates/` with documented lifecycle-aware generation contract |
+| Gate 1: Core skill readiness | All current skill families exist in `core-akr-templates` (`akr-docs`, `akr-capability`, and `akr-business-consolidation`) with versioned invocation contracts; all nine canonical consolidation templates are present in `core-akr-templates/.akr/templates/` (including new `capability_backlog_template.md`); skill dispatchers enforce the documented status-aware and capability-aware contracts | Presence of skill files and scripts under `.github/skills/`; presence of all nine template files under `.akr/templates/` with documented lifecycle-aware generation contract |
 | Gate 2: Distribution readiness | App distribution and consolidation distribution workflows both exist and use separate target registries | Workflow files present; registry files present; workflow dry-run or dispatch evidence |
 | Gate 3: Source repo onboarding baseline | New app repository contains required AKR files (`modules.yaml`, `.akr-config.json`, skill bundle, hooks, validation workflow, repo-owned instructions); `distribute-onboarding-bundle.yml` has been dispatched for the repository and absence-seeded files are confirmed present | Repository file audit against onboarding checklist; PR evidence from `distribute-onboarding-bundle.yml` run |
 | Gate 4: Registry and metadata readiness | Source documentation metadata values (`businessCapability`, `feature`, `layer`) are normalized and valid | Validation output showing alignment to capability registry and front matter constraints |
@@ -554,8 +656,3 @@ This target-state definition excludes:
 5. Consolidated outputs are designed primarily for PO/QA/TL consumption.
 6. Consolidated documents are treated as production-state business behavior references.
 
-## Next Planning Artifact
-
-Implementation details are defined in:
-
-- `planning/CROSS_REPOSITORY_POC_IMPLEMENTATION_PLAN.md`

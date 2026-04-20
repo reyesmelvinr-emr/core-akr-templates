@@ -4,6 +4,9 @@
 
 Identify which business capabilities are affected by source documentation or code changes.
 
+For `new` capabilities, focus impact analysis on declared dependency records in
+`internal_dependencies.md` and `external_dependencies.md` before implementation begins.
+
 ## Inputs
 
 - Changed source document paths
@@ -19,6 +22,12 @@ Identify which business capabilities are affected by source documentation or cod
 - Impacted capability list
 - Source-path to capability mapping
 - Re-consolidation recommendation (`required` or `not-required`)
+
+For `new` capabilities, output reduced-scope recommendation:
+
+- dependency impact summary from declared records
+- clarification risk flags for underspecified dependency contracts
+- explicit statement that consolidation generation is not applicable at `new` status
 
 ## Notes
 

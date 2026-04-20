@@ -92,18 +92,18 @@ Validation failure: CRITICAL — consolidation writes are blocked.
 
 #### New capabilities
 
-Must include 6 required files (excludes enhancement/backlog artifacts):
+Must include 5 required files (excludes enhancement/backlog/traceability artifacts):
 - `index.md` (may include Azure DevOps work-item links)
 - `test-conditions.md`
 - `limitations.md`
 - `internal_dependencies.md`
 - `external_dependencies.md`
-- `traceability.md`
 
 Must NOT include:
 - `enhancement-test-conditions.md`
 - `enhancements.md`
 - `backlog.md`
+- `traceability.md`
 
 Validation failure: WARNING — file presence warnings are reported; consolidation writes may proceed if other criteria met.
 
@@ -150,16 +150,36 @@ If a new capability's `index.md` includes Azure DevOps work-item links:
 Before running `capability-promote` on an active capability:
 
 1. Verify `enhancements.md` has at least one entry with non-empty `Delivery Reference`.
-2. Verify `enhancement-test-conditions.md` has corresponding test cases for items marked as delivered.
-3. Validation reports readiness status without failing; promotion proceeds with user confirmation.
+2. Verify `enhancement-test-conditions.md` has corresponding planned test cases for items marked as delivered.
+3. Verify the PO/TL can explicitly answer whether testing is complete for each delivered item. In the current proof-of-concept this is a human confirmation step, not an artifact-derived validation.
+4. Validation reports readiness status without failing; promotion proceeds with user confirmation and may continue with deferred test-merge notes when testing execution is out of scope.
 
 ### Test Coverage Validation
 
 For active capabilities:
 
 - `test-conditions.md` must reference scenario IDs defined in `index.md` (validation cross-reference check).
-- If `enhancement-test-conditions.md` exists, validate that scenario IDs do not duplicate baseline test IDs.
+- If `enhancement-test-conditions.md` exists, validate that enhancement test IDs use only `BTC-*`, `TTC-*`, or `RTC-*` prefixes and do not reuse baseline `TC-*` identifiers.
 - Validation warns on missing scenario definitions but does not block.
+
+### New Capability Clarify Dependency Validation (POC)
+
+For `capability-define-clarify` flows:
+
+- `internal_dependencies.md` entries are valid only when target capability status is `active` or `new`.
+- `active` targets are verification candidates (interface check).
+- `new` targets are assumption candidates (must be confirmed in clarify output).
+- Any other status should be treated as a blocker to proceed.
+
+### First-Run Suggested Additions Governance (POC)
+
+When first-run consolidation emits a Suggested Additions Report, PO/TL must choose one governance action:
+
+1. Accept all
+2. Reject all
+3. Manual selective update
+
+Validation/reporting should treat any other action wording as non-standard and prompt explicit correction.
 
 ### Running Validation in CI
 

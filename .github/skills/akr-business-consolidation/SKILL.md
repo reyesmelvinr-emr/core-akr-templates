@@ -2,7 +2,7 @@
 name: akr-business-consolidation
 description: >
   Consolidate backend and UI module documentation into business capability artifacts.
-  Invoke explicitly via /akr-business-consolidation [capability-impact-analysis | capability-coverage-review | capability-consolidation | capability-promote | capability-test-maintenance | capability-test-generation | capability-relationship-mapping] [CapabilityName].
+  Invoke explicitly via /akr-business-consolidation [capability-impact-analysis | capability-coverage-review | capability-consolidation | capability-promote | capability-promote-new | capability-test-maintenance | capability-relationship-mapping] [CapabilityName].
 disable-model-invocation: true
 compatibility:
   models:
@@ -33,14 +33,14 @@ Load only the mode script required by the command.
 | `/akr-business-consolidation capability-coverage-review [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-coverage-review.md` | Evaluate source coverage and metadata quality |
 | `/akr-business-consolidation capability-consolidation [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-consolidation.md` | Generate or refresh the capability artifact set |
 | `/akr-business-consolidation capability-promote [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-promote.md` | Promote delivered enhancements into baseline capability and QA artifacts |
+| `/akr-business-consolidation capability-promote-new [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-promote-new.md` | Promote a new capability to active status after PO/TL acceptance |
 | `/akr-business-consolidation capability-test-maintenance [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-test-maintenance.md` | Update baseline test conditions from current behavior |
-| `/akr-business-consolidation capability-test-generation [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-test-generation.md` | Generate enhancement-focused tests |
 | `/akr-business-consolidation capability-relationship-mapping [CapabilityName]` | `.github/skills/akr-business-consolidation/scripts/capability-relationship-mapping.md` | Explain dependency and cross-layer relationships |
 
-Dispatcher pre-check for `capability-test-generation`:
+Dispatcher pre-check for `capability-promote-new`:
 - Determine capability status from `docs/business-capabilities/{active|new|archived}/<CapabilityName>/`.
-- If status is `new` or `archived`, stop before loading the mode script and return:
-  "Test generation is only available for active capabilities. <CapabilityName> is currently <status>."
+- If status is not `new`, stop before loading the mode script and return:
+  "capability-promote-new is only available for new capabilities. <CapabilityName> is currently <status>."
 
 ## Required Metadata and Governance
 
@@ -80,8 +80,7 @@ Primary output location in consolidation repositories (status-aware paths):
 - `docs/business-capabilities/new/<CapabilityName>/limitations.md`
 - `docs/business-capabilities/new/<CapabilityName>/internal_dependencies.md`
 - `docs/business-capabilities/new/<CapabilityName>/external_dependencies.md`
-- `docs/business-capabilities/new/<CapabilityName>/traceability.md`
-(excludes enhancements, enhancement-test-conditions, backlog)
+(excludes enhancements, enhancement-test-conditions, backlog, traceability)
 
 **Archived capabilities:**
 - `docs/business-capabilities/archived/<CapabilityName>/index.md`

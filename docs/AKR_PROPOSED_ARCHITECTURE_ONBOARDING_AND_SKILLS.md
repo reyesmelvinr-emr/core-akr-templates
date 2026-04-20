@@ -5,7 +5,7 @@
 ```mermaid
 flowchart LR
     subgraph CORE[core-akr-templates repo]
-        C1[.github/skills\nakr-docs\nakr-interview\nakr-business-consolidation]
+        C1[.github/skills\nakr-docs\nakr-interview\nakr-capability\nakr-business-consolidation]
         C2[examples/onboarding\nseed files]
         C3[.github/workflows\ndistribute-skill.yml\ndistribute-business-skill.yml\ndistribute-onboarding-bundle.yml]
         C4[.akr standards\nvalidation\ncharters\ntemplates]
@@ -13,13 +13,13 @@ flowchart LR
 
     subgraph APP[Application codebase repo(s)]
         A1[training-tracker-backend\nor other app repo]
-        A2[.github/skills/akr-docs\n.github/skills/akr-interview]
+        A2[.github/skills/akr-docs\n.github/skills/akr-interview\n.github/skills/akr-capability]
         A3[modules.yaml + module docs\nlocal CI validation]
     end
 
     subgraph CONSOLIDATION[Business consolidation repo(s)]
         B1[business consolidation repo]
-        B2[.github/skills/akr-business-consolidation]
+        B2[.github/skills/akr-business-consolidation\n.github/skills/akr-capability]
         B3[docs/business-capabilities/*]
     end
 
@@ -52,7 +52,7 @@ sequenceDiagram
     C->>T: Seed onboarding artifacts\n(akr-config, modules seed, workflow, baseline instructions)
 
     M->>C: Trigger distribute-skill.yml
-    C->>T: Install akr-docs + akr-interview skill bundle\n(+ hooks and validators)
+    C->>T: Install akr-docs + akr-interview + akr-capability\n(app bundle + hooks and validators)
 
     Note over T: Team starts AKR workflow\n/akr-docs groupings -> generate -> resolve -> score
 ```
@@ -60,8 +60,8 @@ sequenceDiagram
 ### What gets distributed during onboarding and follow-up
 
 - Onboarding bundle seeds baseline repo scaffolding needed to start AKR adoption.
-- Skill bundle distribution is a separate lifecycle step and installs `akr-docs` and `akr-interview` for application repositories.
-- Consolidation repositories are handled by a separate workflow that installs `akr-business-consolidation`.
+- Skill bundle distribution is a separate lifecycle step and installs `akr-docs`, `akr-interview`, and the developer-facing `akr-capability` bundle for application repositories. Only the `enhancement-clarify` mode is distributed to application repositories.
+- Consolidation repositories are handled by a separate workflow that installs `akr-business-consolidation` plus the PO/TL-facing `akr-capability` modes (`enhancement-review`, `enhancement-review-close`, and `enhancement-test-generation`).
 
 ## 3. Proposed Consolidation Repository Folder Structure
 
@@ -79,9 +79,18 @@ The following structure reflects the target business-capability layout used by t
                     capability-coverage-review.md
                     capability-consolidation.md
                     capability-promote.md
+                    capability-promote-new.md
                     capability-test-maintenance.md
-                    capability-test-generation.md
                     capability-relationship-mapping.md
+            akr-capability/
+                SKILL.md
+                SKILL-COMPAT.md
+                scripts/
+                    enhancement-review.md
+                    enhancement-review-close.md
+                    enhancement-test-generation.md
+                    capability-define-review.md
+                    capability-define-close.md
         copilot-instructions.md
     docs/
         business-capabilities/
@@ -110,7 +119,6 @@ The following structure reflects the target business-capability layout used by t
                     limitations.md
                     internal_dependencies.md
                     external_dependencies.md
-                    traceability.md
 ```
 
 Notes:
@@ -146,6 +154,12 @@ The onboarding and follow-up skill distribution process creates these folders in
                 SKILL.md
                 scripts/
                     akr-interview.md
+            akr-capability/
+                SKILL.md
+                SKILL-COMPAT.md
+                scripts/
+                    enhancement-clarify.md
+                    capability-define-clarify.md
         hooks/
             postToolUse.json
             agentStop.json
@@ -164,16 +178,18 @@ The following are the currently available AKR skills in this repository:
 
 - `akr-docs`
 - `akr-interview`
+- `akr-capability`
 - `akr-business-consolidation`
 
 | Skill | Primary command surface | Purpose in core-akr-templates repo | Purpose in application codebase repos | Purpose in consolidation repos |
 |---|---|---|---|---|
 | `akr-docs` | `/akr-docs groupings|generate|resolve|refresh-assets|score|cache-status|update-cache` | Authored and versioned as source-of-truth dispatcher and mode scripts; distributed via `distribute-skill.yml`. | Primary skill for module documentation lifecycle: grouping, draft generation, unknown resolution prep, cache maintenance, and scoring. | Not distributed by the business-skill workflow; not the primary operating skill in this lane. |
 | `akr-interview` | `/akr-interview [file] [--as @username] [--callouts-only]` | Authored and versioned as source-of-truth interview workflow; distributed with app skill bundle. | Interactive closure of unresolved markers and `@username` callouts in module documents. | Not distributed by the business-skill workflow. |
-| `akr-business-consolidation` | `/akr-business-consolidation capability-impact-analysis|capability-coverage-review|capability-consolidation|capability-promote|capability-test-maintenance|capability-test-generation|capability-relationship-mapping` | Authored and versioned as source-of-truth consolidation workflow; distributed via `distribute-business-skill.yml`. | Excluded by design from application skill distribution. | Primary skill for business capability synthesis, promotion, test governance, and cross-layer relationship mapping. |
+| `akr-capability` | `/akr-capability enhancement-review|enhancement-review-close|enhancement-test-generation|enhancement-clarify|capability-define-review|capability-define-close|capability-define-clarify [CapabilityName]` | Authored and versioned as the business capability skill family spanning requirement assessment, test derivation, pre-coding clarification, and new capability definition workflows. Covers both active capability enhancement and new capability definition workflows. | Receives only the developer-facing `enhancement-clarify` and `capability-define-clarify` modes through `distribute-skill.yml` so developers can map closed enhancement requirements to actual code before coding starts and understand new capability requirements before implementation. | Receives the PO/TL-facing review, close, and test-generation modes alongside the consolidation workflow bundle to support both active enhancement and new capability definition workflows.
+| `akr-business-consolidation` | `/akr-business-consolidation capability-impact-analysis|capability-coverage-review|capability-consolidation|capability-promote|capability-promote-new|capability-test-maintenance|capability-relationship-mapping` | Authored and versioned as source-of-truth consolidation workflow; distributed via `distribute-business-skill.yml`. | Excluded by design from application skill distribution. | Primary skill for business capability synthesis, promotion, new-to-active lifecycle transition, baseline test maintenance, and cross-layer relationship mapping. |
 
 ## 6. Repo-Type Summary
 
 - Core standards repo type (`core-akr-templates`): owns all skill definitions, scripts, and release distribution workflows.
-- Application codebase repo type: receives and runs `akr-docs` and `akr-interview`.
-- Consolidation repo type: receives and runs `akr-business-consolidation`.
+- Application codebase repo type: receives and runs `akr-docs`, `akr-interview`, and the developer-facing `akr-capability` clarify modes.
+- Consolidation repo type: receives and runs `akr-business-consolidation` plus the PO/TL-facing `akr-capability` modes.

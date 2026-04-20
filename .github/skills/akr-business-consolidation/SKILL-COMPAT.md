@@ -21,3 +21,5 @@ Last updated: 2026-04-10
 - Consolidation outputs are business-facing and should avoid implementation-level narrative.
 - Preserve repository-owned `.github/copilot-instructions.md`.
 - Registry alignment is mandatory before writes.
+- `capability-promote-new` is `new` status only and requires explicit confirmation before writes.
+- First post-promotion consolidation should use first-run mode: write `traceability.md` only and keep baseline artifacts read-only.

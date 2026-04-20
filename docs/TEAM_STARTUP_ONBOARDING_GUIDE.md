@@ -32,6 +32,8 @@ The following tracks run in parallel during onboarding. All three are required b
 | **Capability registry** | Product Owner, Technical Lead | Approved `businessCapability` values agreed and cascaded to all contributors |
 | **Consolidation repo setup** | Product Owner / Technical Lead | Consolidation repo provisioned, skill bundle distributed, consolidation mode configured |
 
+Before execution, classify each capability as `new` or `active` so the team uses the correct workflow branch.
+
 ```text
 Day 1+
 ├── Developer track ──────────────────────────────────────────────────────────────→
@@ -93,14 +95,28 @@ The Product Owner and Technical Lead agree on and publish the initial canonical 
 2. Submit values for approval in `core-akr-templates/.akr/tags/tag-registry.json` via PR.
 3. Cascade approved values to all documentation contributors in source repos.
 4. Require exact canonical values in module documentation front matter. Non-canonical values are normalization defects and block consolidation.
+5. For each capability, record operational lifecycle status for workflow routing:
+  - `new`: run capability-define workflow before coding handoff.
+  - `active`: run enhancement workflow.
+
+### 5.1.1 POC sequencing for new capability test conditions
+
+When authoring `docs/business-capabilities/new/<CapabilityName>/test-conditions.md`:
+
+1. PO drafts business-tier `TC-*` conditions.
+2. TL appends technical-tier `TC-*` conditions.
+3. PO/TL run one reconciliation pass.
+4. Unresolved wording is split by ownership:
+  - PO finalizes business acceptance wording.
+  - TL finalizes technical feasibility wording.
 
 ### 5.2 Consolidation repository provisioned
 
-The consolidation repository must exist, be governed, and have the AKR business skill bundle distributed to it.
+The consolidation repository must exist, be governed, and have the consolidation skill bundle distributed to it.
 
 1. Create the repository (see [docs/CONSOLIDATION REPO SETUP.md](CONSOLIDATION%20REPO%20SETUP.md) for the full consolidation repository setup checklist and target-state contract).
 2. Ensure branch protection is enabled on the default branch.
-3. Run `distribute-business-skill.yml` targeting this repository to install the `akr-business-consolidation` skill bundle and seed `.github/copilot-instructions.md` if absent.
+3. Run `distribute-business-skill.yml` targeting this repository to install the consolidation skill bundle (`akr-business-consolidation` plus the PO/TL-facing `akr-capability` modes) and seed `.github/copilot-instructions.md` if absent.
 4. Ensure the repository is also targeted by the central `distribute-tag-registry.yml` workflow. The consolidation repo does not receive `.akr/tags/tag-registry.json` from `distribute-business-skill.yml`.
 5. Seed or refresh `.akr/tags/tag-registry.json` in the consolidation repo by running `distribute-tag-registry.yml` after the approved capability values have been merged in `core-akr-templates/.akr/tags/tag-registry.json`, or by including the repo in the workflow target list before the next registry change is pushed.
 6. Treat `.akr/tags/tag-registry.json` in the consolidation repo as a read-only distributed artifact from `core-akr-templates`; request registry changes through the central repository instead of editing the local copy.
@@ -113,7 +129,7 @@ The consolidation workflow requires that source repositories already have:
 - `modules.yaml` (seeded by `distribute-onboarding-bundle.yml`)
 - Module documentation files with correct `businessCapability`, `feature`, `layer` front matter
 
-If source repos are not yet onboarded, run `distribute-onboarding-bundle.yml` for each, then run `distribute-skill.yml` to install the `akr-docs` skill bundle.
+If source repos are not yet onboarded, run `distribute-onboarding-bundle.yml` for each, then run `distribute-skill.yml` to install the application skill bundle (`akr-docs`, `akr-interview`, and the developer-facing `akr-capability` mode).
 
 ---
 
@@ -126,7 +142,7 @@ Source repo developers produce the module documentation that the consolidation w
 If the source repository has not yet been onboarded to AKR:
 
 1. Have the AKR maintainer run `distribute-onboarding-bundle.yml` targeting this repository. This seeds `modules.yaml`, `.akr-config.json`, `validate-documentation.yml`, `copilot-instructions.md`, and the `notify-consolidation-on-doc-merge.yml` workflow.
-2. Run `distribute-skill.yml` targeting this repository to install the `akr-docs` and `akr-interview` skill bundles.
+2. Run `distribute-skill.yml` targeting this repository to install the `akr-docs`, `akr-interview`, and developer-facing `akr-capability` skill bundle.
 
 ### Step D1: Keep `modules.yaml` current
 
@@ -414,8 +430,8 @@ This is a step-by-step sequence for the very first capability run, regardless of
 **Active capabilities** require all nine files:
 - `index.md`, `test-conditions.md`, `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
 
-**New capabilities** require six files (no enhancement/backlog artifacts):
-- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
+**New capabilities** require five files (no enhancement/backlog/traceability artifacts):
+- `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`
 
 **Archived capabilities** require five files (read-mostly historical baseline):
 - `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`

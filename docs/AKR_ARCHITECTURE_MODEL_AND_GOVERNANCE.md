@@ -79,9 +79,32 @@ Consolidation is an enabled target-state capability and should be treated as Pha
 7. Approved outputs are merged and used for ongoing maintenance.
 8. Consolidation workflows derive feature-level business context across repos.
 
+For capability lifecycle workflows, AKR uses two status paths:
+
+- `new` path: PO/TL direct authoring -> capability-define review/close -> developer clarify -> promote new to active.
+- `active` path: enhancement review/close -> enhancement test generation -> developer clarify/coding -> capability promotion.
+
+`capability-consolidation` is not run at `new` status. First consolidation occurs after promotion to `active`.
+
 ## Governance Model
 
 Governance is implemented through explicit controls and ownership boundaries.
+
+### Capability Workflow Governance (POC)
+
+- New-capability controls:
+  - `capability-define-*` commands run only for status `new`.
+  - Clarify accepts internal dependency targets only with status `active` or `new`.
+  - `active` dependencies are verified directly; `new` dependencies are treated as conditional assumptions.
+- Promotion controls:
+  - `capability-promote-new` requires explicit PO/TL confirmation.
+  - POC reliability posture is fail-fast with recovery checklist output; full transactional rollback is deferred post-POC.
+- First post-promotion consolidation controls:
+  - First-run mode is non-destructive for baseline PO/TL-authored artifacts.
+  - Only `traceability.md` is created on first-run consolidation; other baseline artifacts are read-only.
+- Test identifier continuity:
+  - Baseline remains `TC-*`.
+  - Enhancement-generated identifiers use separate families (`BTC-*`, `TTC-*`, `RTC-*`) and do not collide with baseline IDs.
 
 ## Control Types
 

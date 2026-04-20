@@ -11,6 +11,19 @@ Use this guide if you want the shortest path to first value.
 If you need full multi-role onboarding and consolidation paths, use:
 - docs/TEAM_STARTUP_ONBOARDING_GUIDE.md
 
+If you are defining a brand-new capability (status `new`), also use:
+- docs/NEW_CAPABILITY_WORKFLOW_RECOMMENDATION (2).md
+
+## Choose Your Path First
+
+1. If your target is an existing active capability enhancement, follow the module flow below plus enhancement workflow guides.
+2. If your target is a new capability, use this quick sequence first:
+	- Register capability with operational status `new`.
+	- PO/TL author the five new-capability artifacts.
+	- Run capability-define review and close.
+	- Developer runs capability-define-clarify before coding.
+	- Promote with capability-promote-new after acceptance.
+
 ## Four Steps Only
 
 ## Step 1 - Prepare VS Code and authentication
