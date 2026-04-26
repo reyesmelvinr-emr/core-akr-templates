@@ -1,5 +1,19 @@
 # enhancement-readiness-review
 
+## Status
+
+Deprecated compatibility script. Use `enhancement-review.md` for the active iterative review
+workflow.
+
+If this script is still invoked, apply the same handoff standard as `enhancement-review.md`:
+
+- Prefer stable implementation anchors over exact file, class, or script names.
+- Require enough detail to implement and test the change, not enough detail to lock every
+	internal design decision.
+- Treat exact artifact names as optional unless an architectural, security, compliance,
+	performance, or platform constraint makes them mandatory.
+- Treat over-constrained internal design direction as advisory unless it creates delivery risk.
+
 ## Purpose
 
 Assess the quality and completeness of business and technical requirements declared for each enhancement entry in an active capability's `enhancements.md`. Surface gaps the PO or TL may have missed, propose implementation guidance, and produce a per-enhancement routing recommendation that determines whether the coding task can be assigned to a Copilot coding agent or requires human developer involvement.
@@ -52,16 +66,24 @@ For each enhancement, evaluate the Technical Requirements section authored by th
 
 | Criterion | Check | Severity if missing |
 |---|---|---|
-| Implementation scope | Are the specific scripts, modules, or templates to update or add named? | High |
-| Change rationale | Is there a clear link between each technical change and a specific business requirement? | High |
+| Implementation scope | Are the affected implementation anchors named clearly enough to begin coding (for example UI surface, API contract, data entity, integration point, batch job, or module area)? Exact file or class names are optional when not yet stable. | High |
+| Change rationale | Is there a clear link between each technical change and a specific business requirement or success condition? | High |
 | Internal dependencies | Are all in-application capability dependencies declared? Cross-check against `internal_dependencies.md`. | High |
 | External dependencies | Are all cross-application integration points declared? Cross-check against `external_dependencies.md`. | High |
 | Known limitations | Are any known technical constraints or limitations that affect this enhancement declared? Cross-check against `limitations.md`. | Medium |
-| New artifact identification | If new files or modules are required, are they named and their purpose described? | Medium |
+| New artifact identification | If new artifacts are required, is their purpose and boundary described clearly enough for implementation and testing? Exact names are recommended only when already decided. | Medium |
 | Security and data considerations | Are data handling, authentication, or authorization impacts noted if applicable? | Medium |
-| Testability | Are the technical changes described in enough detail for the QA team to derive test conditions? | Medium |
+| Testability | Are the technical changes described in enough detail for the QA team to derive test conditions from observable behavior, contracts, and data state even if internal design choices remain open? | Medium |
+| Design freedom guardrail | Does the technical scope avoid mandating internal design choices without a stated architectural, security, compliance, performance, or platform reason? | Low — advisory |
 
 Mark each missing criterion with `❓ [criterion name]: [clarifying question for TL]`.
+
+Apply these review rules during Step 3:
+
+- Prefer stable component anchors over exact file paths when the implementation can reasonably be completed in more than one internal location.
+- Treat preferred implementation approaches as guidance unless the TL explicitly states why that choice is mandatory.
+- Raise a gap only when the requirements leave the coding agent without a reliable implementation anchor or without enough behavioral clarity to prove success.
+- If the Technical Requirements appear over-constrained, record that as an advisory note rather than a coding blocker unless the over-constraint would create delivery risk or contradict stated requirements.
 
 ### Step 4: Cross-check against capability baseline
 
@@ -77,11 +99,13 @@ Use `🤖` to mark inferred cross-check findings that the TL must confirm.
 Based on the declared technical requirements and the baseline cross-check, produce a list of implementation suggestions.
 
 For each suggestion:
-- State the specific script, module, template, or integration point involved.
+- State the most reliable implementation anchor involved. Use exact file, class, or script names only when they are explicitly declared or clearly established by surrounding context.
 - Explain why it is likely to be affected.
 - Mark as `confirmed by declared requirements` or `🤖 inferred — requires TL confirmation`.
 
 Do not treat suggestions as requirements. They are advisory until the TL confirms them.
+
+If the TL has described a preferred internal implementation path without a stated mandatory reason, preserve that detail as guidance rather than converting it into a readiness gate.
 
 ### Step 6: Compute readiness score
 

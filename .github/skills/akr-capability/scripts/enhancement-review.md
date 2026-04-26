@@ -4,6 +4,8 @@
 
 Assess the quality and completeness of business and technical requirements declared for each enhancement entry in an active capability's `enhancements.md`. Surface gaps the PO or TL may have missed, propose implementation guidance, and produce a per-enhancement routing recommendation that determines whether the coding task can be assigned to a Copilot coding agent or requires human developer involvement.
 
+The review is intended to make coding handoff clear without over-prescribing the internal design. Prefer stable implementation anchors such as UI surfaces, API contracts, data entities, integration points, batch jobs, or module areas. Exact file, class, or script names are helpful when already known, but they are not required unless a specific internal choice is mandated by an existing architectural, security, compliance, performance, or platform constraint.
+
 This mode supports iterative execution. Each run re-evaluates only the gaps that remain open from a prior run, updates scores, and replaces the existing Review Outcome block in place. Resolved gaps are acknowledged. New gaps found in updated content are added. The iteration counter increments on every run.
 
 When all gaps are resolved and the PO and TL are satisfied, run `enhancement-review-close` to confirm the review is complete and remove all review blocks for a clean `enhancements.md`.
@@ -65,23 +67,31 @@ For each enhancement, evaluate the Technical Requirements section authored by th
 
 | Criterion | Check | Severity if missing |
 |---|---|---|
-| Implementation scope | Are the specific scripts, modules, or templates to update or add named? | High |
-| Change rationale | Is there a clear link between each technical change and a specific business requirement? | High |
+| Implementation scope | Are the affected implementation anchors named clearly enough to begin coding (for example UI surface, API contract, data entity, integration point, batch job, or module area)? Exact file or class names are optional when not yet stable. | High |
+| Change rationale | Is there a clear link between each technical change and a specific business requirement or success condition? | High |
 | Internal dependencies | Are all in-application capability dependencies declared? Cross-check against `internal_dependencies.md`. | High |
 | External dependencies | Are all cross-application integration points declared? Cross-check against `external_dependencies.md`. | High |
 | Known limitations | Are any known technical constraints or limitations that affect this enhancement declared? Cross-check against `limitations.md`. | Medium |
-| New artifact identification | If new files or modules are required, are they named and their purpose described? | Medium |
+| New artifact identification | If new artifacts are required, is their purpose and boundary described clearly enough for implementation and testing? Exact names are recommended only when already decided. | Medium |
 | Security and data considerations | Are data handling, authentication, or authorization impacts noted if applicable? | Medium |
-| Testability | Are the technical changes described in enough detail for the QA team to derive test conditions? | Medium |
+| Testability | Are the technical changes described in enough detail for the QA team to derive test conditions from observable behavior, contracts, and data state even if internal design choices remain open? | Medium |
+| Design freedom guardrail | Does the technical scope avoid mandating internal design choices without a stated architectural, security, compliance, performance, or platform reason? | Low — advisory |
 
 Apply the same iterative resolution logic as Step 2.
+
+Apply these review rules during Step 3:
+
+- Prefer stable component anchors over exact file paths when the implementation can reasonably be completed in more than one internal location.
+- Treat preferred implementation approaches as guidance unless the TL explicitly states why that choice is mandatory.
+- Raise a gap only when the requirements leave the coding agent without a reliable implementation anchor or without enough behavioral clarity to prove success.
+- If the Technical Requirements appear over-constrained, record that as an advisory note rather than a coding blocker unless the over-constraint would create delivery risk or contradict stated requirements.
 
 ### Step 4: Cross-check against capability baseline
 
 - Read `index.md` to identify existing business rules, scenarios, and behaviors.
 - Identify which baseline behaviors are directly touched by this enhancement.
 - Identify which baseline behaviors are adjacent but should remain unchanged.
-- Flag any baseline behavior that could regress without being covered by the declared technical scope.
+- Flag any baseline behavior that could regress without being covered by the declared technical scope, success criteria, or dependency handling.
 
 In iterative runs, only re-run this step if the Technical Requirements section was updated since the last run.
 
@@ -92,13 +102,15 @@ Use `🤖` to mark inferred cross-check findings that the TL must confirm.
 Based on the declared technical requirements and the baseline cross-check, produce a list of implementation suggestions.
 
 For each suggestion:
-- State the specific script, module, template, or integration point involved.
+- State the most reliable implementation anchor involved. Use exact file, class, or script names only when they are explicitly declared or clearly established by surrounding context.
 - Explain why it is likely to be affected.
 - Mark as `confirmed by declared requirements` or `🤖 inferred — requires TL confirmation`.
 
 In iterative runs, carry forward previously listed suggestions that are still valid. Add new ones only if updated content reveals additional scope. Do not repeat suggestions already confirmed by the TL.
 
 Do not treat suggestions as requirements. They are advisory until the TL confirms them.
+
+If the TL has described a preferred internal implementation path without a stated mandatory reason, preserve that detail as guidance rather than converting it into a readiness gate.
 
 ### Step 6: Compute readiness score
 
@@ -205,6 +217,16 @@ Assessed by: akr-capability v1.0.0
 
 <!-- Check off items as they are completed. All must be checked before review-close. -->
 - [ ] [action item for PO or TL]
+
+##### Resolved Items Disposition
+
+<!-- Populated as Q&G and D&R items are resolved during review iterations.
+     Each resolved item must have a destination declared before review-close.
+     enhancement-review-close uses this table to promote content into requirements and clean up source sections.
+     Destination values: "Business Requirements" | "Technical Requirements > Other implementation notes" | "Technical Requirements > Dependencies and Limitations" | "Already incorporated — remove only" -->
+| Source Section | Item Summary | Destination | Normalized Statement |
+|---|---|---|---|
+| Questions and Gaps | [brief label] | [destination] | [requirement-style statement to insert, or "N/A" if already incorporated] |
 
 ##### Override Record (Optional)
 

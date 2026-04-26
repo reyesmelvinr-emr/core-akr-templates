@@ -2,84 +2,79 @@
 
 ## Purpose
 
-Generate or refresh capability artifacts in a consolidation repository for statuses that are
-eligible for consolidation.
+Generate or refresh baseline capability artifacts in a consolidation repository using markdown documentation evidence only.
 
-For capabilities recently promoted from `new` to `active`, this mode uses a constrained
-first-run behavior to protect PO/TL-authored baselines.
+## Allowed output set (write allowlist)
 
-## Required output set
+`capability-consolidation` may write only these files for `docs/business-capabilities/<CapabilityName>/`:
 
-Write status-dependent files for `docs/business-capabilities/<status>/<CapabilityName>/`:
+- `index.md`
+- `test-conditions.md`
+- `traceability.md`
 
-**Active capabilities (9 files):**
-- `index.md`, `test-conditions.md`, `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md`
+## Protected files (must never be written by this mode)
 
-**New capabilities (not consolidated):**
-- `capability-consolidation` does not run at status `new`.
-- Source module docs are not treated as authoritative replacement for PO/TL-authored new
-	capability artifacts.
+- `backlog.md`
+- `enhancements.md`
+- `enhancement-test-conditions.md`
+- `limitations.md`
+- `internal_dependencies.md`
+- `external_dependencies.md`
 
-**Archived capabilities (5 files):**
-- `index.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`, `traceability.md` (read-mostly historical context; excludes test and enhancement artifacts)
+If any planned write includes a protected file, stop with `BLOCKED_PROTECTED_FILE`.
+
+## Source discovery policy
+
+Only use markdown source artifacts that match capability metadata.
+
+- Allowed: `.md` files under application repo `docs/` trees.
+- Required match: front matter `businessCapability: <CapabilityName>` exact match.
+- Prohibited: non-markdown files (`.cs`, `.ts`, `.tsx`, `.sql`, test files, scripts).
+
+## Required source minimum
+
+Before writing output, verify minimum sources:
+
+- Backend markdown sources found: `>= 1`
+- UI markdown sources found: `>= 1`
+- Database markdown sources: optional
+
+If minimum is not met, stop with `BLOCKED_MISSING_SOURCES` and do not write files.
+
+When blocked, return:
+
+- Missing source layer(s)
+- Expected source pattern (markdown with matching `businessCapability`)
+- Instruction: PO/TL should request developers in application repos to generate missing docs via repo-local documentation skills
 
 ## Template contract
 
-Use canonical templates from `core-akr-templates/.akr/templates/`:
+Use canonical templates from `core-akr-templates/templates/`:
 
-- `business_capability_template.md` (all statuses)
-- `capability_testing_template.md` (active, new only)
-- `capability_enhancement_testing_template.md` (active only)
-- `capability_enhancements_template.md` (active only)
-- `capability_backlog_template.md` (active only)
-- `capability_limitations_template.md` (all statuses)
-- `capability_internal_dependencies_template.md` (all statuses)
-- `capability_external_dependencies_template.md` (all statuses)
-- `traceability-template.md` (active, archived only)
+- `business_capability_template.md`
+- `capability_testing_template.md`
+- `traceability-template.md`
 
 ## Required checks
 
 - Validate `businessCapability` against registry before write.
-- Validate metadata fields and front matter shape using `SKILL.md` section **Required Metadata and Governance**.
-- Preserve existing repository-owned policy files.
+- Validate metadata fields and front matter shape.
+- Validate source discovery uses only markdown files.
+- Validate every source file has exact front matter capability match.
+- Validate planned writes are allowlisted only.
 
-## Status gating
+## Execution sequence
 
-- If capability status is `new`, stop and return:
-	"capability-consolidation does not run for new capabilities. Promote to active first using capability-promote-new."
-
-- If capability status is `archived`, run in read-mostly mode and preserve historical context.
-
-## First-run mode (post-promotion active)
-
-Detect first-run mode when all are true:
-
-1. Capability status is `active`
-2. `traceability.md` is absent
-3. `enhancements.md` exists and is empty/seeded
-
-When first-run mode is active:
-
-- **Write scope:** create `traceability.md` only.
-- **Read-only:** `index.md`, `test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`.
-- Produce a chat-only Suggested Additions Report covering advisory additions/refinements for
-	read-only baseline artifacts.
-
-Suggested Additions governance actions (POC):
-
-1. Accept all
-2. Reject all
-3. Manual selective update
+1. Discover candidate markdown sources across backend/UI docs folders.
+2. Filter to exact `businessCapability` match.
+3. Validate required minimum source layers.
+4. If validation fails: return `BLOCKED_MISSING_SOURCES` and exit with no writes.
+5. If validation passes: synthesize and write only `index.md`, `test-conditions.md`, and `traceability.md`.
+6. Emit `Source Manifest` and `Write Manifest` in response.
 
 ## Output quality
 
 - Business-facing language only.
 - Include explicit traceability to source evidence.
 - Mark inferred statements with `🤖` and unknowns with `❓`.
-
-## Source access
-
-Determine source-document location using `SKILL.md` section **Consolidation Mode**.
-If `.akr-config.json` is absent or mode is not set, default to `source-evidence` and confirm evidence path before proceeding.
-
-For `source-evidence` mode, read `sync-manifest.json` per `SKILL.md` section **Source Evidence Schema (sync-manifest.json)** and include source repo name, commit SHA, and sync timestamp in `traceability.md`.
+- No code-level checking or fallback inference.

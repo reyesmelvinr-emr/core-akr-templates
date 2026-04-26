@@ -6,13 +6,18 @@ Bridge the gap between a closed `enhancements.md` and the actual coding session.
 gives the developer and the Copilot coding agent a complete, grounded picture of:
 
 - The current business capability and its baseline behavior
-- The related code components across all relevant layers (UI, API, Database)
+- The related code components and implementation anchors across all relevant layers (UI, API, Database)
 - The full enhancement scope as approved in `enhancements.md`
 - Dependency impact across directly listed internal and external dependencies
 
 From that complete picture, the skill runs a structured clarification loop with the developer,
 surfaces blockers and assumptions, and produces a confirmed mini-spec the developer uses to
 brief the Copilot coding agent.
+
+This mode is intended to remove ambiguity without forcing the requirements to predict the exact
+internal code path in advance. A stable anchor such as a UI surface, API contract, data entity,
+integration point, batch job, or module area is enough to begin clarification. Exact file or
+class names should be confirmed when they are already known, not invented as a prerequisite.
 
 **This mode does not write to any file.** The mini-spec is a chat artifact only.
 
@@ -153,11 +158,12 @@ Using the complete picture from Steps 1–4, classify all identified items into 
 
 - Acceptance criteria in the Business Requirements with no clear implementation path in the
   code component map
-- Technical Requirements that reference a specific artifact not found in the code component map
+- Technical Requirements that require implementation in a concrete area, but neither the
+  requirements nor the code component map identify a stable implementation anchor
 - Enhancement scope touching a dependency flagged as **Impact Possible** with no declared
   handling in the Technical Requirements
-- Missing specific file, endpoint, or entity names the Technical Requirements reference but
-  do not name precisely
+- Missing enough implementation detail to begin coding safely. Exact file names are not required
+  if a stable endpoint, UI surface, entity, integration point, or module area is known.
 - Routing recommendation of ⚠️ Copilot-assisted or 🚫 Human required that requires the
   developer to explicitly acknowledge supervision expectations before proceeding
 - Code component map incomplete due to missing or inaccessible module docs
@@ -165,7 +171,8 @@ Using the complete picture from Steps 1–4, classify all identified items into 
 **Assumptions** — inferences being made that the developer should confirm:
 
 - Mapping of Business Requirements to specific code components identified in Step 2
-- Scope interpretation where Technical Requirements are partially specified
+- Scope interpretation where Technical Requirements are partially specified or intentionally
+  leave internal design flexibility open
 - Dependency impact assessments flagged as **Needs Confirmation**
 - Test condition coverage gaps between `enhancement-test-conditions.md` and declared scope
 
@@ -272,8 +279,9 @@ Produce the mini-spec and present it in chat. Do not write to any file.
 ✏️ Corrected items from the clarification loop]
 
 **Files / components to change:**
-[Bulleted list of specific artifacts from Technical Requirements, corrected by any developer
-clarifications. Organized by layer (UI / API / Database) where relevant.]
+[Bulleted list of confirmed implementation anchors from Technical Requirements, corrected by any
+developer clarifications. Use exact file or class names only when confirmed. Organize by layer
+(UI / API / Database) where relevant.]
 
 **Success criteria:**
 [Numbered list. Each item is a verifiable condition. Map to BTC-/TTC-/RTC- IDs
@@ -332,6 +340,8 @@ repo or the application codebase repo — is modified by this mode.
   confirmed by the developer during the clarification loop.
 - Mark inferred content with `🤖` so the developer can confirm or reject it.
 - Never proceed past Step 7 if blockers remain and the developer has not typed `skip clarification`.
+- Do not treat unknown exact file paths or class names as blockers when a stable implementation
+  anchor is already known.
 - Do not classify a discovery without presenting it to the developer first. Classification is
   a tri-party determination (PO + TL + Developer); the skill proposes a classification, but
   the team confirms it.

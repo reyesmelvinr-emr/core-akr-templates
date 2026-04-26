@@ -1,48 +1,63 @@
-# AKR Business Consolidation Guidance
+# AKR Business Capability Consolidation Instructions
 
 ## Purpose
 
-Use consolidation workflows to produce business-facing capability artifacts for PO/QA/TL audiences.
+Generate and maintain business-facing capability documentation for PO/QA/TL audiences.
 
-## Required practices
+## Required rules
 
-- Keep language business-facing and traceable to source evidence.
-- Preserve unknowns with explicit `❓` markers.
-- Use canonical templates and maintain artifact completeness per capability.
-- Run repository validation scripts before PR or merge.
+- Keep language business-facing and outcome-oriented.
+- Use approved `businessCapability` values from the registry.
+- Keep traceability explicit to source repo evidence.
+- Mark inferred statements with `🤖` and unresolved items with `❓`.
+- For `/akr-business-consolidation capability-consolidation`, use markdown source documents only; do not inspect code or schema files.
+- For `/akr-business-consolidation capability-consolidation`, only update `index.md`, `test-conditions.md`, and `traceability.md`.
+- Do not update PO/TL reference artifacts (`backlog.md`, `enhancements.md`, `enhancement-test-conditions.md`, `limitations.md`, `internal_dependencies.md`, `external_dependencies.md`) in capability-consolidation mode.
+- If required markdown source docs are missing, stop and return a blocking message; instruct PO/TL to have developers generate missing docs in application repos using repo-local documentation skills.
+
+## Capability folder structure
+
+Capabilities are organized by lifecycle status under `docs/business-capabilities/`:
+
+- `docs/business-capabilities/active/<CapabilityName>/` — current production-used capabilities
+- `docs/business-capabilities/new/<CapabilityName>/` — capabilities under construction, not yet in production
+- `docs/business-capabilities/archived/<CapabilityName>/` — retained but no longer business-used
 
 ## Capability artifact contract
 
-Each capability folder (organized by status: active/archived/new) includes a defined set of files:
+### Active capabilities (9 files)
 
-**Active capabilities:**
 - `index.md`
 - `test-conditions.md`
 - `enhancement-test-conditions.md`
-- `enhancements.md` (in-development and delivery-tracked enhancements only)
-- `backlog.md` (planned enhancements not yet queued)
+- `enhancements.md`
+- `backlog.md`
 - `limitations.md`
 - `internal_dependencies.md`
 - `external_dependencies.md`
 - `traceability.md`
 
-**New capabilities:**
-- `index.md` (may include Azure DevOps work-item references)
+### New capabilities (5 files)
+
+- `index.md`
 - `test-conditions.md`
 - `limitations.md`
 - `internal_dependencies.md`
 - `external_dependencies.md`
-- `traceability.md`
-(excludes `enhancement-test-conditions.md`, `enhancements.md`, `backlog.md` until status changes to active)
 
-**Archived capabilities:**
+### Archived capabilities (5 files)
+
 - `index.md`
 - `limitations.md`
 - `internal_dependencies.md`
 - `external_dependencies.md`
 - `traceability.md`
-(read-mostly historical baseline; excludes active test/enhancement artifacts)
 
-## Ownership
+## Skills available
 
-Consolidation repository owners control editorial standards and final review decisions.
+- `/akr-business-consolidation [mode] [CapabilityName]` — cross-repo consolidation skill (capability-consolidation, capability-promote, capability-promote-new, capability-coverage-review, capability-impact-analysis, capability-relationship-mapping, capability-test-maintenance)
+- `/akr-capability [mode] [CapabilityName]` — enhancement assessment and new capability definition skill (enhancement-review, enhancement-review-close, enhancement-test-generation, enhancement-clarify, capability-define-review, capability-define-close, capability-define-clarify)
+
+## Validation
+
+Run `validation/run-validation.ps1` before merge.
