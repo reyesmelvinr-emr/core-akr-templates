@@ -129,5 +129,5 @@ POC limits:
 ## Revision History
 | Date | Version | Change summary | Updated by |
 |---|---|---|---|
-| 2026-04-21 | v0.1 | Initial baseline | TODO |
-| 2026-04-21 | v0.2 | Full policy blocks added: capability resolution, retrieval order, evidence sufficiency, conflict detection, response mode format, scope rule | TODO |
+| 2026-04-21 | v0.1 | Initial baseline | AKR Standards Team |
+| 2026-04-21 | v0.2 | Full policy blocks added: capability resolution, retrieval order, evidence sufficiency, conflict detection, response mode format, scope rule | AKR Standards Team |

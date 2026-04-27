@@ -56,6 +56,8 @@ High-level assessment documents:
 - [examples/onboarding](examples/onboarding) — Onboarding seeds for consuming repositories
 - [docs/AKR_SOLUTION_FEATURES_AND_FUNCTIONALITY.md](docs/AKR_SOLUTION_FEATURES_AND_FUNCTIONALITY.md) — Feature overview and vision
 - [docs/AKR_SKILLS_DISTRIBUTION_APPLICATION_VS_CONSOLIDATION.md](docs/AKR_SKILLS_DISTRIBUTION_APPLICATION_VS_CONSOLIDATION.md) — Skill strategy and distribution patterns
+- [docs/AKR_SPACE_INSTRUCTION.md](docs/AKR_SPACE_INSTRUCTION.md) — Version-controlled source of truth for AKR Copilot Space instruction text
+- [docs/POC_LIMITATIONS_AND_MITIGATIONS.md](docs/POC_LIMITATIONS_AND_MITIGATIONS.md) — Pilot limitations register and mitigation controls for management review
 
 
 ## How Teams Use AKR
@@ -80,6 +82,7 @@ Run the core workflow above, then:
 Run the core workflow, then:
 - Execute `distribute-business-skill.yml` to install the `akr-business-consolidation` skill bundle.
 - Use the `sync-source-evidence.yml` workflow to pull and aggregate source module documentation into capability artifacts.
+- Seed and refresh `.akr/tags/tag-registry.json` manually from `core-akr-templates/.akr/tags/tag-registry.json` when approved capability taxonomy updates are merged.
 - For advanced governance questions, consult [docs/AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md](docs/AKR_ARCHITECTURE_MODEL_AND_GOVERNANCE.md).
 
 ## Python Web Applications

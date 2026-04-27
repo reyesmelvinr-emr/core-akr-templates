@@ -1,10 +1,12 @@
 # AKR Copilot Space Evaluation Cases
 
 Date: 2026-04-21
-Status: Draft template
+Status: Draft template — awaiting pilot execution
 
 ## Purpose
 Compare baseline Copilot vs AKR Space behavior using repeatable scenario-based prompts.
+
+> **Note for reviewers:** This document defines the evaluation framework and scenario structure. Case questions, expected files, and result data will be populated once the AKR Copilot Space is provisioned and the pilot team completes one full module generation cycle. The TODO entries in the Case Matrix and Result Log are intentional placeholders, not authoring gaps. See `docs/POC_LIMITATIONS_AND_MITIGATIONS.md` (L3 and L6) for context.
 
 ## Case Matrix
 | Case ID | Scenario type | Question | File referenced | Expected mode |

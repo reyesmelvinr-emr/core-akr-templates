@@ -117,8 +117,8 @@ The consolidation repository must exist, be governed, and have the consolidation
 1. Create the repository (see [docs/CONSOLIDATION REPO SETUP.md](CONSOLIDATION%20REPO%20SETUP.md) for the full consolidation repository setup checklist and target-state contract).
 2. Ensure branch protection is enabled on the default branch.
 3. Run `distribute-business-skill.yml` targeting this repository to install the consolidation skill bundle (`akr-business-consolidation` plus the PO/TL-facing `akr-capability` modes) and seed `.github/copilot-instructions.md` if absent.
-4. Ensure the repository is also targeted by the central `distribute-tag-registry.yml` workflow. The consolidation repo does not receive `.akr/tags/tag-registry.json` from `distribute-business-skill.yml`.
-5. Seed or refresh `.akr/tags/tag-registry.json` in the consolidation repo by running `distribute-tag-registry.yml` after the approved capability values have been merged in `core-akr-templates/.akr/tags/tag-registry.json`, or by including the repo in the workflow target list before the next registry change is pushed.
+4. Seed `.akr/tags/tag-registry.json` in the consolidation repo by copying the file from `core-akr-templates/.akr/tags/tag-registry.json` and committing it to the consolidation repository. The `distribute-business-skill.yml` workflow does not distribute the tag registry. Tag registry distribution is a manual step performed by the standards team owner whenever capability values change in `core-akr-templates`.
+5. To refresh the tag registry after an approved capability update: pull the latest `core-akr-templates/.akr/tags/tag-registry.json`, copy it into the consolidation repo at `.akr/tags/tag-registry.json`, and open a PR. Do not edit the local copy directly — request capability name changes through `core-akr-templates`.
 6. Treat `.akr/tags/tag-registry.json` in the consolidation repo as a read-only distributed artifact from `core-akr-templates`; request registry changes through the central repository instead of editing the local copy.
 
 ### 5.3 Source repositories have AKR module documentation

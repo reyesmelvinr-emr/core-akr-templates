@@ -73,7 +73,7 @@ Secondary criteria:
 ## 6. Known PoC Limitations and Mitigations
 
 This pilot accepts known constraints documented in:
-- docs/POC_LIMITATIONS_AND_MITIGATIONS.md
+- [docs/POC_LIMITATIONS_AND_MITIGATIONS.md](POC_LIMITATIONS_AND_MITIGATIONS.md)
 
 Management interpretation:
 - Limitations are expected in a pilot.

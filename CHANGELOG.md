@@ -22,7 +22,6 @@
   - Invocation table updated for generate mode batch option.
   - Step 0 pre-flight notes updated for batch validation checks.
 - `docs/TEAM_STARTUP_ONBOARDING_GUIDE.md`: developer command set expanded with batch generate usage and behavior notes.
-- `docs/AKR_ONBOARDING_STORY.md`: narrative examples updated with batch generate option.
 - `docs/MIGRATION_GUIDE.md`: invocation and token-budget sections updated to include batch scenario.
 - `docs/VALIDATION_GUIDE.md`: added batch-mode validation behavior and follow-up scoring guidance.
 

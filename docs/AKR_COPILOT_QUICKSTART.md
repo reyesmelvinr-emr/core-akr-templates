@@ -14,7 +14,7 @@ and Copilot will declare what kind of answer it was able to produce based on
 the evidence it found.
 
 **Access this Space here:**
-- TODO: insert Space URL
+- _Space URL pending provisioning. Contact your Technical Lead or PO for the current Space URL before your first session._
 
 Ask all capability-scoped questions through this Space URL, not through your
 IDE or a regular Copilot Chat window. Regular Copilot Chat does not apply

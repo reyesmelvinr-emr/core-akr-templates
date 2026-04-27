@@ -12,7 +12,7 @@ If you need full multi-role onboarding and consolidation paths, use:
 - docs/TEAM_STARTUP_ONBOARDING_GUIDE.md
 
 If you are defining a brand-new capability (status `new`), also use:
-- docs/NEW_CAPABILITY_WORKFLOW_RECOMMENDATION (2).md
+- docs/NEW_CAPABILITY_WORKFLOW_RECOMMENDATION.md
 
 ## Choose Your Path First
 

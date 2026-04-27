@@ -5,7 +5,7 @@ Status: Draft starter template
 Owner: Space owner
 
 ## Space URL
-- TODO: add the Copilot Space URL
+- _Space URL pending provisioning. Once the Space is created, record the URL here and update `docs/AKR_COPILOT_QUICKSTART.md` to match._
 
 ## Pre-session checks
 - [ ] The three intended repositories are attached to the Space.
