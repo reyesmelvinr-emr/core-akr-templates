@@ -1,6 +1,12 @@
 {
-  "last-updated": "2026-03-31",
-  "schema-version": "1.2",
+  "last-updated": "2026-04-30",
+  "schema-version": "1.3",
+  "billing": {
+    "model": "ai-credits",
+    "effective-date": "2026-06-01",
+    "credit-unit-usd": 0.01,
+    "notes": "AI-credit fields are the source of truth after 2026-06-01. Legacy premium-requests fields are retained temporarily for backward compatibility during rollout."
+  },
   "models": {
     "claude-sonnet-4-6": {
       "groupings-standard": { "pass-rate": null, "avg-tokens": null },
@@ -29,6 +35,19 @@
           "pass2-split-rate": null,
           "slow-module-rate": null,
           "developer-single-pass-rate": null,
+          "ai-credits": {
+            "avg-input-tokens": null,
+            "avg-output-tokens": null,
+            "avg-total-tokens": null,
+            "avg-credits-usd": null,
+            "token-budget-per-run": null,
+            "token-budget-exceeded-threshold": 1.2,
+            "cache-hit-token-savings-estimate": null,
+            "forward-payload-violation-token-cost": 24000,
+            "forward-payload-violation-note": "Estimated cost if a model re-reads all source inputs instead of relying on forward payload discipline.",
+            "github-mcp-calls-per-run": 2,
+            "github-mcp-calls-note": "One @github call for condensed charter (Pass 1) + one @github call for modules.yaml (Pass 1). No additional @github calls authorized in Passes 2-7 per forward payload discipline."
+          },
           "premium-requests": {
             "avg-per-module": null,
             "min-observed": null,
@@ -62,6 +81,19 @@
           "pass2-split-rate": null,
           "slow-module-rate": null,
           "developer-single-pass-rate": null,
+          "ai-credits": {
+            "avg-input-tokens": null,
+            "avg-output-tokens": null,
+            "avg-total-tokens": null,
+            "avg-credits-usd": null,
+            "token-budget-per-run": null,
+            "token-budget-exceeded-threshold": 1.2,
+            "cache-hit-token-savings-estimate": null,
+            "forward-payload-violation-token-cost": 24000,
+            "forward-payload-violation-note": "Estimated cost if a model re-reads all source inputs instead of relying on forward payload discipline.",
+            "github-mcp-calls-per-run": 2,
+            "github-mcp-calls-note": "One @github call for condensed charter (Pass 1) + one @github call for modules.yaml (Pass 1). No additional @github calls authorized in Passes 2-7 per forward payload discipline."
+          },
           "premium-requests": {
             "avg-per-module": null,
             "min-observed": null,
@@ -83,6 +115,14 @@
         "generate-single-pass": {
           "avg-total-seconds": null,
           "section-completeness-vs-ssg": null,
+          "ai-credits": {
+            "avg-input-tokens": null,
+            "avg-output-tokens": null,
+            "avg-total-tokens": null,
+            "avg-credits-usd": null,
+            "token-budget-per-run": null,
+            "token-budget-exceeded-threshold": 1.2
+          },
           "premium-requests": {
             "avg-per-module": null,
             "min-observed": null,
@@ -128,6 +168,16 @@
           "pass2-split-rate": null,
           "slow-module-rate": null,
           "developer-single-pass-rate": null,
+          "ai-credits": {
+            "avg-input-tokens": null,
+            "avg-output-tokens": null,
+            "avg-total-tokens": null,
+            "avg-credits-usd": null,
+            "token-budget-per-run": null,
+            "token-budget-exceeded-threshold": 1.2,
+            "cache-hit-token-savings-estimate": null,
+            "github-mcp-calls-per-run": 2
+          },
           "premium-requests": {
             "avg-per-module": null,
             "min-observed": null,
@@ -161,6 +211,16 @@
           "pass2-split-rate": null,
           "slow-module-rate": null,
           "developer-single-pass-rate": null,
+          "ai-credits": {
+            "avg-input-tokens": null,
+            "avg-output-tokens": null,
+            "avg-total-tokens": null,
+            "avg-credits-usd": null,
+            "token-budget-per-run": null,
+            "token-budget-exceeded-threshold": 1.2,
+            "cache-hit-token-savings-estimate": null,
+            "github-mcp-calls-per-run": 2
+          },
           "premium-requests": {
             "avg-per-module": null,
             "min-observed": null,
@@ -182,6 +242,14 @@
         "generate-single-pass": {
           "avg-total-seconds": null,
           "section-completeness-vs-ssg": null,
+          "ai-credits": {
+            "avg-input-tokens": null,
+            "avg-output-tokens": null,
+            "avg-total-tokens": null,
+            "avg-credits-usd": null,
+            "token-budget-per-run": null,
+            "token-budget-exceeded-threshold": 1.2
+          },
           "premium-requests": {
             "avg-per-module": null,
             "min-observed": null,

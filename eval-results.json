@@ -1,0 +1,47 @@
+{
+  "case_id": "generate-coursedomain",
+  "description": "Validate generation output completeness for CourseDomain",
+  "command": "/akr-docs generate CourseDomain",
+  "mode": "contract-eval",
+  "estimated_tokens": 8262,
+  "token_budget": 12000,
+  "cost_regression_threshold": 1.2,
+  "passed": true,
+  "assertions": [
+    {
+      "name": "required_sections_present",
+      "passed": true,
+      "details": "Required sections: ['Quick Reference', 'Module Files', 'API Operations', 'Integration Context', 'Business Rules', 'Data Operations', 'Questions & Gaps']"
+    },
+    {
+      "name": "module_files_complete",
+      "passed": true,
+      "details": "Generate script captures module-files extraction and section coverage."
+    },
+    {
+      "name": "operations_map_complete",
+      "passed": true,
+      "details": "Operations-map generation and split-pass sequencing are documented."
+    },
+    {
+      "name": "business_rules_columns_present",
+      "passed": true,
+      "details": "Business rules section remains part of the generation contract."
+    },
+    {
+      "name": "data_operations_complete",
+      "passed": true,
+      "details": "Data operations section remains part of the generation contract."
+    },
+    {
+      "name": "metadata_header_present",
+      "passed": true,
+      "details": "Generate script still requires canonical metadata header fields."
+    },
+    {
+      "name": "token_budget",
+      "passed": true,
+      "details": "Estimated tokens 8262 vs budget 12000 (threshold 1.2)."
+    }
+  ]
+}

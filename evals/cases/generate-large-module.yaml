@@ -1,5 +1,7 @@
 id: generate-large-module
 description: Stress-test documentation generation on large module with no truncation
+token_budget: 14000
+cost_regression_threshold: 1.2
 inputs:
   command: /akr-docs generate EnrollmentDomain
 assertions:

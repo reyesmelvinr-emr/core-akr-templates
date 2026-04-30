@@ -1,5 +1,7 @@
 id: groupings-standard
 description: Validate grouping proposal output structure and max_files compliance
+token_budget: 4000
+cost_regression_threshold: 1.2
 inputs:
   command: /akr-docs groupings TrainingTracker.Api
 assertions:

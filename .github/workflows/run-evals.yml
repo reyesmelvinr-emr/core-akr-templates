@@ -1,0 +1,45 @@
+name: AKR Skill Evals
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  run-evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        case:
+          - groupings-standard
+          - generate-coursedomain
+          - generate-large-module
+          - ssg-pass-sequence
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install --no-cache-dir pyyaml
+
+      - name: Run eval case
+        run: python .akr/scripts/run_eval.py evals/cases/${{ matrix.case }}.yaml --output eval-results.json
+
+      - name: Update benchmark snapshot
+        run: python .akr/scripts/update_benchmark.py --result eval-results.json --model ci-contract
+
+      - name: Upload eval artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ matrix.case }}
+          path: |
+            eval-results.json
+            evals/benchmark.json
+          retention-days: 30

@@ -57,6 +57,8 @@ On user response:
 - **If "defer":** Ask for a one-line rationale and an owner name. Apply `DEFERRED: {rationale} — Owner: {name}` inline. Mark resolved.
 - **If "skip":** Leave the ❓ marker. Note the skip in your summary. Move to the next item.
 
+All accepted edits must follow guarded-write semantics equivalent to `harness.write_guard.guarded_write()`: stage the updated document, validate it, and only persist the surgical edit set if validation does not report blocking errors.
+
 ### Phase 3: Source-Grounded Proposals
 
 For items where the answer might be inferrable from source code (e.g., a business rule's enforcement point), propose an answer based on the source files and ask for confirmation:
@@ -92,6 +94,8 @@ required sections, and unresolved ❓ markers. Full CI validation (Vale, complet
 scoring, modules.yaml cross-checks) runs automatically when a PR is opened.
 
 Report the before/after unresolved ❓ count from the inline validator output.
+
+If validation fails after a proposed edit batch, stop and surface the validation errors. Do not keep partially applied unresolved edits in the document.
 
 ### Phase 5: Summary
 

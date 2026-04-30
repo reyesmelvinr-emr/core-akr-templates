@@ -20,6 +20,13 @@ from the template's `akr:` directives. Do not encode structural knowledge here.
 
 Read `modules.yaml`. Locate the target module.
 
+Apply the `harness.preflight.run_preflight()` contract before continuing:
+- check active model compatibility first
+- confirm `modules.yaml` presence and target module validity
+- aggregate batch validation failures when `--batch` is used
+- surface cache readiness separately from blocking failures
+- halt before any template or charter fetch when a blocking pre-flight check fails
+
 Capture `generation_started_at` as UTC timestamp immediately when `/akr-docs generate [ModuleName]` is invoked. This timestamp is used to compute per-stage timing metrics recorded in Steps 2–8.
 
 Initialize stage timers at invocation:
@@ -241,6 +248,11 @@ Cache-invariant output rule:
 SSG rules: never re-read source files or charter after Pass 1. Never re-parse
 template directives after Step 2.
 
+Checkpoint logging rule:
+- After each completed SSG pass, append a JSONL entry compatible with `harness.checkpoint.CheckpointEntry` under `.akr/logs/checkpoints.jsonl`.
+- Required fields: `timestamp`, `session_id`, `mode`, `module`, `step`, `status`, `pass_id`, `tokens_consumed`, `cache`.
+- On resumed runs, inspect the last completed checkpoint for the same `session_id` and module and continue from the next incomplete pass instead of restarting from Pass 1.
+
 Record `stage_timers.assembly_seconds = now_utc - stage_assembly_start` after all sections are assembled and the document body is complete.
 
 ---
@@ -254,6 +266,11 @@ Resolve draft path in this order:
 
 Record `stage_write_start = now_utc` before writing the draft file.
 Compute `draft_generation_seconds = now_utc - generation_started_at` at the time the draft file is written.
+
+Before writing, apply guarded-write semantics equivalent to `harness.write_guard.guarded_write()`:
+- validate the candidate draft content first
+- if validation reports blocking errors, stop and surface the issues in chat instead of writing the draft
+- only persist the draft after validation passes
 
 Write draft with draft-only front matter:
 ```yaml
@@ -318,6 +335,8 @@ In batch mode, do NOT surface confirmation prompt or pause. Instead:
      validation_status: null,  # filled in Step 10
      error: null
    }
+
+2. Append a final checkpoint entry for the draft write with `status: complete` and `pass_id: final-write`.
    ```
 2. Add module name to `batch_results.modules[]` — do NOT yet add to successful/failed (pending Step 10)
 3. Continue to the next module in the batch (loop continues)

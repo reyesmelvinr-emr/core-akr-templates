@@ -94,6 +94,12 @@ Before loading a mode script, choose the execution lane:
 
 Batch generate pre-flight: when invocation includes `generate --batch`, validate all listed module names before generation starts. Reject runs with more than 5 modules and stop early if any listed module is missing from `modules.yaml` or has `grouping_status: draft`.
 
+Pre-flight execution contract: apply the same ordered, fail-fast semantics as `harness.preflight.run_preflight()`.
+- Order checks from cheapest local signals first: model compatibility, `modules.yaml` presence, batch target validation, remote-path availability, cache readiness.
+- Surface `credit_risk` per check as `none`, `low`, or `high` in the confirmation block.
+- On failure, stop at the first blocking failure and do not continue to any `@github`-dependent step.
+- Cache readiness is informational unless the selected path explicitly requires a remote fetch and no cache hit exists.
+
 Model pre-flight: if the active chat model is not listed under `compatibility.models`, stop and return a blocking message that names the supported models and asks the user to switch models before re-running `/akr-docs`.
 
 Cache readiness: check for `.akr/cache/` directory in the workspace root. If it exists, subsequent template and charter requests in generate/resolve mode will use cached files instead of live `@github` fetches. Surface cache availability as part of the pre-flight confirmation block.
@@ -119,3 +125,8 @@ If PATH A fetch cannot be completed:
 6. If PATH B files are absent, re-run the `distribute-skill.yml` workflow to populate the distributed bundle.
 
 If modules.yaml is absent when `generate` is invoked, redirect to `groupings` mode automatically.
+
+Write-safety contract: any draft or final document write must satisfy the same blocking rules as `harness.write_guard.guarded_write()`.
+- Validate the candidate content before persisting it.
+- If blocking validation errors exist, stop and surface the errors instead of writing an invalid artifact.
+- If validation passes with warnings only, write is allowed and warnings should be included in the chat summary.

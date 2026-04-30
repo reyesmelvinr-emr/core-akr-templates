@@ -1,5 +1,7 @@
 id: generate-coursedomain
 description: Validate generation output completeness for CourseDomain
+token_budget: 12000
+cost_regression_threshold: 1.2
 inputs:
   command: /akr-docs generate CourseDomain
 assertions:

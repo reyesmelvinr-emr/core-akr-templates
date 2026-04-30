@@ -58,6 +58,11 @@ Dispatcher pre-checks:
   "No index.md found for <CapabilityName>. capability-define-review requires index.md as the primary artifact."
 - Additional pre-check for `enhancement-review-close` only: if no `<!-- akr-capability: review-in-progress -->` marker is found in `enhancements.md`, stop and return:
   "No active review blocks found for <CapabilityName>. Run `/akr-capability enhancement-review [CapabilityName]` before closing."
+- Iteration guard for `enhancement-review`: apply the same contract as `harness.iteration_guard.assert_iteration_progress()`.
+  - Maximum 5 review iterations per enhancement loop.
+  - Open gap count must not increase from one iteration to the next.
+  - Routing decision must remain one of: `continue`, `enhancement-review-close`, `enhancement-test-generation`.
+  - If the loop regresses or exceeds the limit, stop and require human intervention before continuing.
 - Additional pre-check for `enhancement-test-generation` only: if any `<!-- akr-capability: review-in-progress -->` marker is still present in `enhancements.md`, stop and return:
   "Enhancement review is still in progress for <CapabilityName>. Run `/akr-capability enhancement-review-close [CapabilityName]` before generating tests."
 - Additional pre-check for `enhancement-clarify` only: if any `<!-- akr-capability: review-in-progress -->` marker is found in `enhancements.md`, or if no ENH-xxx entry has status `Review Closed` in the Enhancement Activity table, stop and return:

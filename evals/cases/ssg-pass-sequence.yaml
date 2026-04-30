@@ -1,5 +1,7 @@
 id: ssg-pass-sequence
 description: Validate SSG pass sequencing and timing fields
+token_budget: 10000
+cost_regression_threshold: 1.2
 inputs:
   command: /akr-docs generate CourseDomain
 assertions:
