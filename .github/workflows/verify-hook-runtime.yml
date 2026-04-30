@@ -1,6 +1,7 @@
 name: Verify Hook Runtime
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - '.github/hooks/**'
@@ -10,6 +11,7 @@ on:
       - '.github/workflows/verify-hook-runtime.yml'
   push:
     branches:
+      - master
       - main
     paths:
       - '.github/hooks/**'
