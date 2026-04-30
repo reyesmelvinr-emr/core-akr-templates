@@ -110,9 +110,12 @@ jobs:
           ledger = json.loads(Path('.akr/logs/last-session-ledger.json').read_text(encoding='utf-8'))
           validation = json.loads(Path('.akr/logs/last-validation.json').read_text(encoding='utf-8'))
 
-          assert 'session_id' in ledger
-          assert 'summary' in validation
+          assert 'session_id' in ledger, f"session_id missing from ledger: {ledger}"
+          # validation.json contains either a summary (full run) or a note (early-exit)
+          assert 'summary' in validation, f"summary key missing from validation output: {validation}"
           print('Hook runtime outputs validated.')
+          print(f"  ledger session_id: {ledger['session_id']}")
+          print(f"  validation summary: {validation['summary']}")
           PY
 
       - name: Run governance regression tests

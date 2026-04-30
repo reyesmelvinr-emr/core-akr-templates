@@ -16,16 +16,6 @@ else
   mkdir -p .akr/logs
 fi
 
-if [ ! -f "$VALIDATOR" ]; then
-  echo '{"summary": {"note": "validate_documentation.py not found - run distribute-skill.yml to populate the distributed bundle"}}' | tee .akr/logs/last-validation.json
-  exit 0
-fi
-
-if [ ! -f modules.yaml ]; then
-  echo '{"summary": {"note": "modules.yaml not found - skipping module-aware validation"}}' | tee .akr/logs/last-validation.json
-  exit 0
-fi
-
 TIMESTAMP=$(
   if [ -n "$PYTHON_CMD" ]; then
     "$PYTHON_CMD" -c "import datetime; print(datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'))"
@@ -37,6 +27,16 @@ TIMESTAMP=$(
 cat > .akr/logs/last-session-ledger.json <<EOF
 {"session_id": "akr-session-$TIMESTAMP", "steps_completed": 0, "last_confirmed_step": 0, "estimated_input_tokens": 0, "estimated_output_tokens": 0, "estimated_total_tokens": 0, "estimated_credits_usd": 0.0, "cache_hits": 0, "cache_misses": 0, "cache_savings_tokens_estimate": 0, "preflight_aborts": 0, "github_mcp_calls": 0, "session_end": "$TIMESTAMP"}
 EOF
+
+if [ ! -f "$VALIDATOR" ]; then
+  echo '{"summary": {"note": "validate_documentation.py not found - run distribute-skill.yml to populate the distributed bundle"}}' | tee .akr/logs/last-validation.json
+  exit 0
+fi
+
+if [ ! -f modules.yaml ]; then
+  echo '{"summary": {"note": "modules.yaml not found - skipping module-aware validation"}}' | tee .akr/logs/last-validation.json
+  exit 0
+fi
 
 if [ -n "$PYTHON_CMD" ]; then
   VALIDATOR_PY="$PYTHON_CMD"
