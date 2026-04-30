@@ -81,6 +81,11 @@ For Python web applications (Django, FastAPI, Flask), map framework roles to the
 | API Serializer/DTO | DTO, Mapper | `serializers.py` (DRF), Pydantic `BaseModel` |
 | Database Model | Domain Entity | `models.py` (Django ORM) |
 | Data Access/ORM Repository | Repository | Custom query layers, `repositories.py` |
+| Django Signal Handler | Event Handler | `signals.py` |
+| Management Command | Operations Task | `management/commands/*.py` |
+| Celery/Async Task | Async Processor | `tasks.py`, `celery.py` |
+| Django Admin Registration | Infrastructure Adapter | `admin.py` |
+| Request Middleware | Infrastructure Guard | `middleware.py`, `middlewares.py` |
 
 ## AI-Optimization Guidance for Python Documentation
 For well-known framework filenames that express structural intent directly in their names (e.g., `views.py`, `models.py`, `urls.py`), **skip generic role descriptions** that Copilot can already infer from source. Instead, capture business-unique content:

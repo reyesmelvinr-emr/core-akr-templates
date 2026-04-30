@@ -57,6 +57,38 @@ Recommended follow-up for batch runs:
 - Resolve validation failures module-by-module.
 - Run `/akr-docs score [ModuleName]` only for modules that need score metadata before PR.
 
+## Governance Communication Baseline (May 2026)
+
+To reduce duplicate remediation work, teams should classify incoming findings using these dispositions:
+
+- **Already implemented**: behavior exists and is verified in current repository assets.
+- **Addressed in current release**: implemented as part of the active remediation tranche.
+- **Deferred with rationale**: not implemented yet; tracked with ownership and revisit criteria.
+
+### Assessment-Disposition Mapping
+
+| Assessment item | Disposition | Governance communication anchor |
+|---|---|---|
+| `validate_business_docs.py` path mismatch | Already implemented | Script exists at `validation/scripts/validate_business_docs.py`; status-aware usage documented in this guide |
+| `agentStop.json` one-liner maintenance risk | Addressed in current release | Hook now delegates to `.github/hooks/scripts/validate-docs.sh` |
+| Python grouping gaps (signals, middleware, commands, admin, async tasks) | Addressed in current release | Grouping guidance updated in `.github/skills/akr-docs/scripts/akr-groupings.md` and backend instructions |
+| `TEMPLATE_MANIFEST.json` placeholder metadata | Addressed in current release | Governance template entries now have non-zero estimates and explicit mandatory sections |
+| Missing Python monorepo module example | Addressed in current release | Added `examples/modules.python-web-monorepo.yaml`; README cross-references updated |
+| `AKR_CHARTER_UI.md` size/usability concern | Deferred with rationale | Keep current charter as canonical source during pilot; evaluate split/index approach in next documentation tranche |
+| `modules.yaml` file cap (`maxItems: 8`) concern | Deferred with rationale | Keep enforced cap in pilot for context discipline; monitor and revisit post-pilot with evidence |
+| Consolidation workflow dependency on multi-root workspace | Deferred with rationale | Keep current workflow model; onboarding docs continue to describe required workspace topology |
+| `eval-results.json` vs `evals/benchmark.json` clarity | Addressed in current release | Added `evals/README.md` with artifact purpose matrix and data flow |
+| standards version floor not enforced | Already implemented | Enforced in `.akr/schemas/modules-schema.json` and `.akr/scripts/validate_documentation.py` |
+
+### Communication Requirement for New Assessments
+
+When a new finding is logged, include in the PR or issue description:
+
+1. Disposition (`already implemented`, `addressed`, `deferred`).
+2. Proof reference (file path and, when relevant, command or test).
+3. Owner and target milestone for deferred items.
+4. Validation impact (`blocker`, `warning-only`, or `informational`).
+
 ---
 
 ## Status-Aware Validation for Consolidation Repositories

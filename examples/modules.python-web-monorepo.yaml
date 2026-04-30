@@ -1,0 +1,101 @@
+project:
+  name: TrainingTracker_Monorepo
+  layer: Full-Stack
+  standards_version: v1.1.0
+  minimum_standards_version: v1.0.0
+  compliance_mode: pilot
+
+modules:
+  - name: EnrollmentApi
+    grouping_status: draft
+    doc_output: docs/modules/EnrollmentApi_doc.md
+    files:
+      - path: apps/api/enrollment/urls.py
+        tier: primary
+      - path: apps/api/enrollment/views.py
+        tier: primary
+      - path: apps/api/enrollment/services.py
+        tier: primary
+      - path: apps/api/enrollment/forms.py
+        tier: primary
+      - path: apps/api/enrollment/serializers.py
+        tier: primary
+      - path: apps/api/enrollment/models.py
+        tier: primary
+      - path: apps/api/enrollment/repositories.py
+        tier: primary
+      - path: apps/api/enrollment/signals.py
+        tier: supporting
+
+  - name: EnrollmentOperations
+    grouping_status: draft
+    doc_output: docs/modules/EnrollmentOperations_doc.md
+    files:
+      - path: apps/api/enrollment/tasks.py
+        tier: primary
+      - path: apps/api/enrollment/management/commands/sync_enrollment_state.py
+        tier: primary
+      - path: apps/api/enrollment/management/commands/rebuild_course_capacity.py
+        tier: supporting
+      - path: apps/api/enrollment/admin.py
+        tier: supporting
+      - path: apps/api/enrollment/celery_app.py
+        tier: supporting
+      - path: apps/api/enrollment/decorators.py
+        tier: supporting
+
+  - name: LearnerPortal
+    grouping_status: draft
+    doc_output: docs/modules/LearnerPortal_doc.md
+    files:
+      - path: apps/ui/portal/views.py
+        tier: primary
+      - path: apps/ui/portal/services.py
+        tier: primary
+      - path: apps/ui/portal/schemas.py
+        tier: primary
+      - path: apps/ui/portal/helpers.py
+        tier: supporting
+
+  - name: PlatformRuntime
+    grouping_status: draft
+    doc_output: docs/modules/PlatformRuntime_doc.md
+    files:
+      - path: apps/api/platform/middleware.py
+        tier: supporting
+      - path: apps/api/platform/middlewares.py
+        tier: supporting
+      - path: apps/api/platform/logging.py
+        tier: supporting
+      - path: apps/api/platform/auth.py
+        tier: supporting
+
+  - name: SharedContracts
+    grouping_status: draft
+    doc_output: docs/modules/SharedContracts_doc.md
+    files:
+      - path: packages/shared/contracts/course.py
+        tier: supporting
+      - path: packages/shared/contracts/enrollment.py
+        tier: supporting
+      - path: packages/shared/events/enrollment_event.py
+        tier: supporting
+      - path: packages/shared/constants/status_codes.py
+        tier: supporting
+
+database_objects:
+  - name: enrollment
+    type: table
+    purpose: Stores learner enrollment records and lifecycle state
+  - name: enrollment_audit
+    type: table
+    purpose: Stores event history for enrollment state changes
+  - name: course_capacity
+    type: table
+    purpose: Stores enrollment caps and capacity override rules
+
+unassigned:
+  - path: apps/api/manage.py
+    reason: Framework bootstrap entrypoint; intentionally omitted from module ownership
+  - path: apps/api/settings.py
+    reason: Global configuration file; handled as platform configuration

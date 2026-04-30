@@ -1,6 +1,6 @@
 {
     "manifest_version":  "1.1.0",
-    "last_updated":  "2026-04-12",
+    "last_updated":  "2026-05-01",
     "min_mcp_version":  "1.0.0",
     "templates":  [
                       {
@@ -12,10 +12,19 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  14,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Capability Summary",
+                                                     "Business Scope",
+                                                     "End-to-End Behavior (Business View)",
+                                                     "Consolidated Business Rules",
+                                                     "User and Stakeholder Experience",
+                                                     "Field Dictionary (PO/Business View)",
+                                                     "Operational Scenarios",
+                                                     "Known Constraints and Open Items",
+                                                     "Source Evidence",
+                                                     "Change Control"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -30,10 +39,13 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  8,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Overview",
+                                                     "Enhancement Backlog",
+                                                     "Planning Notes",
+                                                     "Future Roadmap"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -48,10 +60,13 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  8,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Overview",
+                                                     "Enhancement Test Summary",
+                                                     "Enhancement Test Details",
+                                                     "Questions and Gaps"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -66,10 +81,14 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  10,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Overview",
+                                                     "Enhancement Activity",
+                                                     "Enhancement Details",
+                                                     "Dependencies and Risks",
+                                                     "Questions and Gaps"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -84,10 +103,13 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  7,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Overview",
+                                                     "External Dependency Map",
+                                                     "Integration Considerations",
+                                                     "Questions and Gaps"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -102,10 +124,13 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  7,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Overview",
+                                                     "Internal Dependency Map",
+                                                     "Coordination Guidance",
+                                                     "Questions and Gaps"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -120,10 +145,13 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  7,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Overview",
+                                                     "Limitation Register",
+                                                     "Monitoring and Follow-up",
+                                                     "Questions and Gaps"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -138,10 +166,13 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  9,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Detailed Test Steps",
+                                                     "Extended Coverage Conditions",
+                                                     "Initial QA Focus Areas",
+                                                     "Maintenance Rules"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -224,10 +255,23 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  16,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Overview",
+                                                     "Implementing Components",
+                                                     "Architecture Overview",
+                                                     "User Workflows",
+                                                     "API Reference",
+                                                     "Data Model",
+                                                     "Security Considerations",
+                                                     "Performance Characteristics",
+                                                     "Testing Strategy",
+                                                     "Deployment & Operations",
+                                                     "Known Issues & Limitations",
+                                                     "Change History",
+                                                     "Related Documentation",
+                                                     "Metadata"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -242,10 +286,24 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  14,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Test Strategy",
+                                                     "Test Coverage Summary",
+                                                     "Happy Path Scenarios",
+                                                     "Edge Cases and Error Scenarios",
+                                                     "UI Testing",
+                                                     "API Testing",
+                                                     "Database Testing",
+                                                     "Integration Testing",
+                                                     "Performance Testing",
+                                                     "Security Testing",
+                                                     "Test Automation",
+                                                     "Test Maintenance",
+                                                     "Traceability",
+                                                     "Change History",
+                                                     "Appendix"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -288,10 +346,21 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  12,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Quick Reference (TL;DR)",
+                                                     "Module Files",
+                                                     "Purpose and Scope",
+                                                     "API Operations",
+                                                     "How It Works",
+                                                     "Integration Context",
+                                                     "Business Rules",
+                                                     "API Contract (AI Context)",
+                                                     "Data Operations",
+                                                     "Failure Modes & Exception Handling",
+                                                     "Questions & Gaps",
+                                                     "Related Documentation"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -364,10 +433,11 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  6,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Reviewer Checklist",
+                                                     "Reviewer Notes"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -382,10 +452,14 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  10,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Review Decision",
+                                                     "Module Review Matrix",
+                                                     "Unassigned File Review",
+                                                     "Reassignment Summary",
+                                                     "Next Actions"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -462,10 +536,13 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  6,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Overview",
+                                                     "Traceability Matrix",
+                                                     "Coverage Notes",
+                                                     "Questions and Gaps"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"
@@ -512,10 +589,22 @@
                           "applicable_to":  [
                                                 "AKR"
                                             ],
-                          "estimated_time_minutes":  0,
+                          "estimated_time_minutes":  14,
                           "complexity":  "standard",
                           "mandatory_sections":  [
-
+                                                     "Quick Reference",
+                                                     "Module Files",
+                                                     "Purpose & Context",
+                                                     "Module Files Detail",
+                                                     "Hook Dependency",
+                                                     "Component Behavior",
+                                                     "Data Flow",
+                                                     "Visual States",
+                                                     "Accessibility",
+                                                     "Testing",
+                                                     "Known Issues",
+                                                     "Questions & Gaps",
+                                                     "Documentation Standards"
                                                  ],
                           "recommended_for":  [
                                                   "Governance inventory"

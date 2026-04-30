@@ -59,16 +59,16 @@ This document catalogues the known constraints accepted for the AKR Phase 1 pilo
 
 ---
 
-## L5 — Python Monorepo Example Not Yet Available
+## L5 — Python Monorepo Example Added (Mitigated)
 
-**Description:** The `examples/modules.python-web-monorepo.yaml` example file for Python all-layers monorepo configurations does not exist in the current release.
+**Description:** The Python all-layers monorepo example is now available at `examples/modules.python-web-monorepo.yaml`.
 
-**Impact:** Python teams using a monorepo layout must manually adapt the existing `examples/akr-config-monorepo.json` and `examples/modules.python-web-api.yaml` examples for their project structure.
+**Impact:** Python teams now have a concrete monorepo modules manifest reference and no longer need to bootstrap from API-only module examples.
 
 **Mitigation:**
-- The `examples/modules.python-web-api.yaml` example covers multi-repo Python API layout and provides a working starting point.
-- `README.md` documents the monorepo adaptation path explicitly with include-pattern guidance.
-- Creating the monorepo example file is tracked for Phase 2.
+- `examples/modules.python-web-monorepo.yaml` provides a baseline for mixed API/UI/shared/infrastructure Python monorepo grouping.
+- `examples/akr-config-monorepo.json` remains the configuration starting point for path mappings and package-level docs output.
+- `README.md` now links both Python API and Python monorepo module examples.
 
 ---
 
@@ -92,5 +92,5 @@ This document catalogues the known constraints accepted for the AKR Phase 1 pilo
 | L2 | Probabilistic instruction compliance | None — validation blocks bad merges | High |
 | L3 | Space indexing instability after provisioning | Space query validation | Medium — IDE skill covers Phase 1 |
 | L4 | QA testing activities out of scope | QA execution and regression validation | Medium — deferred post-PoC |
-| L5 | Python monorepo example missing | None — adaptation path documented | Medium |
+| L5 | Python monorepo example availability gap | None — mitigated with baseline example | Low |
 | L6 | Eval cases not yet run | Post-Space provisioning | Medium — process metrics cover Phase 1 |

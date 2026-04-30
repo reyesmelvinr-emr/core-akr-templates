@@ -93,7 +93,9 @@ For Python web applications:
 - **Monorepo layout**: All application layers (API, UI, database) in a single repository. Use `examples/akr-config-monorepo.json` as a starting point and update include patterns to match your Python package structure (`app/**/*.py`, `{projectname}/**/*.py`).
 - **Multi-repo layout (API backend)**: Python backend repository separate from UI and database repos. Use `examples/akr-config-python-api.json` as a template and configure `crossRepository` linking to your UI repository.
 
-See [examples/modules.python-web-api.yaml](examples/modules.python-web-api.yaml) for a complete Python module grouping example. The `backend-service.instructions.md` includes a Python role mapping table that shows equivalent framework roles (views.py → View Handler, models.py → Domain Entity, etc.).
+See [examples/modules.python-web-api.yaml](examples/modules.python-web-api.yaml) for a multi-repo Python API module grouping example and [examples/modules.python-web-monorepo.yaml](examples/modules.python-web-monorepo.yaml) for an all-layers monorepo module grouping example.
+
+The `backend-service.instructions.md` includes a Python role mapping table that shows equivalent framework roles (views.py → View Handler, models.py → Domain Entity) plus advanced Django operational patterns (signals.py, management commands, admin.py, tasks.py, middleware.py).
 
 Key principle for Python: Skip documenting what the framework defines ("views.py is a view handler") and instead capture business rules, validation gates, and integration context. The Business Rules and Data Operations tables remain mandatory for all backends.
 

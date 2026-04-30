@@ -56,6 +56,36 @@
       "role": "domain_entity",
       "doc_path": "docs/modules/",
       "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/**/signals.py",
+      "role": "event_handler",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/**/management/commands/**/*.py",
+      "role": "operations_task",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/**/tasks.py",
+      "role": "async_processor",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/**/admin.py",
+      "role": "infrastructure_adapter",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
+    },
+    {
+      "source_pattern": "app/**/middleware*.py",
+      "role": "infrastructure_guard",
+      "doc_path": "docs/modules/",
+      "template": "lean_baseline_service_template_module.md"
     }
   ],
   "crossRepository": [

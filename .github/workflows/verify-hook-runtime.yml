@@ -1,0 +1,118 @@
+name: Verify Hook Runtime
+
+on:
+  pull_request:
+    paths:
+      - '.github/hooks/**'
+      - '.github/skills/akr-docs/scripts/validate_documentation.py'
+      - '.akr/schemas/modules-schema.json'
+      - '.akr/scripts/tests/test_governance_contracts.py'
+      - '.github/workflows/verify-hook-runtime.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/hooks/**'
+      - '.github/skills/akr-docs/scripts/validate_documentation.py'
+      - '.akr/schemas/modules-schema.json'
+      - '.akr/scripts/tests/test_governance_contracts.py'
+      - '.github/workflows/verify-hook-runtime.yml'
+
+jobs:
+  verify-hook-runtime:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install --no-cache-dir pyyaml
+
+      - name: Prepare minimal validation fixture
+        run: |
+          mkdir -p docs/modules
+          cat > modules.yaml <<'YAML'
+          project:
+            name: HookRuntimeFixture
+            layer: API
+            standards_version: v1.1.0
+            minimum_standards_version: v1.0.0
+            compliance_mode: pilot
+          modules:
+            - name: HookRuntime
+              grouping_status: approved
+              files:
+                - path: src/hook_runtime.py
+                  tier: primary
+              doc_output: docs/modules/HookRuntime_doc.md
+          database_objects: []
+          unassigned: []
+          YAML
+
+          cat > docs/modules/HookRuntime_doc.md <<'MD'
+          ---
+          businessCapability: CourseCatalogManagement
+          feature: FN00001_US100
+          layer: API
+          project_type: api-backend
+          status: approved
+          compliance_mode: pilot
+          ---
+          <!-- akr-generated
+          skill: akr-docs
+          -->
+
+          ## Overview
+          ok
+
+          ## Quick Reference (TL;DR)
+          ok
+
+          ## Module Files
+          ok
+
+          ## Operations Map
+          ok
+
+          ## Architecture Overview
+          ok
+
+          ## Business Rules
+          ok
+
+          ## Data Operations
+          ok
+
+          ## Questions & Gaps
+          none
+          MD
+
+      - name: Execute hook runtime script in bash
+        run: |
+          bash .github/hooks/scripts/validate-docs.sh
+
+      - name: Assert hook outputs were produced
+        run: |
+          test -f .akr/logs/last-session-ledger.json
+          test -f .akr/logs/last-validation.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          ledger = json.loads(Path('.akr/logs/last-session-ledger.json').read_text(encoding='utf-8'))
+          validation = json.loads(Path('.akr/logs/last-validation.json').read_text(encoding='utf-8'))
+
+          assert 'session_id' in ledger
+          assert 'summary' in validation
+          print('Hook runtime outputs validated.')
+          PY
+
+      - name: Run governance regression tests
+        run: |
+          pytest -q .akr/scripts/tests/test_governance_contracts.py

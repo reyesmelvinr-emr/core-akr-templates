@@ -79,7 +79,12 @@ Tier rules:
    - Data validation: `forms.py` (Django), `schemas.py` (Pydantic/FastAPI), serializers → Validator (`tier=primary`)
    - ORM models: `models.py` (Django) → Domain Entity (`tier=primary`)
    - Repository/data access layer: custom query methods, `repositories.py` → Repository (`tier=primary`)
-   - Shared utilities, decorators, and infrastructure → Shared supporting files (`tier=supporting`)
+    - Django signal handlers: `signals.py` (event-driven handlers) → Supporting by default, promote to primary when domain-critical business workflows are implemented (`tier=supporting` or `tier=primary`)
+    - Django management commands: `management/commands/*.py` (batch/admin operations) → Prefer an Operations module; primary for domain-specific workflows, supporting for operational tooling
+    - Django admin registrations: `admin.py` → Infrastructure-supporting unless business policy logic is embedded (`tier=supporting`)
+    - Async task processors: `tasks.py`, `celery*.py` → Primary for domain workflows, supporting for platform scheduler/configuration
+    - Middleware: `middleware.py`, `middlewares.py` → Shared infrastructure (`tier=supporting`) unless scoped to one domain module
+    - Shared utilities and decorators: `decorators.py`, utility helpers, and infrastructure → Shared supporting files (`tier=supporting`)
 
    **UI pattern** — group when files operate on the same domain noun:
    - `{Noun}Page.tsx` or `{Noun}View.tsx` → Page/container (`tier=primary`)
