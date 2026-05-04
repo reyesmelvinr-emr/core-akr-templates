@@ -34,7 +34,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install --no-cache-dir pyyaml
+        run: pip install --no-cache-dir pyyaml pytest
 
       - name: Prepare minimal validation fixture
         run: |
@@ -120,4 +120,4 @@ jobs:
 
       - name: Run governance regression tests
         run: |
-          pytest -q .akr/scripts/tests/test_governance_contracts.py
+          python -m pytest -q .akr/scripts/tests/test_governance_contracts.py
