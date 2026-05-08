@@ -27,7 +27,11 @@ The developer then runs a single pre-coding skill:
 Step 1:  /akr-capability enhancement-clarify [CapabilityName]   ← run from the application codebase repo
 ```
 
-This skill maps the approved requirements to the actual codebase, surfaces any blockers or assumptions before a single line of code is written, and produces a confirmed **mini-spec** the developer uses to brief the Copilot coding agent.
+After implementation delivery and business/technical acceptance, the developer runs a post-coding review skill:
+
+```
+Step 2:  /akr-capability code-review [CapabilityName]           ← run from the application codebase repo after implementation
+```
 
 After implementation delivery and business/technical acceptance, ownership returns to the PO and TL to run the cycle-close step in the consolidation workflow:
 
@@ -417,7 +421,23 @@ When in doubt, classify upward (treat as Scope-changing rather than Additive).
 │  → Source-repo module docs for components in scope                │
 │                                                                     │
 │  Copilot coding agent proceeds within the confirmed scope         │
-└─────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ /akr-capability code-review [CapabilityName]                        │
+│                                                                     │
+│  → Loads implementation and assesses alignment with mini-spec     │
+│    and enhancements.md                                            │
+│  → Outputs: Alignment findings, improvement items, action plan    │
+│                                                                     │
+│  Address findings:                                                │
+│    - Code fixes if misalignment detected                          │
+│    - Test additions if coverage gaps identified                   │
+│    - Documentation updates if requirements gaps found             │
+│                                                                     │
+│  When findings resolved: proceed to closeout                       │
+└──────────────────────────────┬──────────────────────────────────────┘
                                │
                                ▼
 ┌─────────────────────────────────────────────────────────────────────┐

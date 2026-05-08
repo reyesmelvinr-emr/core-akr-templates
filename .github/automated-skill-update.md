@@ -13,6 +13,7 @@ This automated pull request distributes the latest AKR skill package from core-a
 - .github/skills/akr-capability/SKILL-COMPAT.md
 - .github/skills/akr-capability/scripts/enhancement-clarify.md
 - .github/skills/akr-capability/scripts/capability-define-clarify.md
+- .github/skills/akr-capability/scripts/code-review.md
 
 ### Reviewer Checklist
 - [ ] Confirm SKILL.md version/header matches release tag
@@ -26,8 +27,9 @@ This automated pull request distributes the latest AKR skill package from core-a
 - [ ] Confirm akr-capability SKILL-COMPAT.md is present under .github/skills/akr-capability/
 - [ ] Confirm enhancement-clarify.md mode script is present under .github/skills/akr-capability/scripts/
 - [ ] Confirm capability-define-clarify.md mode script is present under .github/skills/akr-capability/scripts/
+- [ ] Confirm code-review.md mode script is present under .github/skills/akr-capability/scripts/
 - [ ] Confirm CODEOWNERS protects .github/skills/akr-capability/
-- [ ] Confirm ONLY developer-facing akr-capability scripts are distributed to app repos (enhancement-clarify.md and capability-define-clarify.md); PO/TL modes stay in consolidation repo only
+- [ ] Confirm ONLY developer-facing akr-capability scripts are distributed to app repos (enhancement-clarify.md, capability-define-clarify.md, and code-review.md); PO/TL modes stay in consolidation repo only
 
 ### Note
 Hook files must be merged to activate local session validation before CI.

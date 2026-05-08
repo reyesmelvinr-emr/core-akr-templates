@@ -20,7 +20,7 @@ Application repositories receive the assets needed to run module-level documenta
 ## Distributed to Application Repositories
 
 - Skill dispatcher and supporting scripts for workflow execution.
-- The application bundle currently includes `akr-docs`, `akr-interview`, and the developer-facing `akr-capability` modes (`enhancement-clarify` and `capability-define-clarify`) only.
+- The application bundle currently includes `akr-docs`, `akr-interview`, and the developer-facing `akr-capability` modes (`enhancement-clarify`, `capability-define-clarify`, and `code-review`) only.
 - Skill compatibility guidance and hook integrations.
 - Onboarding seed artifacts such as project config and module manifest seeds.
 - Validation workflow definitions used in repository CI.
@@ -40,6 +40,7 @@ Application teams are accountable for:
 - Maintaining module manifests and local documentation outputs.
 - Running the skill workflows with required approvals.
 - Running `enhancement-clarify` before coding when a closed enhancement is handed off from the consolidation repository.
+- Running `code-review` after implementation delivery to assess alignment with the mini-spec and `enhancements.md` before PO/TL closeout.
 - Resolving unknown markers and quality gaps before merge.
 - Operating within the configured compliance mode.
 
@@ -119,7 +120,7 @@ Template impact:
 ## Application Repositories
 
 - Primary purpose: code-proximate module and database documentation.
-- Workflow emphasis: grouping, generation, unknown resolution, local validation, and pre-coding enhancement clarification.
+- Workflow emphasis: grouping, generation, unknown resolution, local validation, pre-coding enhancement clarification, and post-coding implementation review.
 - Control focus: implementation accuracy and standards adherence.
 
 ## Consolidation Repositories

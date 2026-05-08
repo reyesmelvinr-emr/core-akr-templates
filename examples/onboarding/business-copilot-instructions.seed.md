@@ -56,7 +56,7 @@ Capabilities are organized by lifecycle status under `docs/business-capabilities
 ## Skills available
 
 - `/akr-business-consolidation [mode] [CapabilityName]` — cross-repo consolidation skill (capability-consolidation, capability-promote, capability-promote-new, capability-coverage-review, capability-impact-analysis, capability-relationship-mapping, capability-test-maintenance)
-- `/akr-capability [mode] [CapabilityName]` — enhancement assessment and new capability definition skill (enhancement-review, enhancement-review-close, enhancement-test-generation, enhancement-clarify, capability-define-review, capability-define-close, capability-define-clarify)
+- `/akr-capability [mode] [CapabilityName]` — enhancement assessment, new capability definition, and code review skill (enhancement-review, enhancement-review-close, enhancement-test-generation, enhancement-clarify, code-review, capability-define-review, capability-define-close, capability-define-clarify)
 
 ## Validation
 

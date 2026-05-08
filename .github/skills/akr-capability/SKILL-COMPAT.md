@@ -12,7 +12,7 @@ Last updated: 2026-04-18
 | claude-sonnet-4-6 | TBD | TBD | Use explicit mode invocation; review all 🤖 suggestions before accepting routing decision |
 | gpt-5.4 | TBD | TBD | Validate routing decision manually against scoring rubric in mode script |
 
-### Developer modes (enhancement-clarify, capability-define-clarify)
+### Developer modes (enhancement-clarify, capability-define-clarify, code-review)
 | Model | Pass Rate | Known Issues | Workaround |
 |---|---|---|---|
 | claude-sonnet-4-6 | TBD | TBD | Confirm code component map completeness manually if module docs are not tagged; verify discovery classification before accepting |
@@ -26,7 +26,7 @@ Last updated: 2026-04-18
 | coding-agent | Yes | Preferred; produces structured review output written back into enhancements.md |
 | custom-agent | Yes | Use explicit mode naming |
 
-### Developer modes (enhancement-clarify, capability-define-clarify)
+### Developer modes (enhancement-clarify, capability-define-clarify, code-review)
 | Surface | Supported | Notes |
 |---|---|---|
 | coding-agent | Yes | Preferred; run from application codebase repo in a multi-root workspace that also has the consolidation repo open |
@@ -48,6 +48,7 @@ Last updated: 2026-04-18
 - Do not invoke a coding agent for any enhancement whose routing decision is 🚫 Human Developer Required without active developer supervision.
 - `enhancement-clarify` is strictly read-only: it never writes to any file in either repository. Any back-documentation from a discovery found during clarification is performed manually by the TL or PO, not by the skill.
 - `capability-define-clarify` is strictly read-only: it never writes to any file in either repository. Mini-spec remains a chat artifact.
+- `code-review` is strictly read-only: it never writes to any file in either repository. Review results remain a chat artifact.
 - Discovery classification (Informational / Additive / Scope-changing) is proposed by the skill but confirmed by the tri-party team (PO + TL + Developer). The skill must not apply a classification unilaterally.
 - A Scope-changing discovery suspends coding. The ENH-xxx status must be manually reset to `Under Review` before the PO/TL review cycle can be re-run.
 - An Additive discovery allows coding to proceed only after the TL has confirmed the amendment to enhancements.md in writing (chat acknowledgment is sufficient).

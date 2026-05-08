@@ -10,7 +10,9 @@ description: >
   new capability artifacts before coding begins.
   After PO/TL handoff, developer runs enhancement-clarify from the application codebase repo to map
   approved requirements to code, resolve blockers, and produce a confirmed mini-spec before coding begins.
-  Invoke via /akr-capability [enhancement-review | enhancement-review-close | enhancement-test-generation | enhancement-clarify | capability-define-review | capability-define-close | capability-define-clarify] [CapabilityName].
+  After coding, developer runs code-review from the application codebase repo to assess implementation alignment
+  to mini-spec and enhancements.md, identify improvement items, and produce a next-step action plan.
+  Invoke via /akr-capability [enhancement-review | enhancement-review-close | enhancement-test-generation | enhancement-clarify | capability-define-review | capability-define-close | capability-define-clarify | code-review] [CapabilityName].
 disable-model-invocation: true
 compatibility:
   models:
@@ -41,6 +43,7 @@ Load only the mode script required by the command.
 | `/akr-capability enhancement-review-close [CapabilityName]` | `.github/skills/akr-capability/scripts/enhancement-review-close.md` | Confirm review is complete, then strip all review blocks for a clean enhancements.md ready for coding handoff | Consolidation repo |
 | `/akr-capability enhancement-test-generation [CapabilityName]` | `.github/skills/akr-capability/scripts/enhancement-test-generation.md` | Generate tiered Business and Technical test conditions from closed enhancements into enhancement-test-conditions.md | Consolidation repo |
 | `/akr-capability enhancement-clarify [CapabilityName]` | `.github/skills/akr-capability/scripts/enhancement-clarify.md` | Pre-coding developer gate: map closed requirements to code components, surface blockers and assumptions, produce confirmed mini-spec for Copilot coding session | Application codebase repo (multi-root workspace) |
+| `/akr-capability code-review [CapabilityName]` | `.github/skills/akr-capability/scripts/code-review.md` | Post-coding developer review: assess generated code against mini-spec and enhancements.md, report alignment, findings, requirement/documentation gaps, and recommend next actions | Application codebase repo (multi-root workspace) |
 | `/akr-capability capability-define-review [CapabilityName]` | `.github/skills/akr-capability/scripts/capability-define-review.md` | Iteratively assess PO/TL-authored new-capability artifacts and write capability definition review outcomes into index.md | Consolidation repo |
 | `/akr-capability capability-define-close [CapabilityName]` | `.github/skills/akr-capability/scripts/capability-define-close.md` | Validate close-readiness and mark new capability definition as Definition Closed | Consolidation repo |
 | `/akr-capability capability-define-clarify [CapabilityName]` | `.github/skills/akr-capability/scripts/capability-define-clarify.md` | Developer pre-coding clarification for new capabilities (read-only, mini-spec in chat) | Application codebase repo (multi-root workspace) |
@@ -58,17 +61,18 @@ Dispatcher pre-checks:
   "No index.md found for <CapabilityName>. capability-define-review requires index.md as the primary artifact."
 - Additional pre-check for `enhancement-review-close` only: if no `<!-- akr-capability: review-in-progress -->` marker is found in `enhancements.md`, stop and return:
   "No active review blocks found for <CapabilityName>. Run `/akr-capability enhancement-review [CapabilityName]` before closing."
-- Iteration guard for `enhancement-review`: apply the same contract as `harness.iteration_guard.assert_iteration_progress()`.
-  - Maximum 5 review iterations per enhancement loop.
-  - Open gap count must not increase from one iteration to the next.
-  - Routing decision must remain one of: `continue`, `enhancement-review-close`, `enhancement-test-generation`.
-  - If the loop regresses or exceeds the limit, stop and require human intervention before continuing.
 - Additional pre-check for `enhancement-test-generation` only: if any `<!-- akr-capability: review-in-progress -->` marker is still present in `enhancements.md`, stop and return:
   "Enhancement review is still in progress for <CapabilityName>. Run `/akr-capability enhancement-review-close [CapabilityName]` before generating tests."
 - Additional pre-check for `enhancement-clarify` only: if any `<!-- akr-capability: review-in-progress -->` marker is found in `enhancements.md`, or if no ENH-xxx entry has status `Review Closed` in the Enhancement Activity table, stop and return:
   "enhancement-clarify requires all enhancements to have status Review Closed. Run `/akr-capability enhancement-review` → `/akr-capability enhancement-review-close` before running enhancement-clarify."
 - Additional pre-check for `enhancement-clarify` only: confirm that `enhancement-test-conditions.md` exists in the capability folder. If absent, stop and return:
   "enhancement-test-conditions.md not found for <CapabilityName>. Run `/akr-capability enhancement-test-generation [CapabilityName]` before running enhancement-clarify."
+- Additional pre-check for `code-review` only: if status is not `active`, stop and return:
+  "code-review is only available for active capabilities. <CapabilityName> is currently <status>."
+- Additional pre-check for `code-review` only: if `enhancements.md` is absent in the capability folder, stop and return:
+  "No enhancements.md found for <CapabilityName>. code-review requires the closed enhancement requirements as the review baseline."
+- Additional pre-check for `code-review` only: if no ENH-xxx entry has status `Review Closed` in the Enhancement Activity table, stop and return:
+  "No Review Closed enhancements found for <CapabilityName>. Complete enhancement review/close before code-review."
 - Additional pre-check for `capability-define-close` only: if no `#### Capability Definition Review` block is found in `index.md`, stop and return:
   "No capability definition review blocks found for <CapabilityName>. Run `/akr-capability capability-define-review [CapabilityName]` before closing."
 - Additional pre-check for `capability-define-clarify` only: if `index.md` does not contain `definition_status: Definition Closed`, or still contains open `#### Capability Definition Review` blocks, stop and return:
@@ -79,6 +83,7 @@ Dispatcher pre-checks:
 `enhancement-review` and `enhancement-review-close` modify only `enhancements.md`.
 `enhancement-test-generation` modifies only `enhancement-test-conditions.md` (creating it if absent).
 `enhancement-clarify` **does not modify any file**. All output is in-chat only. The mini-spec produced is a chat artifact and is never written to a repository file.
+`code-review` **does not modify any file**. All output is in-chat only.
 
 ## Required Metadata and Governance
 
