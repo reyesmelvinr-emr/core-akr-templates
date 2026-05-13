@@ -84,3 +84,7 @@ Capture dependencies or constraints that could affect delivery.
 ## Questions and Gaps
 
 - ❓ NEEDS
+
+## Acceptance Criteria
+
+<!-- populated by enhancement-review-close -->

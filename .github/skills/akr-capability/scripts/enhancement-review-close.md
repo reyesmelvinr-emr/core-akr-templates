@@ -120,7 +120,7 @@ After promoting resolved content, for each ENH-xxx entry in `enhancements.md`:
 In the YAML front matter block at the top of `enhancements.md`, apply the following updates:
 
 - Set `status` to `review-complete` (replacing any prior value such as `draft`).
-- Set the `<!-- steps-completed: N -->` comment to reflect the total number of steps completed in this close execution (count Steps 1–10 that executed without being skipped).
+- Set the `<!-- steps-completed: N -->` comment to reflect the total number of steps completed in this close execution (count Steps 1–12 that executed without being skipped).
 - Set the `<!-- generated-at: ... -->` comment to the current UTC date and time in ISO 8601 format (e.g., `generated-at: 2026-04-22T00:00:00Z`). Replace any placeholder value such as `NEEDS`.
 
 #### 10b: Add close record to Enhancement Activity table
@@ -130,11 +130,47 @@ In the Enhancement Activity summary table at the top of `enhancements.md`, updat
 - Set the Status column to `Review Closed` if it was previously set to a review-in-progress value.
 - Leave all other columns unchanged.
 
-### Step 11: Confirm completion
+### Step 11: Generate and append Acceptance Criteria section
+
+Using the finalized Business Requirements and any resolved Q&G items now incorporated into requirements (as settled in Steps 6–7), derive 2–5 concise acceptance criteria per closed ENH-xxx entry.
+
+#### Criteria authorship rules
+
+- Use **declarative style** (`The system shall ...` / `The user can ...`) for state-based requirements — those that define data, persistence, structure, or a stable capability condition.
+- Use **Given/When/Then style** for behavioral requirements — those that define user-triggered actions, event-response flows, or conditional system behavior.
+- Apply whichever style best fits each individual criterion; mixing styles within the same ENH-xxx subsection is acceptable.
+- Criteria must remain at the user-story level of detail. Do not restate test-condition-level specifics from `enhancement-test-conditions.md`. The criterion must be verifiable from an observable outcome, not from a test step.
+
+#### Section structure
+
+Append the following block at the very end of `enhancements.md` (after all other sections):
+
+```
+## Acceptance Criteria
+
+### ENH-xxx: <Enhancement Title>
+
+- <criterion 1>
+- <criterion 2>
+- ...
+
+### ENH-yyy: <Enhancement Title>
+
+- <criterion 1>
+- ...
+```
+
+#### Re-run safety
+
+- If a `## Acceptance Criteria` section already exists in `enhancements.md` (from a prior partial close or re-run), do **not** replace it wholesale.
+- Instead, append only new ENH-xxx subsections for enhancements closed in this execution. Leave existing subsections intact.
+- If the same ENH-xxx subsection already exists, skip it and note the skip in chat.
+
+### Step 12: Confirm completion
 
 State in chat:
 
-> "Review blocks have been removed from `enhancements.md` for <CapabilityName>. Resolved items have been incorporated into requirements and cleaned from `## Questions and Gaps` and `## Dependencies and Risks`. The file is now clean and ready for coding handoff. Final routing decisions:"
+> "Review blocks have been removed from `enhancements.md` for <CapabilityName>. Resolved items have been incorporated into requirements and cleaned from `## Questions and Gaps` and `## Dependencies and Risks`. An `## Acceptance Criteria` section has been appended with criteria for each closed enhancement. The file is now clean and ready for coding handoff. Final routing decisions:"
 >
 > [repeat the routing decision list from Step 5]
 >

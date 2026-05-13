@@ -28,7 +28,7 @@ If no closed enhancement exists, stop and return:
 
 ## Inputs
 
-- `enhancements.md` (required baseline)
+- `enhancements.md` (required baseline, including the `## Acceptance Criteria` section if present)
 - `enhancement-test-conditions.md` (if available)
 - `index.md`, `limitations.md`, dependency maps (if available)
 - Source code and module docs in the application repo
@@ -49,6 +49,7 @@ From `enhancements.md`, extract for each closed ENH-xxx:
 - Technical requirements
 - Implementation scope update/new artifacts
 - Constraints and out-of-scope statements
+- Acceptance criteria from the `## Acceptance Criteria` section (if the section exists; if absent, note this and continue — it is not a blocking condition for older capabilities)
 
 If mini-spec is provided, extract:
 
@@ -70,6 +71,13 @@ Assess each requirement as:
 - **Partially aligned**
 - **Not aligned**
 - **Not assessable** (with reason)
+
+After the BR/TR alignment pass, if the `## Acceptance Criteria` section was extracted in Step 1, perform an **Acceptance Criteria alignment pass** for each ENH-xxx: assess each criterion as:
+
+- **Met** — the implementation satisfies the criterion with verifiable evidence
+- **Partially met** — the implementation satisfies the criterion only under limited conditions or with gaps
+- **Not met** — the implementation does not satisfy the criterion
+- **Not verifiable** — insufficient information in the current workspace session to assess (state reason)
 
 ### Step 4 - Findings review (code-review mindset)
 
@@ -110,6 +118,9 @@ Produce a practical action sequence for developer/TL including:
 Return the following sections in this order:
 
 1. **Alignment With Mini-Spec And enhancements.md**
+   1b. **Acceptance Criteria Alignment** *(include only if the `## Acceptance Criteria` section was present in `enhancements.md`; omit this sub-section entirely otherwise)*
+       - For each ENH-xxx, list each criterion and its verdict (Met / Partially met / Not met / Not verifiable) with a brief code reference as evidence.
+       - If all criteria are Met, state: "All acceptance criteria met."
 2. **Code Improvement Items**
 3. **Gaps That Should Have Been Called Out Earlier**
 4. **Recommended Action Plan For Developer**
