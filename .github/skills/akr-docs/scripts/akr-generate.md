@@ -169,12 +169,47 @@ Compress into a forward payload summary (~400 tokens). Carry only:
 
 Record `stage_source_extraction_start = now_utc` before reading any source file.
 
+Initialize deterministic scope counters before reading sources:
+```
+scope_counters = {
+  files_read_in_scope: 0,
+  files_skipped_out_of_scope: 0
+}
+```
+
 Read module `files:` from `modules.yaml` using backward-compatible parsing:
 - If entry is string, treat as `path` with implicit `tier=primary`.
 - If entry is object, read `path` and `tier`.
 
+Resolve target module source roots using strict allowlist order:
+1. Match target module by id/name from `modules.yaml`.
+2. If `components[].path` exists for that module (compatibility mode), treat those paths as roots.
+3. Otherwise, use module `files[].path` entries.
+4. Never include paths from other modules.
+
+Path resolver contract:
+- If an allowlisted path is a file, include it only when extension is in:
+  - `.js`, `.jsx`, `.ts`, `.tsx`, `.py`, `.java`, `.go`
+  - `.cs`, `.csx`, `.vb`, `.fs`, `.fsx`, `.razor`, `.cshtml`, `.xaml`
+  - `.csproj`, `.fsproj`, `.vbproj`, `.sln`, `.props`, `.targets`
+- If an allowlisted path is a directory, recurse only under that directory and include only files with the allowed extensions.
+- Explicitly exclude files/folders from evidence extraction:
+  - `docs/` directories
+  - `.md`, `.mmd`, `.txt`, `.rst` files
+  - generated documentation outputs and draft outputs
+- If an allowlisted path does not exist, record a Questions and Gaps item and continue.
+
+Workspace scan policy:
+- Never perform workspace-wide scanning to find related context.
+- Cross-module context is disabled by default.
+- Optional override: `--allow-cross-module-context`.
+- Without that flag, any attempted read outside allowlisted roots is a blocking policy violation.
+- On out-of-scope candidate discovery, skip the file, increment `scope_counters.files_skipped_out_of_scope`, and log `skipped_file_out_of_scope`.
+
 Then read only files where `tier=primary` for documentation generation.
 Supporting files remain in `modules.yaml` for coding-assistance context and must not be used as primary documentation evidence.
+
+For each successfully read in-scope evidence file, increment `scope_counters.files_read_in_scope`.
 
 Build a structured facts payload — no raw file content forward:
 
@@ -192,6 +227,10 @@ facts = {
 ```
 
 Record `stage_timers.source_extraction_seconds = now_utc - stage_source_extraction_start` after the structured facts payload is complete.
+
+Deterministic fallback rule:
+- Missing or ambiguous details must become unresolved `❓`/`DEFERRED` callouts in the draft.
+- Do not launch additional searches beyond the source allowlist.
 
 ---
 
@@ -316,6 +355,7 @@ Surface draft path in chat and include this confirmation prompt payload:
 - `Final path: {doc_output_path}`
 - `Total draft generation time: {draft_generation_seconds}s`
 - Stage breakdown: `preflight {N}s | template-fetch {N}s ({hit|miss}) | charter-fetch {N}s ({hit|miss}) | source-extraction {N}s | assembly {N}s | write {N}s`
+- Scope counters: `files_read_in_scope {N} | files_skipped_out_of_scope {N}`
 
 If `draft_output_path` and `doc_output_path` differ, explicitly warn that finalize will promote content to a different path.
 
@@ -609,6 +649,10 @@ Stage breakdown:
   source-extraction:  {N}s
   assembly:           {N}s
   write:              {N}s
+
+Scope counters:
+  files-read-in-scope:       {N}
+  files-skipped-out-of-scope:{N}
 
 Inline validation: {✅ PASSED / ❌ FAILED — N errors}
   Warnings: {N} (resolve before production graduation)

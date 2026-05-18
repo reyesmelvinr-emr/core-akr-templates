@@ -65,6 +65,26 @@ Prerequisite reminder for `/akr-docs refresh-assets`: GitHub MCP server must be 
 - `refresh-assets` and `update-cache` runs require at most 2 `@github` calls total: 1 template fetch and 1 charter fetch. With `--template-only` or `--charter-only`, require only 1 `@github` call.
 - `cache-status` requires 0 `@github` calls.
 
+## Source Scope Contract (generate mode)
+
+Generate-mode evidence extraction must remain deterministic and module-scoped.
+
+- Source evidence must come only from the target module entry in `modules.yaml` matched by module id/name.
+- Allowed read set for evidence extraction:
+  - `modules.yaml`
+  - target-module component paths (`components[].path`) when present in upstream manifests
+  - otherwise, target-module `files[].path` entries (or legacy string entries)
+  - template and charter assets required by mode
+- Forbidden read set for evidence extraction:
+  - `docs/**` (including generated drafts)
+  - `README*.md` and architecture/planning markdown files
+  - any other module's component/file paths
+- If evidence is missing in the allowlisted paths, record unresolved `❓` callouts in Questions and Gaps. Do not broaden search beyond the allowlist.
+- If a candidate file is outside the target-module allowlist, skip and log `skipped_file_out_of_scope`.
+- Generate-mode summaries must include deterministic scope counters:
+  - `files_read_in_scope`
+  - `files_skipped_out_of_scope`
+
 ## Cache Key Encoding Contract
 
 All cache filenames under `.akr/cache/` must use the same deterministic encoding.
