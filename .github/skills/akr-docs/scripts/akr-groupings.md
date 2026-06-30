@@ -6,6 +6,8 @@
 
 Scan project source files and produce a `modules.yaml` manifest grouping files by domain noun.
 
+Default operating mode: capability-first grouping for consistency across codebases. If a repository provides an approved capability vocabulary (for example, `docs/*BUSINESS_CAPABILITIES*.md`), module names must use those capability names exactly.
+
 `modules.yaml` must include both `tier=primary` and `tier=supporting` files for each module so coding assistance can use full module context. Documentation generation scope remains `tier=primary` only.
 
 Token budget: 0-1 `@github` calls.
@@ -59,11 +61,40 @@ Tier rules:
 - `modules.yaml` is the full module context contract (primary + supporting) for coding assistance workflows.
 - Documentation generation must analyze only `tier=primary` files.
 
+Consistency rules:
+- Prefer functionality/capability module names over technical-layer names (`Api`, `Core`, `Data`, `Worker`).
+- Use one capability per module unless an explicit merge rule applies (see Admin consolidation rule below).
+- Keep file-entry format strict object-form only (`path` + `tier`); do not emit legacy string-only file entries.
+
+Capability vocabulary source priority:
+1. Repository canonical capability file (for example `docs/STAM_BUSINESS_CAPABILITIES.md`, or `docs/*BUSINESS_CAPABILITIES*.md`).
+2. Existing approved module names in `modules.yaml`.
+3. Domain noun inference from code structure.
+
+If capability aliases are encountered, normalize before writing `modules.yaml`:
+- `ApprovalWorkflow` -> `ApprovalWorkflowManagement`
+- `ReportingAndAnalytics` -> `OperationalReporting`
+- `AdminAccessManagement` -> `UserAccessAdministration`
+- `ExternalPartnerIntegration` -> `SupplierManagement` (supplier-context only)
+
 ## Grouping Algorithm
 
 1. Check for existing `modules.yaml`. If present, read `grouping_status` for each module. Do not touch modules with `grouping_status: approved`. Only propose additions or changes to `draft` modules.
 
+  Approved-module override:
+  - If the user explicitly requests a full regroup or re-baselining, approved modules may be rewritten only after explicit confirmation in chat.
+  - When using this override, set regrouped modules to `grouping_status: draft` and include a reviewer note that prior approvals were intentionally reset.
+
 2. Scan source files. Apply these assignment rules in order:
+
+  **Capability-first rule (applies to all project types):**
+  - When an approved capability vocabulary is available, group by capability first, then map domain nouns to that capability.
+  - Do not create mixed technical-layer modules such as `ApiCoreService`, `CoreDomain`, `DataAccess` when functional capability groupings are possible.
+  - Do not split one capability into multiple modules unless ownership/release boundaries are explicitly separate.
+
+  **Admin consolidation rule:**
+  - Consolidate User/Group/Role/Permission into one `UserAccessAdministration` module by default.
+  - Split into separate modules only when explicit repo evidence shows independent ownership or independent release cadence.
 
    **Backend pattern (C#/.NET)** — group into one module when files share the same domain noun:
    - `{Noun}Controller.cs` → Controller role (`tier=primary`)
@@ -102,6 +133,18 @@ Tier rules:
 
   For every assigned file, write an explicit file entry in `modules.yaml` with `path` and `tier`.
 
+  Deterministic assignment tie-breakers (when a file could match multiple modules):
+  1. Match controller/route namespace first.
+  2. Then match service interface/implementation namespace.
+  3. Then repository namespace.
+  4. Then model/entity namespace.
+  5. If still ambiguous, assign to nearest existing capability module and add rationale in `unassigned` only when no reliable owner exists.
+
+  Duplicate ownership rule:
+  - Non-UI-component files must have a single owning module.
+  - UI component files may be reused across multiple UI modules per the shared-component rule.
+  - If duplication is unavoidable for backend/shared infrastructure, assign a single canonical owner module and reference dependency in notes instead of duplicating file entries.
+
 3. Supporting-only module handling (documentation scope):
   - For SUMMARY_V2 output, include only modules that have at least one `tier=primary` file.
   - If a module has zero `tier=primary` files, exclude it from the `modules` list in SUMMARY_V2.
@@ -135,13 +178,18 @@ Tier rules:
    - Shared infrastructure with no clear domain noun → "Shared infrastructure, group manually"
    - SQL/migration files → "Database artifact, belongs in database_objects"
 
-6. **Max files per module:** Aim for 4-7. At 8 files, add a warning note in reviewer output and set `max_files: 8` explicitly where that field is used by downstream validators. The declared max is the enforced limit.
+6. **Max files per module:** Aim for 4-7. At 8 files, add a warning note in reviewer output. Do not add non-schema fields (for example `max_files`) to `modules.yaml`.
 
 7. **Platform/shared files:** If 2+ files serve cross-cutting infrastructure (middleware, DbContext, startup), group them into a `Runtime` or `Platform` module.
 
 ## Output Steps
 
 1. Write `modules.yaml` to project root.
+
+Deterministic output formatting:
+- Order modules by canonical capability list order when available; otherwise sort by module name (A-Z).
+- Within each module, list `tier=primary` entries first, then `tier=supporting`, each subgroup sorted by `path` ascending.
+- Keep `doc_output` naming stable and repository-consistent. If an existing pattern is present in `modules.yaml`, preserve it.
 2. Display a **Grouping Review Summary** block in chat using nested YAML (SUMMARY_V2):
 
    ```yaml
@@ -191,10 +239,14 @@ Tier rules:
 ## Checklist Before Completing
 
 - [ ] No approved module was modified
+- [ ] Grouping is capability-first (not technical-layer-first) when capability vocabulary is available
 - [ ] All module names reflect domain language (nouns, not verbs)
+- [ ] Module names use approved canonical capability values when provided by the repository
 - [ ] Shared component files (from `components/`) may appear in multiple screen modules; all other files (hooks, services, utilities) must not be duplicated across non-shared modules
+- [ ] Non-UI-component files have single-module ownership (no duplicates across modules)
 - [ ] A dedicated shared module (e.g. `CommonComponents`) exists as the canonical owner of shared component files
 - [ ] Every `modules.yaml` file entry uses object form with `path` and `tier` (`primary` or `supporting`)
+- [ ] No legacy string-only file entries were emitted
 - [ ] Each module in SUMMARY_V2 has at least one `tier=primary` file
 - [ ] Supporting-only modules are excluded from SUMMARY_V2 and listed in `merge_recommendations`
 - [ ] Scaffold files are in unassigned with deletion recommendation
